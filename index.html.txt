@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Captain FX — Managed Forex Trading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1420;
+    --bg-2:#0B0F18;
+    --panel:#141B2A;
+    --line:#232C40;
+    --line-soft:#1B2334;
+    --text:#ECEEF3;
+    --muted:#8792A8;
+    --muted-2:#5E6A82;
+    --gold:#C6A15B;
+    --gold-dim:#8C7440;
+    --profit:#5CB98A;
+    --loss:#DB6B5C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:'Fraunces',serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 32px;}
+  @media(max-width:640px){.wrap{padding:0 20px;}}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(14,20,32,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:76px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-size:20px;font-weight:600;letter-spacing:0.2px;}
+  .brand .mark{
+    width:28px;height:28px;border:1px solid var(--gold);border-radius:2px;
+    display:flex;align-items:center;justify-content:center;color:var(--gold);
+    font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;
+  }
+  .navlinks{display:flex;gap:36px;font-size:14.5px;color:var(--muted);}
+  .navlinks a:hover{color:var(--text);}
+  .navcta{display:flex;gap:12px;align-items:center;}
+  .btn{
+    padding:10px 20px;border-radius:3px;font-size:14px;font-weight:500;
+    border:1px solid var(--line);cursor:pointer;transition:border-color .15s, background .15s;
+  }
+  .btn-ghost{color:var(--text);}
+  .btn-ghost:hover{border-color:var(--muted);}
+  .btn-gold{background:var(--gold);color:#161008;border:1px solid var(--gold);}
+  .btn-gold:hover{background:#D6B06C;}
+  .navmobile{display:none;}
+  @media(max-width:860px){
+    .navlinks{display:none;}
+    .btn-ghost.login-desktop{display:none;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:96px 0 72px;
+    border-bottom:1px solid var(--line-soft);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:1.15fr 0.85fr;gap:64px;align-items:end;
+  }
+  @media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:48px;}}
+  .eyebrow{
+    color:var(--gold);font-size:13.5px;font-weight:500;
+    display:flex;align-items:center;gap:10px;margin-bottom:22px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--profit);box-shadow:0 0 0 3px rgba(92,185,138,0.15);}
+  h1{
+    font-family:'Fraunces',serif;font-weight:500;
+    font-size:clamp(38px,5.2vw,60px);
+    line-height:1.08;letter-spacing:-0.5px;
+    margin-bottom:22px;
+  }
+  h1 em{font-style:italic;color:var(--gold);font-weight:400;}
+  .hero-sub{
+    color:var(--muted);font-size:17px;max-width:480px;line-height:1.65;margin-bottom:34px;
+  }
+  .hero-actions{display:flex;gap:14px;margin-bottom:8px;}
+  .hero-actions .btn{padding:14px 26px;font-size:15px;}
+
+  .ledger-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:4px;
+    padding:28px;
+  }
+  .ledger-card .lc-title{font-size:12.5px;color:var(--muted-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;}
+  .lc-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:14px 0;border-top:1px solid var(--line-soft);
+  }
+  .lc-row:first-of-type{border-top:none;}
+  .lc-label{color:var(--muted);font-size:14px;}
+  .lc-value{font-family:'IBM Plex Mono',monospace;font-size:16px;letter-spacing:0.2px;}
+  .lc-value.gold{color:var(--gold);}
+  .lc-note{margin-top:18px;font-size:12.5px;color:var(--muted-2);line-height:1.6;}
+
+  /* ---------- stats strip ---------- */
+  .stats{border-bottom:1px solid var(--line-soft);}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);}
+  .stat{
+    padding:34px 32px;border-left:1px solid var(--line-soft);
+  }
+  .stat:first-child{border-left:none;padding-left:0;}
+  @media(max-width:640px){
+    .stats-row{grid-template-columns:1fr;}
+    .stat{border-left:none;border-top:1px solid var(--line-soft);padding-left:0;}
+    .stat:first-child{border-top:none;}
+  }
+  .stat-num{font-family:'Fraunces',serif;font-size:34px;color:var(--gold);margin-bottom:6px;}
+  .stat-label{color:var(--muted);font-size:14px;}
+
+  /* ---------- section shell ---------- */
+  section{padding:88px 0;border-bottom:1px solid var(--line-soft);}
+  .sec-head{display:grid;grid-template-columns:0.6fr 1fr;gap:48px;margin-bottom:56px;}
+  @media(max-width:760px){.sec-head{grid-template-columns:1fr;gap:16px;}}
+  .sec-tag{color:var(--gold-dim);font-size:13px;font-weight:500;}
+  .sec-tag span{color:var(--gold);}
+  h2{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(26px,3.4vw,36px);letter-spacing:-0.3px;line-height:1.2;}
+  .sec-desc{color:var(--muted);font-size:15.5px;max-width:460px;line-height:1.7;}
+
+  /* ---------- how it works: ledger rows ---------- */
+  .steps{border-top:1px solid var(--line);}
+  .step{
+    display:grid;grid-template-columns:70px 1fr 1.3fr;gap:32px;
+    padding:30px 0;border-bottom:1px solid var(--line);
+    align-items:start;
+  }
+  @media(max-width:760px){.step{grid-template-columns:44px 1fr;}
+    .step .step-desc{grid-column:2/3;margin-top:6px;}}
+  .step-num{font-family:'IBM Plex Mono',monospace;color:var(--gold-dim);font-size:14px;padding-top:4px;}
+  .step-title{font-family:'Fraunces',serif;font-size:20px;font-weight:500;}
+  .step-desc{color:var(--muted);font-size:14.5px;line-height:1.65;}
+
+  /* ---------- calculator ---------- */
+  .calc{
+    display:grid;grid-template-columns:1fr 1fr;gap:0;
+    border:1px solid var(--line);border-radius:4px;overflow:hidden;
+  }
+  @media(max-width:760px){.calc{grid-template-columns:1fr;}}
+  .calc-in{padding:40px;border-right:1px solid var(--line);background:var(--panel);}
+  @media(max-width:760px){.calc-in{border-right:none;border-bottom:1px solid var(--line);}}
+  .calc-out{padding:40px;background:var(--bg-2);}
+  .field-label{font-size:13px;color:var(--muted);margin-bottom:10px;}
+  .amount-display{
+    font-family:'Fraunces',serif;font-size:44px;color:var(--gold);margin-bottom:18px;
+  }
+  input[type=range]{
+    width:100%;accent-color:var(--gold);height:2px;background:var(--line);
+  }
+  .calc-scale{display:flex;justify-content:space-between;color:var(--muted-2);font-size:12px;margin-top:8px;}
+  .split-bar{display:flex;height:10px;border-radius:2px;overflow:hidden;margin:28px 0 14px;}
+  .split-client{background:var(--gold);}
+  .split-mgr{background:var(--line);}
+  .split-legend{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);}
+  .split-legend .k1{color:var(--gold);}
+  .calc-example{margin-top:26px;padding-top:22px;border-top:1px solid var(--line-soft);font-size:13px;color:var(--muted-2);line-height:1.7;}
+  .out-row{display:flex;justify-content:space-between;padding:15px 0;border-top:1px solid var(--line-soft);}
+  .out-row:first-child{border-top:none;padding-top:0;}
+  .out-label{color:var(--muted);font-size:14.5px;}
+  .out-value{font-family:'IBM Plex Mono',monospace;font-size:17px;}
+  .out-value.hi{color:var(--gold);font-size:20px;}
+  .calc-warn{
+    margin-top:24px;padding:14px 16px;background:rgba(198,161,91,0.07);
+    border:1px solid rgba(198,161,91,0.25);border-radius:3px;
+    font-size:12.5px;color:var(--gold);line-height:1.6;
+  }
+
+  /* ---------- performance ---------- */
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-weight:500;color:var(--muted-2);font-size:12.5px;
+    padding-bottom:14px;border-bottom:1px solid var(--line);
+  }
+  thead th:not(:first-child), tbody td:not(:first-child){text-align:right;}
+  tbody td{padding:18px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px;}
+  tbody tr td:first-child{font-family:'Fraunces',serif;font-size:15px;}
+  .perf-val{font-family:'IBM Plex Mono',monospace;}
+  .perf-val.up{color:var(--profit);}
+  .bar-cell{position:relative;}
+  .bar-track{height:6px;background:var(--line-soft);border-radius:2px;overflow:hidden;margin-top:6px;}
+  .bar-fill{height:100%;background:var(--gold);}
+
+  /* ---------- risk band ---------- */
+  .risk{background:var(--bg-2);}
+  .risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;}
+  @media(max-width:760px){.risk-grid{grid-template-columns:1fr;gap:32px;}}
+  .risk h3{font-family:'Fraunces',serif;font-size:18px;font-weight:500;margin-bottom:10px;color:var(--gold);}
+  .risk p{color:var(--muted);font-size:14px;line-height:1.75;}
+
+  /* ---------- faq ---------- */
+  .faq-item{border-bottom:1px solid var(--line-soft);}
+  .faq-q{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 0;cursor:pointer;font-family:'Fraunces',serif;font-size:17px;font-weight:500;
+  }
+  .faq-q .plus{color:var(--gold-dim);font-family:'IBM Plex Mono',monospace;font-size:18px;transition:transform .2s;}
+  .faq-item.open .faq-q .plus{transform:rotate(45deg);color:var(--gold);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .faq-a p{color:var(--muted);font-size:14.5px;line-height:1.7;padding-bottom:22px;max-width:640px;}
+
+  /* ---------- footer ---------- */
+  footer{padding:56px 0 40px;}
+  .foot-grid{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;margin-bottom:36px;}
+  .foot-links{display:flex;gap:28px;font-size:13.5px;color:var(--muted);flex-wrap:wrap;}
+  .foot-links a:hover{color:var(--text);}
+  .foot-bottom{padding-top:24px;border-top:1px solid var(--line-soft);font-size:12.5px;color:var(--muted-2);line-height:1.7;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><span class="mark">FX</span>Captain FX</div>
+    <nav class="navlinks">
+      <a href="#how">How it works</a>
+      <a href="#calculator">Calculator</a>
+      <a href="#performance">Performance</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="navcta">
+      <a class="btn btn-ghost login-desktop" href="#">Client login</a>
+      <a class="btn btn-gold" href="#">Create account</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:96px;border-bottom:1px solid var(--line-soft);">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> Trading desk open — September 2026 cycle</div>
+      <h1>Your capital, our<br>desk, <em>one shared</em><br>outcome.</h1>
+      <p class="hero-sub">Captain FX manages client capital on the forex markets under a fixed 60/40 profit split. No flat fees, no management charges — we only earn when your account does.</p>
+      <div class="hero-actions">
+        <a class="btn btn-gold" href="#">Create account</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+    </div>
+    <div class="ledger-card">
+      <div class="lc-title">Sample account · illustrative</div>
+      <div class="lc-row"><span class="lc-label">Deposited capital</span><span class="lc-value">$500.00</span></div>
+      <div class="lc-row"><span class="lc-label">August result</span><span class="lc-value" style="color:var(--profit)">+$100.00</span></div>
+      <div class="lc-row"><span class="lc-label">Your share (60%)</span><span class="lc-value gold">$60.00</span></div>
+      <div class="lc-row"><span class="lc-label">Closing balance</span><span class="lc-value">$560.00</span></div>
+      <div class="lc-note">Figures are illustrative only. Actual results vary month to month and losses are possible — see Risk Disclosure below.</div>
+    </div>
+  </div>
+</section>
+
+<section class="stats" style="padding:0;border-bottom:1px solid var(--line-soft);">
+  <div class="wrap stats-row">
+    <div class="stat"><div class="stat-num">$100</div><div class="stat-label">Minimum deposit</div></div>
+    <div class="stat"><div class="stat-num">60%</div><div class="stat-label">Client profit share</div></div>
+    <div class="stat"><div class="stat-num">Monthly</div><div class="stat-label">Settlement cycle</div></div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">How it <span>works</span></div>
+      <div>
+        <h2>From deposit to settlement, in four steps.</h2>
+        <p class="sec-desc">Every account follows the same process. Nothing is settled until the month closes and the actual trading result is verified.</p>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Create your account</div>
+        <div class="step-desc">Register with your details and verify your email. Two-factor authentication is available and recommended.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Deposit capital</div>
+        <div class="step-desc">Send a minimum of $100 in USDT (TRC20) to your account's deposit address. Funds are credited once the transaction is confirmed on-chain — not before.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Capital is traded</div>
+        <div class="step-desc">Your funds are deployed on the forex markets under the desk's agreed trading structure for the remainder of the cycle.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Monthly settlement</div>
+        <div class="step-desc">At month end, the actual trading result — profit or loss — is calculated and split 60% to you, 40% to the desk. Statements are issued automatically.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="calculator">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Profit <span>split</span></div>
+      <div>
+        <h2>See how a result would split.</h2>
+        <p class="sec-desc">Move the slider to model a trading result. This does not predict or guarantee any outcome — it only shows how the 60/40 split applies.</p>
+      </div>
+    </div>
+    <div class="calc">
+      <div class="calc-in">
+        <div class="field-label">Modeled monthly trading result</div>
+        <div class="amount-display">$<span id="amtOut">100</span></div>
+        <input type="range" id="amtSlider" min="-200" max="1000" step="10" value="100">
+        <div class="calc-scale"><span>-$200</span><span>$1,000</span></div>
+        <div class="split-bar">
+          <div class="split-client" style="width:60%"></div>
+          <div class="split-mgr" style="width:40%"></div>
+        </div>
+        <div class="split-legend">
+          <span class="k1">Client · 60%</span>
+          <span>Desk · 40%</span>
+        </div>
+      </div>
+      <div class="calc-out">
+        <div class="out-row"><span class="out-label">Trading result</span><span class="out-value" id="outResult">$100.00</span></div>
+        <div class="out-row"><span class="out-label">Your share (60%)</span><span class="out-value hi" id="outClient">$60.00</span></div>
+        <div class="out-row"><span class="out-label">Desk share (40%)</span><span class="out-value" id="outMgr">$40.00</span></div>
+        <div class="calc-warn">This is a modeling tool, not a forecast. Forex trading carries risk of loss. A negative result is split the same way a profit is — see Risk Disclosure.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="performance">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Verified <span>performance</span></div>
+      <div>
+        <h2>Monthly results, as they closed.</h2>
+        <p class="sec-desc">Only settled, verified results are published here. Past performance does not guarantee future results.</p>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Month</th><th>Trading result</th><th>Client 60%</th><th>Desk 40%</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>January</td>
+          <td class="bar-cell"><span class="perf-val up">+$500</span><div class="bar-track"><div class="bar-fill" style="width:62%"></div></div></td>
+          <td class="perf-val">$300</td><td class="perf-val">$200</td>
+        </tr>
+        <tr>
+          <td>February</td>
+          <td class="bar-cell"><span class="perf-val up">+$350</span><div class="bar-track"><div class="bar-fill" style="width:43%"></div></div></td>
+          <td class="perf-val">$210</td><td class="perf-val">$140</td>
+        </tr>
+        <tr>
+          <td>March</td>
+          <td class="bar-cell"><span class="perf-val up">+$620</span><div class="bar-track"><div class="bar-fill" style="width:77%"></div></div></td>
+          <td class="perf-val">$372</td><td class="perf-val">$248</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="risk">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Before you <span>deposit</span></div>
+      <div>
+        <h2>Understand the arrangement.</h2>
+        <p class="sec-desc">Three things worth reading before you fund an account.</p>
+      </div>
+    </div>
+    <div class="risk-grid">
+      <div class="risk">
+        <h3>Returns are not guaranteed</h3>
+        <p>Forex trading can produce losses as well as profits. The 60/40 split applies to whatever the actual monthly result is — including a loss, which reduces your balance rather than your profit.</p>
+      </div>
+      <div class="risk">
+        <h3>Withdrawals follow a monthly window</h3>
+        <p>Withdrawal requests open on the 1st of each month against your available balance. Requests outside the window are queued for the next opening date.</p>
+      </div>
+      <div class="risk">
+        <h3>Deposits are confirmed on-chain</h3>
+        <p>A deposit is only credited to your balance after its blockchain transaction is verified — sending funds does not immediately update your account.</p>
+      </div>
+      <div class="risk">
+        <h3>No guaranteed-income claims</h3>
+        <p>Nothing on this site should be read as a promise of a fixed return. Figures shown in the calculator and performance table are illustrative or historical, not predictive.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Common <span>questions</span></div>
+      <div><h2>FAQ</h2></div>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q"><span>What's the minimum deposit?</span><span class="plus">+</span></div>
+        <div class="faq-a"><p>$100 in USDT (TRC20) to open an account. There's no maximum.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>How is the profit split calculated?</span><span class="plus">+</span></div>
+        <div class="faq-a"><p>At the close of each month, the desk's actual trading result on your allocated capital is calculated. You receive 60% of that result, the desk receives 40%. If the result is negative, the same split applies to the loss.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>When can I withdraw?</span><span class="plus">+</span></div>
+        <div class="faq-a"><p>Withdrawal requests open on the 1st of every month. Once approved, funds are sent to your USDT (TRC20) address and the transaction hash is recorded on your statement.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Is my capital guaranteed?</span><span class="plus">+</span></div>
+        <div class="faq-a"><p>No. Your capital is exposed to the outcome of live forex trading, which can result in losses. Only deposit funds you can afford to have at risk.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="brand" style="font-size:17px;"><span class="mark" style="width:24px;height:24px;font-size:11px;">FX</span>Captain FX</div>
+      <div class="foot-links">
+        <a href="#how">How it works</a>
+        <a href="#performance">Performance</a>
+        <a href="#faq">FAQ</a>
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      Captain FX is a managed trading arrangement, not a bank or a regulated fund. Trading forex carries a high level of risk and may not be suitable for all investors — you can lose some or all of your deposited capital. Nothing on this site is investment advice.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // profit-split calculator
+  const slider = document.getElementById('amtSlider');
+  const amtOut = document.getElementById('amtOut');
+  const outResult = document.getElementById('outResult');
+  const outClient = document.getElementById('outClient');
+  const outMgr = document.getElementById('outMgr');
+
+  function fmt(n){
+    const sign = n < 0 ? '-' : '';
+    return sign + '$' + Math.abs(n).toFixed(2);
+  }
+
+  function update(){
+    const val = parseInt(slider.value, 10);
+    amtOut.textContent = val.toLocaleString();
+    outResult.textContent = fmt(val);
+    outClient.textContent = fmt(val * 0.6);
+    outMgr.textContent = fmt(val * 0.4);
+    const negative = val < 0;
+    outClient.style.color = negative ? 'var(--loss)' : 'var(--gold)';
+    outResult.style.color = negative ? 'var(--loss)' : 'var(--text)';
+  }
+  slider.addEventListener('input', update);
+  update();
+
+  // faq accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-q');
+    const a = item.querySelector('.faq-a');
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-a').style.maxHeight = null;
+      });
+      if(!isOpen){
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
