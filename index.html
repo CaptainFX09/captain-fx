@@ -1,7 +1,4 @@
-
-from pathlib import Path
-
-html = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -555,8 +552,3 @@ if(document.readyState==='loading'){
 </script>
 </body>
 </html>
-'''
-
-path = "/mnt/data/index.html"
-Path(path).write_text(html, encoding="utf-8")
-print(path)
