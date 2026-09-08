@@ -8,6 +8,8 @@
 <style>
 :root{--bg:#07111f;--card:#0d1a2b;--card2:#101f33;--line:#20324a;--gold:#d9aa45;--text:#eef4ff;--muted:#91a4bd;--green:#35c98a;--red:#ef6262;--blue:#55a7ff}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#06101c,#0a1728 55%,#07111f);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}.wrap{max-width:1250px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.brand{font-weight:800;font-size:23px}.brand span{color:var(--gold)}.sub{color:var(--muted);font-size:13px;margin-top:4px}.btn{border:1px solid var(--line);background:#122238;color:#fff;border-radius:10px;padding:10px 15px;cursor:pointer}.btn:hover{border-color:#39506d}.logout{border-color:#5b2930;color:#ffb6b6}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.stat small{color:var(--muted)}.stat h2{margin:8px 0 0;font-size:25px}.section{margin-top:20px;background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.section h3{margin:0 0 14px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #1b2c42;font-size:13px;vertical-align:top}th{color:var(--muted);font-weight:600}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;text-transform:capitalize}.pending{background:#4a3917;color:#ffd87b}.approved{background:#123d2d;color:#77e2b3}.rejected{background:#4a2025;color:#ff9c9c}.actions{display:flex;gap:7px;flex-wrap:wrap}.approve{background:#123d2d;border-color:#235e48;color:#7be5b7}.reject{background:#4a2025;border-color:#71343c;color:#ff9c9c}.createacc{background:#1f2b47;border-color:#3a538a;color:#9db6ec}.pnl-row{display:flex;gap:6px;align-items:center}.pnl-input{width:90px;padding:8px 9px;border-radius:8px;border:1px solid var(--line);background:#091525;color:#fff;outline:none}.pnl-btn{background:#3a2f12;border-color:#8a6a1f;color:#f0c975}.disabled{opacity:.45;pointer-events:none}.empty{color:var(--muted);padding:18px 0}.notice{display:none;margin-bottom:15px;padding:12px 14px;border-radius:10px;background:#14283e;border:1px solid var(--line);color:#cfe0f5}.no-account-tag{display:block;margin-top:4px;font-size:11px;color:#ffb37b}.login{max-width:430px;margin:10vh auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}.login h1{margin-top:0}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:7px}.field input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#091525;color:#fff;outline:none}.login .btn{width:100%;margin-top:8px;background:#b88a2f;border-color:#b88a2f;color:#07111f;font-weight:700}.hidden{display:none!important}.wallet{max-width:280px;word-break:break-all}.refresh{float:right}.footer{color:var(--muted);font-size:12px;text-align:center;padding:25px}.danger-note{color:#ffb3b3;font-size:12px;margin-top:10px}
+.pw-wrap{position:relative}.pw-wrap input{padding-right:42px}.pw-toggle{position:absolute;right:0;top:0;height:100%;width:40px;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:pointer;color:var(--muted);padding:0}.pw-toggle:hover{color:var(--gold)}
+.proof-link{color:var(--gold);text-decoration:underline;font-size:12px;display:inline-block;margin-top:4px}
 @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.wrap{padding:14px}.cards{grid-template-columns:1fr}.top{align-items:flex-start}.top .btn{padding:8px 10px}}
 </style>
 </head>
@@ -17,7 +19,7 @@
   <p class="sub">Admin Panel Login</p>
   <div id="loginMsg" class="notice"></div>
   <div class="field"><label>Email</label><input id="email" type="email" autocomplete="username" placeholder="Admin email"></div>
-  <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Password"></div>
+  <div class="field"><label>Password</label><div class="pw-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Password"><button type="button" class="pw-toggle" onclick="togglePw('password',this)" aria-label="Show password">👁</button></div></div>
   <button class="btn" id="loginBtn">Login</button>
   <div class="danger-note">Only an account whose profile role is <b>admin</b> can access this panel.</div>
 </div>
@@ -54,6 +56,13 @@ const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function showMsg(text,error=false){const el=$('msg');el.textContent=text;el.style.display='block';el.style.borderColor=error?'#71343c':'#20324a';el.style.color=error?'#ffb6b6':'#cfe0f5';setTimeout(()=>el.style.display='none',5000)}
 function loginMsg(text,error=false){const el=$('loginMsg');el.textContent=text;el.style.display='block';el.style.color=error?'#ffb6b6':'#cfe0f5'}
 function pill(status){return `<span class="pill ${esc(status)}">${esc(status)}</span>`}
+function togglePw(id,btn){
+  const input=$(id); if(!input)return;
+  const isHidden=input.type==='password';
+  input.type=isHidden?'text':'password';
+  btn.textContent=isHidden?'🙈':'👁';
+  btn.setAttribute('aria-label',isHidden?'Hide password':'Show password');
+}
 async function getSession(){const {data}=await client.auth.getSession();return data.session}
 const ADMIN_UID='8adf0a50-6aa0-436b-a645-38164f1ed288';
 async function checkAdmin(){
@@ -99,7 +108,7 @@ async function loadAll(){
 }
 function renderDeposits(rows,names,accByUser){
  if(!rows.length){$('depositTable').innerHTML='<div class="empty">No deposit requests yet.</div>';return}
- $('depositTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>Network</th><th>TX Hash</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(r=>{
+ $('depositTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>Network</th><th>TX Hash</th><th>Proof</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(r=>{
    const p=names[r.user_id]||{};
    const hasAccount=!!accByUser[r.user_id];
    let actionCell='—';
@@ -110,7 +119,8 @@ function renderDeposits(rows,names,accByUser){
        actionCell=`<div class="actions"><button class="btn approve" onclick="approveDeposit(${r.id})">Approve</button><button class="btn reject" onclick="rejectDeposit(${r.id})">Reject</button></div>`;
      }
    }
-   return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small>${(!hasAccount&&r.status==='pending')?'<span class="no-account-tag">No account yet</span>':''}</td><td>${money(r.amount)}</td><td>${esc(r.network||'TRC20')}</td><td class="wallet">${esc(r.tx_hash||'—')}</td><td>${pill(r.status)}</td><td>${actionCell}</td></tr>`
+   const proofCell=r.proof_url?`<a class="proof-link" href="${esc(r.proof_url)}" target="_blank" rel="noopener">View screenshot</a>`:'<span style="color:var(--muted)">—</span>';
+   return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small>${(!hasAccount&&r.status==='pending')?'<span class="no-account-tag">No account yet</span>':''}</td><td>${money(r.amount)}</td><td>${esc(r.network||'TRC20')}</td><td class="wallet">${esc(r.tx_hash||'—')}</td><td>${proofCell}</td><td>${pill(r.status)}</td><td>${actionCell}</td></tr>`
  }).join('')}</tbody></table>`;
 }
 function renderWithdrawals(rows,names,accByUser){
