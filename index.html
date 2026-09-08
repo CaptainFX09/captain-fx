@@ -269,7 +269,7 @@ footer{padding:56px 0 40px}
 <span class="live-sep">·</span>
 <span><b id="liveDeposits">—</b> in verified deposits</span>
 <span class="live-sep">·</span>
-<span><b id="liveWithdrawals">—</b> paid out to clients</span>
+<span><b id="liveWithdrawals">$0</b> Total Withdrawal</span>
 <span class="live-sep">·</span>
 <span>updated live from account records</span>
 </div>
@@ -356,7 +356,7 @@ footer{padding:56px 0 40px}
 
 <div class="risk-grid">
 <div><h3>Returns are not guaranteed</h3><p>Forex trading can produce losses as well as profits.</p></div>
-<div><h3>Withdrawals follow a monthly window</h3><p>Withdrawal requests open on the 1st of each month against available balance.</p></div>
+<div><h3>Withdrawal timing</h3><p>Profit can be withdrawn on demand. Principal can be withdrawn after 40 days from the approval date of the relevant deposit.</p></div>
 <div><h3>Deposits are confirmed on-chain</h3><p>A deposit is only credited after its blockchain transaction is verified.</p></div>
 <div><h3>No guaranteed-income claims</h3><p>Nothing on this site is a promise of a fixed return.</p></div>
 </div>
@@ -375,7 +375,7 @@ footer{padding:56px 0 40px}
 
 <div class="faq-item"><div class="faq-q"><span>How is the profit split calculated?</span><span class="plus">+</span></div><div class="faq-a"><p>At month close, the actual trading result is calculated. You receive 60% and the desk receives 40%.</p></div></div>
 
-<div class="faq-item"><div class="faq-q"><span>When can I withdraw?</span><span class="plus">+</span></div><div class="faq-a"><p>Withdrawal requests open on the 1st of every month. Once approved, withdrawals are typically received within 5 minutes to 8 hours.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>When can I withdraw?</span><span class="plus">+</span></div><div class="faq-a"><p>Profit can be withdrawn on demand. Principal (your invested amount) becomes eligible after 40 days from the approval date of the relevant deposit. Requests are manually reviewed before approval.</p></div></div>
 
 <div class="faq-item"><div class="faq-q"><span>Is my capital guaranteed?</span><span class="plus">+</span></div><div class="faq-a"><p>No. Forex trading can result in losses.</p></div></div>
 </div>
@@ -401,7 +401,7 @@ footer{padding:56px 0 40px}
 <p>Trading results are calculated on your allocated capital and split 60% to the client and 40% to the desk. Daily trading results are recorded and updated to client accounts every day at 10:00 PM. This split applies identically to profits and to losses — a negative result reduces your account balance in the same proportion.</p>
 
 <h3>4. Withdrawals</h3>
-<p>The minimum withdrawal amount is $10. Withdrawal requests are accepted through a monthly window opening on the 1st of each month, against your available account balance at that time. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the TRC20 wallet address you provide.</p>
+<p>The minimum withdrawal amount is $20. Profit may be requested on demand, subject to available balance and review. Principal (the invested amount) becomes eligible 40 days after the approval date of the relevant deposit. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the TRC20 wallet address you provide.</p>
 
 <h3>5. No guaranteed returns</h3>
 <p>Nothing in these terms, on this site, or in any communication from PipZoNe constitutes a guarantee of profit or of capital preservation. Forex trading carries a material risk of loss, up to and including the loss of your entire deposited capital.</p>
@@ -410,7 +410,7 @@ footer{padding:56px 0 40px}
 <p>You are responsible for providing accurate deposit transaction hashes and withdrawal wallet addresses. PipZoNe is not responsible for funds sent to an incorrect address, on an incorrect network, or with incorrect transaction details.</p>
 
 <h3>7. Termination</h3>
-<p>Either party may close the arrangement. On closure, your remaining available balance is paid out through the standard withdrawal process, subject to the monthly withdrawal window.</p>
+<p>Either party may close the arrangement. On closure, your remaining eligible balance is paid out through the standard withdrawal process, subject to the applicable profit and principal eligibility rules.</p>
 
 <h3>8. Changes to these terms</h3>
 <p>We may update these terms from time to time. Continued use of your account after an update constitutes acceptance of the revised terms.</p>
@@ -469,7 +469,7 @@ footer{padding:56px 0 40px}
 <p>The 60/40 profit split describes how a trading result is divided — it is not a promise of what that result will be. Some months may produce a loss, which is shared in the same proportion as a profit.</p>
 
 <h3>Liquidity and withdrawal timing</h3>
-<p>Withdrawals are processed through a monthly window and are subject to manual review. Once approved, funds are typically received within 5 minutes to 8 hours. This means your capital is not available on demand in the same way as a bank account.</p>
+<p>Profit withdrawals can be requested on demand and are subject to manual review. Principal becomes eligible 40 days after the approval date of the relevant deposit. Once approved, funds are typically received within 5 minutes to 8 hours. This means principal is not available on demand before its 40-day eligibility period.</p>
 
 <h3>Not a bank or regulated fund</h3>
 <p>PipZoNe is a managed trading arrangement between you and the desk. It is not a bank, is not FDIC or similarly insured, and is not a licensed or regulated investment fund. Deposits are not protected by any deposit insurance scheme.</p>
@@ -585,6 +585,10 @@ Your message is ready to be sent to our support team.
 <div class="label">Profit / Loss</div>
 <div class="value" id="dashProfit">$0.00</div>
 </div>
+<div class="dash-card">
+<div class="label">Total Withdrawal</div>
+<div class="value" id="dashTotalWithdrawal">$0.00</div>
+</div>
 </div>
 
 <div class="dash-actions">
@@ -690,13 +694,13 @@ Your request will remain <b>pending</b> until it is manually verified and approv
 <button type="button" class="request-close" onclick="closeRequest('withdrawal')">×</button>
 
 <h2>Withdrawal request</h2>
-<p class="auth-sub">Request a withdrawal to your saved TRC20 wallet.</p>
+<p class="auth-sub">Request a withdrawal to your saved TRC20 wallet.</p><p id="withdrawalEligibility" class="request-note" style="margin-top:-8px"></p>
 
 <div class="msg" id="withdrawalMsg"></div>
 
 <div class="form-group">
 <label>Amount (USDT)</label>
-<input id="withdrawalAmount" type="number" min="10" step="0.01" placeholder="10">
+<input id="withdrawalAmount" type="number" min="20" step="0.01" placeholder="20">
 </div>
 
 <div class="form-group">
@@ -705,7 +709,7 @@ Your request will remain <b>pending</b> until it is manually verified and approv
 </div>
 
 <p class="request-note">
-Minimum withdrawal is $10. Withdrawals can only be requested on the <b>1st of each month</b>.
+Minimum withdrawal is <b>$20</b>. Profit can be requested on demand. Principal becomes eligible <b>40 days after deposit approval</b>.
 Once approved, withdrawals are typically received within <b>5 minutes to 8 hours</b>.
 Only your available balance can be withdrawn.
 Make sure the TRC20 wallet address is correct before submitting.
@@ -815,18 +819,20 @@ Already have an account?
 <script>
 'use strict';
 
-const SUPABASE_URL='https://nzasmkplxzirnqeteclv.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ywmF35YANKsFEdZOs8wDdQ__jIezHTF';
+/*
+  PipZoNe — Frontend-only version
+  Supabase is intentionally NOT connected yet.
+  All demo client data is stored in localStorage.
+  When Supabase is ready, this script can be replaced with the real database/auth layer
+  without changing the page design.
+*/
 
 const DEPOSIT_ADDRESS='TGQNwY7JfxfErzGjXrFYSKs9jKr58FDpcN';
+const SUPPORT_EMAIL='support.pipzone@gmail.com';
 
-let supabaseClient=null;
-let supabaseReady=false;
 let currentUser=null;
 
 function $(id){return document.getElementById(id)}
-
-const modal=$('authModal');
 
 function showMsg(id,text,error=true){
   const e=$(id);
@@ -840,82 +846,49 @@ function clearMessages(){
   document.querySelectorAll('.msg').forEach(e=>e.classList.remove('show'));
 }
 
-function initSupabase(){
-  try{
-    if(!window.supabase || typeof window.supabase.createClient!=='function'){
-      console.error('Supabase library did not load.');
-      return false;
-    }
-
-    supabaseClient=window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
-    supabaseReady=true;
-    return true;
-
-  }catch(err){
-    console.error('Supabase initialization error:',err);
-    supabaseReady=false;
-    return false;
-  }
+function clearRequestMessages(){
+  ['depositMsg','withdrawalMsg'].forEach(id=>{
+    const e=$(id);
+    if(e)e.classList.remove('show');
+  });
 }
 
-async function loadLiveStats(){
-  if(!supabaseReady)return;
+function getUsers(){
+  try{return JSON.parse(localStorage.getItem('pipzone_users')||'[]')}catch(e){return []}
+}
+function saveUsers(users){localStorage.setItem('pipzone_users',JSON.stringify(users))}
+function getRequests(){
+  try{return JSON.parse(localStorage.getItem('pipzone_requests')||'[]')}catch(e){return []}
+}
+function saveRequests(rows){localStorage.setItem('pipzone_requests',JSON.stringify(rows))}
+function getSession(){
+  try{return JSON.parse(localStorage.getItem('pipzone_session')||'null')}catch(e){return null}
+}
+function setSession(user){localStorage.setItem('pipzone_session',JSON.stringify(user))}
+function clearSession(){localStorage.removeItem('pipzone_session')}
 
-  try{
-    const {data,error}=await supabaseClient.rpc('get_public_stats');
-
-    if(error){
-      console.error('Live stats error:',error);
-      return;
-    }
-
-    const clientsEl=$('liveClients');
-    const depositsEl=$('liveDeposits');
-    const withdrawalsEl=$('liveWithdrawals');
-
-    if(clientsEl)
-      clientsEl.textContent=Number(data.total_clients||0).toLocaleString();
-
-    if(depositsEl)
-      depositsEl.textContent='$'+Number(data.total_verified_deposits||0).toLocaleString(undefined,{
-        minimumFractionDigits:0,
-        maximumFractionDigits:0
-      });
-
-    if(withdrawalsEl)
-      withdrawalsEl.textContent='$'+Number(data.total_verified_withdrawals||0).toLocaleString(undefined,{
-        minimumFractionDigits:0,
-        maximumFractionDigits:0
-      });
-
-  }catch(err){
-    console.error('Live stats error:',err);
-  }
+function validWallet(w){
+  return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(w)
 }
 
-function copyDepositAddress(){
-  const field=$('depositAddressField');
-
-  if(!field||!field.value)return;
-
-  navigator.clipboard?.writeText(field.value).then(()=>{
-    showMsg('depositMsg','Address copied to clipboard.',false);
-  }).catch(()=>{});
+function togglePw(id,btn){
+  const input=$(id);
+  if(!input)return;
+  const isHidden=input.type==='password';
+  input.type=isHidden?'text':'password';
+  btn.textContent=isHidden?'🙈':'👁';
+  btn.setAttribute('aria-label',isHidden?'Hide password':'Show password');
 }
 
 function openAuth(mode){
   clearMessages();
-  modal.classList.add('show');
+  $('authModal').classList.add('show');
   document.body.classList.add('modal-open');
   mode==='signup'?showSignup():showLogin();
 }
 
 function closeAuth(){
-  modal.classList.remove('show');
+  $('authModal').classList.remove('show');
   document.body.classList.remove('modal-open');
   clearMessages();
 }
@@ -925,163 +898,70 @@ function showSignup(){
   $('signupForm').style.display='block';
   clearMessages();
 }
-
 function showLogin(){
   $('signupForm').style.display='none';
   $('loginForm').style.display='block';
   clearMessages();
 }
 
-function validWallet(w){
-  return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(w)
-}
-
-function togglePw(id,btn){
-  const input=$(id);
-
-  if(!input)return;
-
-  const isHidden=input.type==='password';
-
-  input.type=isHidden?'text':'password';
-
-  btn.textContent=isHidden?'🙈':'👁';
-
-  btn.setAttribute(
-    'aria-label',
-    isHidden?'Hide password':'Show password'
-  );
-}
-
-async function signup(){
-
+function signup(){
   clearMessages();
-
-  if(!supabaseReady){
-    showMsg(
-      'signupMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
-    return;
-  }
-
   const name=$('fullName').value.trim();
-  const email=$('signupEmail').value.trim();
+  const email=$('signupEmail').value.trim().toLowerCase();
   const phone=$('phone').value.trim();
   const wallet=$('wallet').value.trim();
   const pass=$('signupPassword').value;
   const confirm=$('confirmPassword').value;
 
   if(!name||!email||!pass){
-    showMsg(
-      'signupMsg',
-      'Please fill Full Name, Email and Password.'
-    );
+    showMsg('signupMsg','Please fill Full Name, Email and Password.');
     return;
   }
-
   if(!wallet){
-    showMsg(
-      'signupMsg',
-      'A TRC20 withdrawal wallet address is required to create an account.'
-    );
+    showMsg('signupMsg','A TRC20 withdrawal wallet address is required.');
     return;
   }
-
   if(!validWallet(wallet)){
-    showMsg(
-      'signupMsg',
-      'Please enter a valid TRC20 wallet address starting with T.'
-    );
+    showMsg('signupMsg','Please enter a valid TRC20 wallet address starting with T.');
     return;
   }
-
   if(pass.length<6){
-    showMsg(
-      'signupMsg',
-      'Password must be at least 6 characters.'
-    );
+    showMsg('signupMsg','Password must be at least 6 characters.');
     return;
   }
-
   if(pass!==confirm){
-    showMsg(
-      'signupMsg',
-      'Passwords do not match.'
-    );
+    showMsg('signupMsg','Passwords do not match.');
     return;
   }
 
-  const button=$('signupForm').querySelector('.form-actions .btn');
-
-  if(button){
-    button.disabled=true;
-    button.textContent='Creating...';
+  const users=getUsers();
+  if(users.some(u=>u.email===email)){
+    showMsg('signupMsg','An account with this email already exists. Please login.');
+    return;
   }
 
-  try{
+  const user={
+    id:'demo_'+Date.now(),
+    name,email,phone,wallet,
+    password:pass,
+    balance:0,
+    initial_balance:0,
+    profit:0,
+    totalWithdrawal:0,
+    created_at:new Date().toISOString()
+  };
+  users.push(user);
+  saveUsers(users);
 
-    const {data,error}=await supabaseClient.auth.signUp({
-      email,
-      password:pass,
-      options:{
-        data:{
-          full_name:name,
-          phone,
-          wallet_address:wallet
-        },
-        emailRedirectTo:window.location.origin
-      }
-    });
-
-    if(error){
-      showMsg('signupMsg',error.message);
-      return;
-    }
-
-    if(data&&data.session){
-      closeAuth();
-      await loadDashboard();
-    }else{
-      showMsg(
-        'signupMsg',
-        'Account created. Please check your email to verify your account.',
-        false
-      );
-    }
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'signupMsg',
-      'Unable to create account right now. Please try again.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Create account';
-    }
-
-  }
+  showMsg('signupMsg','Account created successfully. You can now login. Please note: this is frontend-only demo mode.',false);
+  $('signupPassword').value='';
+  $('confirmPassword').value='';
+  setTimeout(showLogin,900);
 }
 
-async function login(){
-
+function login(){
   clearMessages();
-
-  if(!supabaseReady){
-    showMsg(
-      'loginMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
-    return;
-  }
-
-  const email=$('loginEmail').value.trim();
+  const email=$('loginEmail').value.trim().toLowerCase();
   const password=$('loginPassword').value;
 
   if(!email||!password){
@@ -1089,185 +969,89 @@ async function login(){
     return;
   }
 
-  const button=$('loginForm').querySelector('.form-actions .btn');
-
-  if(button){
-    button.disabled=true;
-    button.textContent='Logging in...';
+  const user=getUsers().find(u=>u.email===email && u.password===password);
+  if(!user){
+    showMsg('loginMsg','Invalid email or password.');
+    return;
   }
 
-  try{
-
-    const {data,error}=await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if(error){
-      showMsg('loginMsg',error.message);
-      return;
-    }
-
-    closeAuth();
-    await loadDashboard();
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'loginMsg',
-      'Unable to login right now. Please try again.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Login';
-    }
-
-  }
+  setSession({id:user.id});
+  closeAuth();
+  loadDashboard();
 }
 
-async function loadDashboard(){
+function loadDashboard(){
+  const session=getSession();
+  if(!session)return;
 
-  if(!supabaseReady)return;
+  const user=getUsers().find(u=>u.id===session.id);
+  if(!user){clearSession();return}
 
-  try{
+  currentUser=user;
+  $('home').style.display='none';
+  $('dashboard').style.display='block';
+  document.querySelector('footer').style.display='none';
+  document.querySelector('header').style.display='none';
 
-    const {data:{user},error}=await supabaseClient.auth.getUser();
+  $('welcome').textContent='Welcome, '+(user.name||user.email);
+  $('withdrawalWallet').value=user.wallet||'';
+  $('dashBalance').textContent='$'+Number(user.balance||0).toFixed(2);
+  $('dashDeposit').textContent='$'+Number(user.initial_balance||0).toFixed(2);
+  $('dashProfit').textContent='$'+Number(user.profit||0).toFixed(2);
+  $('dashTotalWithdrawal').textContent='$'+Number(user.totalWithdrawal||0).toFixed(2);
 
-    if(error||!user)return;
-
-    currentUser=user;
-
-    $('home').style.display='none';
-    $('dashboard').style.display='block';
-
-    document.querySelector('footer').style.display='none';
-    document.querySelector('header').style.display='none';
-
-    const {data:profile}=await supabaseClient
-      .from('profiles')
-      .select('full_name,wallet_address')
-      .eq('id',user.id)
-      .maybeSingle();
-
-    $('welcome').textContent='Welcome, '+(
-      profile?.full_name||user.email
-    );
-
-    if($('withdrawalWallet')&&profile?.wallet_address)
-      $('withdrawalWallet').value=profile.wallet_address;
-
-    const {data:accounts}=await supabaseClient
-      .from('accounts')
-      .select('balance,initial_balance,profit')
-      .eq('user_id',user.id)
-      .limit(1);
-
-    const a=accounts?.[0];
-
-    $('dashBalance').textContent='$'+Number(
-      a?.balance||0
-    ).toFixed(2);
-
-    $('dashDeposit').textContent='$'+Number(
-      a?.initial_balance||0
-    ).toFixed(2);
-
-    $('dashProfit').textContent='$'+Number(
-      a?.profit||0
-    ).toFixed(2);
-
-    await loadRequests();
-
-  }catch(err){
-
-    console.error('Dashboard error:',err);
-
-  }
+  loadRequests();
 }
 
 function openRequest(type){
-
   clearRequestMessages();
-
-  const id=type==='deposit'
-    ?'depositModal'
-    :'withdrawalModal';
-
+  const id=type==='deposit'?'depositModal':'withdrawalModal';
   const m=$(id);
-
   if(!m)return;
 
   if(type==='deposit'&&$('depositAddressField'))
     $('depositAddressField').value=DEPOSIT_ADDRESS;
 
-  m.classList.add('show');
-
-  document.body.classList.add('modal-open');
-
-  if(type==='withdrawal'&&new Date().getDate()!==1){
-
-    showMsg(
-      'withdrawalMsg',
-      'Withdrawals can only be requested on the 1st of each month. Please come back then.',
-      true
-    );
-
+  if(type==='withdrawal'){
+    $('withdrawalWallet').value=currentUser?.wallet||'';
+    showWithdrawalEligibility();
   }
 
+  m.classList.add('show');
+  document.body.classList.add('modal-open');
+
   setTimeout(()=>{
-
-    const e=$(
-      type==='deposit'
-      ?'depositAmount'
-      :'withdrawalAmount'
-    );
-
+    const e=$(type==='deposit'?'depositAmount':'withdrawalAmount');
     if(e)e.focus();
-
   },50);
 }
 
+function showWithdrawalEligibility(){
+  const note=$('withdrawalEligibility');
+  if(!note||!currentUser)return;
+  note.textContent='Profit can be withdrawn on demand. Principal becomes eligible 40 days after the relevant deposit is approved.';
+}
+
 function closeRequest(type){
-
-  const m=$(
-    type==='deposit'
-    ?'depositModal'
-    :'withdrawalModal'
-  );
-
+  const m=$(type==='deposit'?'depositModal':'withdrawalModal');
   if(m)m.classList.remove('show');
-
   document.body.classList.remove('modal-open');
 }
 
-function clearRequestMessages(){
-
-  ['depositMsg','withdrawalMsg'].forEach(id=>{
-
-    const e=$(id);
-
-    if(e)e.classList.remove('show');
-
+function copyDepositAddress(){
+  const field=$('depositAddressField');
+  if(!field||!field.value)return;
+  navigator.clipboard?.writeText(field.value).then(()=>{
+    showMsg('depositMsg','Address copied to clipboard.',false);
+  }).catch(()=>{
+    field.select();
+    document.execCommand('copy');
+    showMsg('depositMsg','Address copied to clipboard.',false);
   });
 }
 
-async function submitDeposit(){
-
+function submitDeposit(){
   clearRequestMessages();
-
-  if(!supabaseReady){
-    showMsg(
-      'depositMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
-    return;
-  }
-
   if(!currentUser){
     showMsg('depositMsg','Please login again.');
     return;
@@ -1281,392 +1065,124 @@ async function submitDeposit(){
     showMsg('depositMsg','Minimum deposit is $100.');
     return;
   }
-
   if(!tx){
     showMsg('depositMsg','Please enter the TRC20 transaction hash.');
     return;
   }
-
   if(!proofFile){
-    showMsg(
-      'depositMsg',
-      'Please upload a screenshot of your payment.'
-    );
+    showMsg('depositMsg','Please upload a screenshot of your payment.');
     return;
   }
-
   if(proofFile.size>5*1024*1024){
-    showMsg(
-      'depositMsg',
-      'Screenshot must be under 5MB.'
-    );
+    showMsg('depositMsg','Screenshot must be under 5MB.');
     return;
   }
 
-  const button=$('depositModal')
-    .querySelector('.form-actions .btn');
+  const reader=new FileReader();
+  reader.onload=function(){
+    const rows=getRequests();
+    rows.push({
+      id:'dep_'+Date.now(),
+      user_id:currentUser.id,
+      type:'Deposit',
+      amount,
+      status:'pending',
+      tx_hash:tx,
+      proof_name:proofFile.name,
+      proof_data:reader.result,
+      created_at:new Date().toISOString()
+    });
+    saveRequests(rows);
 
-  if(button){
-    button.disabled=true;
-    button.textContent='Submitting...';
-  }
-
-  try{
-
-    let proofUrl=null;
-
-    if(proofFile){
-
-      const ext=proofFile.name.split('.').pop();
-
-      const path=
-        currentUser.id+
-        '/'+
-        Date.now()+
-        '.'+
-        ext;
-
-      const {error:uploadError}=
-        await supabaseClient
-        .storage
-        .from('deposit-proofs')
-        .upload(path,proofFile);
-
-      if(uploadError){
-
-        console.error(uploadError);
-
-        showMsg(
-          'depositMsg',
-          'Screenshot upload failed: '+uploadError.message
-        );
-
-        return;
-      }
-
-      const {data:urlData}=
-        supabaseClient
-        .storage
-        .from('deposit-proofs')
-        .getPublicUrl(path);
-
-      proofUrl=urlData?.publicUrl||null;
-    }
-
-    const {error}=
-      await supabaseClient
-      .from('deposits')
-      .insert({
-        user_id:currentUser.id,
-        amount,
-        currency:'USDT',
-        network:'TRC20',
-        tx_hash:tx,
-        status:'pending',
-        proof_url:proofUrl
-      });
-
-    if(error){
-
-      console.error(error);
-
-      showMsg(
-        'depositMsg',
-        error.message
-      );
-
-      return;
-    }
-
-    showMsg(
-      'depositMsg',
-      'Deposit request submitted successfully. It is pending verification.',
-      false
-    );
-
+    showMsg('depositMsg','Deposit request saved in demo mode. It is pending verification.',false);
     $('depositAmount').value='';
     $('depositTx').value='';
     $('depositProof').value='';
     $('depositProofName').textContent='';
-
-    await loadRequests();
-
-    setTimeout(
-      ()=>closeRequest('deposit'),
-      1200
-    );
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'depositMsg',
-      'Unable to submit deposit request right now.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Submit deposit request';
-    }
-
-  }
+    loadRequests();
+    setTimeout(()=>closeRequest('deposit'),1200);
+  };
+  reader.readAsDataURL(proofFile);
 }
 
-async function submitWithdrawal(){
-
+function submitWithdrawal(){
   clearRequestMessages();
-
-  if(!supabaseReady){
-    showMsg(
-      'withdrawalMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
-    return;
-  }
-
   if(!currentUser){
     showMsg('withdrawalMsg','Please login again.');
-    return;
-  }
-
-  const today=new Date();
-
-  if(today.getDate()!==1){
-
-    showMsg(
-      'withdrawalMsg',
-      'Withdrawals can only be requested on the 1st of each month. Please come back then.'
-    );
-
     return;
   }
 
   const amount=Number($('withdrawalAmount').value);
   const wallet=$('withdrawalWallet').value.trim();
 
-  if(!Number.isFinite(amount)||amount<10){
-    showMsg(
-      'withdrawalMsg',
-      'Minimum withdrawal is $10.'
-    );
+  if(!Number.isFinite(amount)||amount<20){
+    showMsg('withdrawalMsg','Minimum withdrawal is $20.');
     return;
   }
-
   if(!validWallet(wallet)){
-    showMsg(
-      'withdrawalMsg',
-      'Please enter a valid TRC20 wallet address starting with T.'
-    );
+    showMsg('withdrawalMsg','Please enter a valid TRC20 wallet address starting with T.');
     return;
   }
 
-  const {data:accounts,error:accountError}=
-    await supabaseClient
-    .from('accounts')
-    .select('balance')
-    .eq('user_id',currentUser.id)
-    .limit(1);
-
-  if(accountError){
-    showMsg(
-      'withdrawalMsg',
-      accountError.message
-    );
+  const available=Number(currentUser.balance||0);
+  if(amount>available){
+    showMsg('withdrawalMsg','Withdrawal amount is higher than your available balance of $'+available.toFixed(2)+'.');
     return;
   }
 
-  const balance=Number(accounts?.[0]?.balance||0);
+  const rows=getRequests();
+  rows.push({
+    id:'wd_'+Date.now(),
+    user_id:currentUser.id,
+    type:'Withdrawal',
+    amount,
+    status:'pending',
+    wallet_address:wallet,
+    created_at:new Date().toISOString()
+  });
+  saveRequests(rows);
 
-  if(amount>balance){
-
-    showMsg(
-      'withdrawalMsg',
-      'Withdrawal amount is higher than your available balance of $'+
-      balance.toFixed(2)+'.'
-    );
-
-    return;
-  }
-
-  const button=$('withdrawalModal')
-    .querySelector('.form-actions .btn');
-
-  if(button){
-    button.disabled=true;
-    button.textContent='Submitting...';
-  }
-
-  try{
-
-    const {error}=
-      await supabaseClient
-      .from('withdrawals')
-      .insert({
-        user_id:currentUser.id,
-        amount,
-        wallet_address:wallet,
-        network:'TRC20',
-        status:'pending'
-      });
-
-    if(error){
-
-      console.error(error);
-
-      showMsg(
-        'withdrawalMsg',
-        error.message
-      );
-
-      return;
-    }
-
-    showMsg(
-      'withdrawalMsg',
-      'Withdrawal request submitted successfully. It is pending review.',
-      false
-    );
-
-    $('withdrawalAmount').value='';
-
-    await loadRequests();
-
-    setTimeout(
-      ()=>closeRequest('withdrawal'),
-      1200
-    );
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'withdrawalMsg',
-      'Unable to submit withdrawal request right now.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Submit withdrawal request';
-    }
-
-  }
+  showMsg('withdrawalMsg','Withdrawal request saved in demo mode. It is pending review.',false);
+  $('withdrawalAmount').value='';
+  loadRequests();
+  setTimeout(()=>closeRequest('withdrawal'),1200);
 }
 
-async function loadRequests(){
+function loadRequests(){
+  if(!currentUser||!$('requestList'))return;
+  const rows=getRequests()
+    .filter(x=>x.user_id===currentUser.id)
+    .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 
-  if(
-    !currentUser||
-    !supabaseReady||
-    !$('requestList')
-  )return;
-
-  try{
-
-    const [d,w]=await Promise.all([
-
-      supabaseClient
-      .from('deposits')
-      .select('amount,status,created_at')
-      .eq('user_id',currentUser.id)
-      .order('created_at',{ascending:false})
-      .limit(5),
-
-      supabaseClient
-      .from('withdrawals')
-      .select('amount,status,created_at')
-      .eq('user_id',currentUser.id)
-      .order('created_at',{ascending:false})
-      .limit(5)
-
-    ]);
-
-    const rows=[];
-
-    (d.data||[]).forEach(x=>
-      rows.push({
-        type:'Deposit',
-        amount:x.amount,
-        status:x.status,
-        date:x.created_at
-      })
-    );
-
-    (w.data||[]).forEach(x=>
-      rows.push({
-        type:'Withdrawal',
-        amount:x.amount,
-        status:x.status,
-        date:x.created_at
-      })
-    );
-
-    rows.sort(
-      (a,b)=>new Date(b.date)-new Date(a.date)
-    );
-
-    const el=$('requestList');
-
-    if(!rows.length){
-
-      el.innerHTML=
-        '<div class="request-item">'+
-        '<span class="meta">No deposit or withdrawal requests yet.</span>'+
-        '</div>';
-
-      return;
-    }
-
-    el.innerHTML=rows.slice(0,8).map(x=>
-      '<div class="request-item">'+
-      '<div>'+
-      '<strong>'+x.type+'</strong>'+
-      '<div class="meta">'+
-      new Date(x.date).toLocaleString()+
-      '</div>'+
-      '</div>'+
-      '<div style="text-align:right">'+
-      '<strong>$'+
-      Number(x.amount).toFixed(2)+
-      '</strong>'+
-      '<div class="status-'+
-      String(x.status).toLowerCase()+
-      '">'+
-      String(x.status).toUpperCase()+
-      '</div>'+
-      '</div>'+
-      '</div>'
-    ).join('');
-
-  }catch(err){
-
-    console.error(
-      'Requests error:',
-      err
-    );
-
+  const el=$('requestList');
+  if(!rows.length){
+    el.innerHTML='<div class="request-item"><span class="meta">No deposit or withdrawal requests yet.</span></div>';
+    return;
   }
+
+  el.innerHTML=rows.slice(0,8).map(x=>
+    '<div class="request-item">'+
+      '<div><strong>'+escapeHtml(x.type)+'</strong>'+
+      '<div class="meta">'+new Date(x.created_at).toLocaleString()+'</div></div>'+
+      '<div style="text-align:right"><strong>$'+Number(x.amount||0).toFixed(2)+'</strong>'+
+      '<div class="status-'+escapeHtml(String(x.status||'pending').toLowerCase())+'">'+escapeHtml(String(x.status||'pending').toUpperCase())+'</div></div>'+
+    '</div>'
+  ).join('');
 }
 
-/* CONTACT FORM */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
 function submitContact(event){
-
   event.preventDefault();
-
   const name=$('contactName').value.trim();
   const email=$('contactEmail').value.trim();
   const subject=$('contactSubject').value.trim();
   const message=$('contactMessage').value.trim();
 
   if(!name||!email||!subject||!message){
-
     alert('Please fill all fields.');
-
     return;
   }
 
@@ -1676,186 +1192,88 @@ function submitContact(event){
     'Issue / Subject: '+subject+'\n\n'+
     'Message:\n'+message;
 
-  const mailto=
-    'mailto:support.pipzone@gmail.com'+
-    '?subject='+
-    encodeURIComponent(
-      'PipZoNe Support: '+subject
-    )+
-    '&body='+
-    encodeURIComponent(body);
-
   $('contactSuccess').style.display='block';
-
-  window.location.href=mailto;
+  window.location.href=
+    'mailto:'+SUPPORT_EMAIL+
+    '?subject='+encodeURIComponent('PipZoNe Support: '+subject)+
+    '&body='+encodeURIComponent(body);
 }
 
-async function logout(){
-
-  if(supabaseReady)
-    await supabaseClient.auth.signOut();
-
+function logout(){
+  clearSession();
   location.reload();
 }
 
 function updateCalculator(){
-
   const slider=$('amtSlider');
-
   if(!slider)return;
-
   const v=Number(slider.value);
-
-  $('amtOut').textContent=
-    v.toLocaleString();
-
-  $('outResult').textContent=
-    (v<0?'-':'')+
-    '$'+
-    Math.abs(v).toFixed(2);
-
-  $('outClient').textContent=
-    (v<0?'-':'')+
-    '$'+
-    Math.abs(v*.6).toFixed(2);
-
-  $('outMgr').textContent=
-    (v<0?'-':'')+
-    '$'+
-    Math.abs(v*.4).toFixed(2);
+  $('amtOut').textContent=v.toLocaleString();
+  $('outResult').textContent=(v<0?'-':'')+'$'+Math.abs(v).toFixed(2);
+  $('outClient').textContent=(v<0?'-':'')+'$'+Math.abs(v*.6).toFixed(2);
+  $('outMgr').textContent=(v<0?'-':'')+'$'+Math.abs(v*.4).toFixed(2);
 }
 
-document.addEventListener(
-  'DOMContentLoaded',
-  async function(){
+function updateDemoLiveStats(){
+  const users=getUsers();
+  const rows=getRequests();
+  const verifiedDeposits=rows.filter(x=>x.type==='Deposit'&&x.status==='approved')
+    .reduce((s,x)=>s+Number(x.amount||0),0);
+  const totalWithdrawal=rows.filter(x=>x.type==='Withdrawal'&&(x.status==='approved'||x.status==='paid'))
+    .reduce((s,x)=>s+Number(x.amount||0),0);
 
-    if(!initSupabase())return;
+  $('liveClients').textContent=users.length.toLocaleString();
+  $('liveDeposits').textContent='$'+verifiedDeposits.toLocaleString(undefined,{maximumFractionDigits:0});
+  $('liveWithdrawals').textContent='$'+totalWithdrawal.toLocaleString(undefined,{maximumFractionDigits:0});
+}
 
-    updateCalculator();
-    loadLiveStats();
+document.addEventListener('DOMContentLoaded',function(){
+  updateCalculator();
+  updateDemoLiveStats();
 
-    const slider=$('amtSlider');
+  const slider=$('amtSlider');
+  if(slider)slider.addEventListener('input',updateCalculator);
 
-    if(slider)
-      slider.addEventListener(
-        'input',
-        updateCalculator
-      );
+  const proofInput=$('depositProof');
+  if(proofInput)proofInput.addEventListener('change',()=>{
+    const f=proofInput.files?.[0];
+    $('depositProofName').textContent=f?f.name:'';
+  });
 
-    const proofInput=$('depositProof');
+  document.querySelectorAll('.faq-q').forEach(q=>{
+    q.addEventListener('click',()=>q.parentElement.classList.toggle('open'));
+  });
 
-    if(proofInput)
-      proofInput.addEventListener(
-        'change',
-        ()=>{
-          const f=proofInput.files?.[0];
-
-          $('depositProofName').textContent=
-            f?f.name:'';
-        }
-      );
-
-    document
-      .querySelectorAll('.faq-q')
-      .forEach(q=>
-        q.addEventListener(
-          'click',
-          ()=>q.parentElement.classList.toggle('open')
-        )
-      );
-
-    document
-      .querySelectorAll(
-        '#loginForm input,#signupForm input'
-      )
-      .forEach(input=>
-        input.addEventListener(
-          'keydown',
-          e=>{
-            if(e.key==='Enter'){
-
-              e.preventDefault();
-
-              if(
-                $('loginForm').style.display!=='none'
-              )
-                login();
-              else
-                signup();
-
-            }
-          }
-        )
-      );
-
-    document.addEventListener(
-      'keydown',
-      e=>{
-
-        if(e.key==='Escape'){
-
-          if(modal.classList.contains('show'))
-            closeAuth();
-
-          if(
-            $('depositModal')?.classList.contains('show')
-          )
-            closeRequest('deposit');
-
-          if(
-            $('withdrawalModal')?.classList.contains('show')
-          )
-            closeRequest('withdrawal');
-
-        }
-
+  document.querySelectorAll('#loginForm input,#signupForm input').forEach(input=>{
+    input.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        if($('loginForm').style.display!=='none')login();
+        else signup();
       }
-    );
+    });
+  });
 
-    document
-      .querySelectorAll(
-        '.modal,.request-modal'
-      )
-      .forEach(m=>
-        m.addEventListener(
-          'click',
-          e=>{
-
-            if(e.target!==m)return;
-
-            if(m.id==='authModal')
-              closeAuth();
-
-            if(m.id==='depositModal')
-              closeRequest('deposit');
-
-            if(m.id==='withdrawalModal')
-              closeRequest('withdrawal');
-
-          }
-        )
-      );
-
-    try{
-
-      const {data}=
-        await supabaseClient.auth.getSession();
-
-      if(data?.session)
-        await loadDashboard();
-
-    }catch(err){
-
-      console.error(
-        'Session check error:',
-        err
-      );
-
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      if($('authModal').classList.contains('show'))closeAuth();
+      if($('depositModal')?.classList.contains('show'))closeRequest('deposit');
+      if($('withdrawalModal')?.classList.contains('show'))closeRequest('withdrawal');
     }
+  });
 
-  }
-);
+  document.querySelectorAll('.modal,.request-modal').forEach(m=>{
+    m.addEventListener('click',e=>{
+      if(e.target!==m)return;
+      if(m.id==='authModal')closeAuth();
+      if(m.id==='depositModal')closeRequest('deposit');
+      if(m.id==='withdrawalModal')closeRequest('withdrawal');
+    });
+  });
+
+  const session=getSession();
+  if(session)loadDashboard();
+});
 </script>
-
 </body>
 </html>
