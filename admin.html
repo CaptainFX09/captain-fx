@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#07111f;--card:#0d1a2b;--card2:#101f33;--line:#20324a;--gold:#d9aa45;--text:#eef4ff;--muted:#91a4bd;--green:#35c98a;--red:#ef6262;--blue:#55a7ff}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#06101c,#0a1728 55%,#07111f);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}.wrap{max-width:1250px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.brand{font-weight:800;font-size:23px}.brand span{color:var(--gold)}.sub{color:var(--muted);font-size:13px;margin-top:4px}.btn{border:1px solid var(--line);background:#122238;color:#fff;border-radius:10px;padding:10px 15px;cursor:pointer}.btn:hover{border-color:#39506d}.logout{border-color:#5b2930;color:#ffb6b6}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.stat small{color:var(--muted)}.stat h2{margin:8px 0 0;font-size:25px}.section{margin-top:20px;background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.section h3{margin:0 0 14px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #1b2c42;font-size:13px;vertical-align:top}th{color:var(--muted);font-weight:600}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;text-transform:capitalize}.pending{background:#4a3917;color:#ffd87b}.approved{background:#123d2d;color:#77e2b3}.rejected{background:#4a2025;color:#ff9c9c}.actions{display:flex;gap:7px;flex-wrap:wrap}.approve{background:#123d2d;border-color:#235e48;color:#7be5b7}.reject{background:#4a2025;border-color:#71343c;color:#ff9c9c}.disabled{opacity:.45;pointer-events:none}.empty{color:var(--muted);padding:18px 0}.notice{display:none;margin-bottom:15px;padding:12px 14px;border-radius:10px;background:#14283e;border:1px solid var(--line);color:#cfe0f5}.login{max-width:430px;margin:10vh auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}.login h1{margin-top:0}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:7px}.field input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#091525;color:#fff;outline:none}.login .btn{width:100%;margin-top:8px;background:#b88a2f;border-color:#b88a2f;color:#07111f;font-weight:700}.hidden{display:none!important}.wallet{max-width:280px;word-break:break-all}.refresh{float:right}.footer{color:var(--muted);font-size:12px;text-align:center;padding:25px}.danger-note{color:#ffb3b3;font-size:12px;margin-top:10px}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#06101c,#0a1728 55%,#07111f);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}.wrap{max-width:1250px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.brand{font-weight:800;font-size:23px}.brand span{color:var(--gold)}.sub{color:var(--muted);font-size:13px;margin-top:4px}.btn{border:1px solid var(--line);background:#122238;color:#fff;border-radius:10px;padding:10px 15px;cursor:pointer}.btn:hover{border-color:#39506d}.logout{border-color:#5b2930;color:#ffb6b6}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.stat small{color:var(--muted)}.stat h2{margin:8px 0 0;font-size:25px}.section{margin-top:20px;background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.section h3{margin:0 0 14px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #1b2c42;font-size:13px;vertical-align:top}th{color:var(--muted);font-weight:600}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;text-transform:capitalize}.pending{background:#4a3917;color:#ffd87b}.approved{background:#123d2d;color:#77e2b3}.rejected{background:#4a2025;color:#ff9c9c}.actions{display:flex;gap:7px;flex-wrap:wrap}.approve{background:#123d2d;border-color:#235e48;color:#7be5b7}.reject{background:#4a2025;border-color:#71343c;color:#ff9c9c}.createacc{background:#1f2b47;border-color:#3a538a;color:#9db6ec}.disabled{opacity:.45;pointer-events:none}.empty{color:var(--muted);padding:18px 0}.notice{display:none;margin-bottom:15px;padding:12px 14px;border-radius:10px;background:#14283e;border:1px solid var(--line);color:#cfe0f5}.no-account-tag{display:block;margin-top:4px;font-size:11px;color:#ffb37b}.login{max-width:430px;margin:10vh auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}.login h1{margin-top:0}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:7px}.field input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#091525;color:#fff;outline:none}.login .btn{width:100%;margin-top:8px;background:#b88a2f;border-color:#b88a2f;color:#07111f;font-weight:700}.hidden{display:none!important}.wallet{max-width:280px;word-break:break-all}.refresh{float:right}.footer{color:var(--muted);font-size:12px;text-align:center;padding:25px}.danger-note{color:#ffb3b3;font-size:12px;margin-top:10px}
 @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.wrap{padding:14px}.cards{grid-template-columns:1fr}.top{align-items:flex-start}.top .btn{padding:8px 10px}}
 </style>
 </head>
@@ -58,16 +58,12 @@ const ADMIN_UID='8adf0a50-6aa0-436b-a645-38164f1ed288';
 async function checkAdmin(){
  const session=await getSession();
  if(!session){$('loginView').classList.remove('hidden');$('app').classList.add('hidden');return false}
- // Primary check: the authenticated Supabase user must be the configured admin UID.
- // Database RLS policies still protect all admin data queries.
  if(session.user.id!==ADMIN_UID){
    await client.auth.signOut();
    $('loginView').classList.remove('hidden');$('app').classList.add('hidden');
    loginMsg('This account is not an admin account.',true);
    return false;
  }
- // Also verify the profile role when possible. If RLS blocks this optional read,
- // the UID check above remains the gate and RLS still controls the admin data.
  const {data}=await client.from('profiles').select('role').eq('id',session.user.id).maybeSingle();
  if(data && data.role!=='admin'){
    await client.auth.signOut();
@@ -77,6 +73,7 @@ async function checkAdmin(){
  }
  $('loginView').classList.add('hidden');$('app').classList.remove('hidden');$('adminEmail').textContent=session.user.email||'';return true;
 }
+let LATEST_ACCOUNTS_BY_USER={};
 async function loadAll(){
  if(!(await checkAdmin()))return;
  const [profiles,accounts,deposits,withdrawals,transactions]=await Promise.all([
@@ -90,27 +87,68 @@ async function loadAll(){
  const bad=results.find(r=>r.error); if(bad){showMsg(bad.error.message,true);return}
  const P=profiles.data||[],A=accounts.data||[],D=deposits.data||[],W=withdrawals.data||[],T=transactions.data||[];
  const names={};P.forEach(p=>names[p.id]=p);
+ const accByUser={};A.forEach(a=>accByUser[a.user_id]=a);
+ LATEST_ACCOUNTS_BY_USER=accByUser;
  $('clients').textContent=P.length;
  $('deposits').textContent=money(D.filter(x=>x.status==='approved').reduce((a,x)=>a+Number(x.amount||0),0));
  $('pendingWd').textContent=money(W.filter(x=>x.status==='pending').reduce((a,x)=>a+Number(x.amount||0),0));
  $('profit').textContent=money(A.reduce((a,x)=>a+Number(x.profit||0),0));
- renderDeposits(D,names);renderWithdrawals(W,names);renderAccounts(A,names);renderTransactions(T,names);
+ renderDeposits(D,names,accByUser);renderWithdrawals(W,names,accByUser);renderAccounts(A,names);renderTransactions(T,names);
 }
-function renderDeposits(rows,names){
+function renderDeposits(rows,names,accByUser){
  if(!rows.length){$('depositTable').innerHTML='<div class="empty">No deposit requests yet.</div>';return}
- $('depositTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>Network</th><th>TX Hash</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(r=>{const p=names[r.user_id]||{};return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${money(r.amount)}</td><td>${esc(r.network||'TRC20')}</td><td class="wallet">${esc(r.tx_hash||'—')}</td><td>${pill(r.status)}</td><td>${r.status==='pending'?`<div class="actions"><button class="btn approve" onclick="approveDeposit(${r.id})">Approve</button><button class="btn reject" onclick="rejectDeposit(${r.id})">Reject</button></div>`:'—'}</td></tr>`}).join('')}</tbody></table>`;
+ $('depositTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>Network</th><th>TX Hash</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(r=>{
+   const p=names[r.user_id]||{};
+   const hasAccount=!!accByUser[r.user_id];
+   let actionCell='—';
+   if(r.status==='pending'){
+     if(!hasAccount){
+       actionCell=`<div class="actions"><button class="btn createacc" onclick="createAccount('${r.user_id}')">Create Account</button></div>`;
+     } else {
+       actionCell=`<div class="actions"><button class="btn approve" onclick="approveDeposit(${r.id})">Approve</button><button class="btn reject" onclick="rejectDeposit(${r.id})">Reject</button></div>`;
+     }
+   }
+   return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small>${(!hasAccount&&r.status==='pending')?'<span class="no-account-tag">No account yet</span>':''}</td><td>${money(r.amount)}</td><td>${esc(r.network||'TRC20')}</td><td class="wallet">${esc(r.tx_hash||'—')}</td><td>${pill(r.status)}</td><td>${actionCell}</td></tr>`
+ }).join('')}</tbody></table>`;
 }
-function renderWithdrawals(rows,names){
+function renderWithdrawals(rows,names,accByUser){
  if(!rows.length){$('withdrawalTable').innerHTML='<div class="empty">No withdrawal requests yet.</div>';return}
- $('withdrawalTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>Wallet</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(r=>{const p=names[r.user_id]||{};return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${money(r.amount)}</td><td class="wallet">${esc(r.wallet_address)}</td><td>${pill(r.status)}</td><td>${r.status==='pending'?`<div class="actions"><button class="btn approve" onclick="approveWithdrawal(${r.id})">Approve</button><button class="btn reject" onclick="rejectWithdrawal(${r.id})">Reject</button></div>`:'—'}</td></tr>`}).join('')}</tbody></table>`;
+ $('withdrawalTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>Wallet</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(r=>{
+   const p=names[r.user_id]||{};
+   const hasAccount=!!accByUser[r.user_id];
+   let actionCell='—';
+   if(r.status==='pending'){
+     if(!hasAccount){
+       actionCell=`<div class="actions"><button class="btn createacc" onclick="createAccount('${r.user_id}')">Create Account</button></div>`;
+     } else {
+       actionCell=`<div class="actions"><button class="btn approve" onclick="approveWithdrawal(${r.id})">Approve</button><button class="btn reject" onclick="rejectWithdrawal(${r.id})">Reject</button></div>`;
+     }
+   }
+   return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${money(r.amount)}</td><td class="wallet">${esc(r.wallet_address)}</td><td>${pill(r.status)}</td><td>${actionCell}</td></tr>`
+ }).join('')}</tbody></table>`;
 }
 function renderAccounts(rows,names){
- if(!rows.length){$('accountTable').innerHTML='<div class="empty">No client accounts found. An account row can be created when you are ready to assign a trading balance.</div>';return}
+ if(!rows.length){$('accountTable').innerHTML='<div class="empty">No client accounts found. Use "Create Account" next to a deposit request to add one.</div>';return}
  $('accountTable').innerHTML=`<table><thead><tr><th>Client</th><th>Account</th><th>Initial</th><th>Balance</th><th>Profit</th><th>Status</th></tr></thead><tbody>${rows.map(r=>{const p=names[r.user_id]||{};return `<tr><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${esc(r.account_name)}</td><td>${money(r.initial_balance)}</td><td>${money(r.balance)}</td><td>${money(r.profit)}</td><td>${pill(r.status)}</td></tr>`}).join('')}</tbody></table>`;
 }
 function renderTransactions(rows,names){
  if(!rows.length){$('transactionTable').innerHTML='<div class="empty">No transactions yet.</div>';return}
  $('transactionTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Type</th><th>Amount</th><th>Description</th></tr></thead><tbody>${rows.map(r=>{const p=names[r.user_id]||{};return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}</td><td>${esc(r.type)}</td><td>${money(r.amount)}</td><td>${esc(r.description||'')}</td></tr>`}).join('')}</tbody></table>`;
+}
+async function createAccount(userId){
+ if(LATEST_ACCOUNTS_BY_USER[userId]){showMsg('This client already has an account.',true);return}
+ if(!confirm('Create a new trading account for this client with a starting balance of $0.00?'))return;
+ const {error}=await client.from('accounts').insert({
+   user_id:userId,
+   account_name:'Main Account',
+   initial_balance:0,
+   balance:0,
+   profit:0,
+   status:'active'
+ });
+ if(error){showMsg(error.message,true);return}
+ showMsg('Account created. You can now approve this client\'s pending requests.');
+ loadAll();
 }
 async function approveDeposit(id){
  if(!confirm('Approve this deposit? This will add the deposit amount to the client account balance.'))return;
@@ -153,4 +191,3 @@ loadAll();
 </script>
 </body>
 </html>
-
