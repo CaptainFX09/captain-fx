@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Captain FX — Admin Panel</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#07111f;--card:#0d1a2b;--card2:#101f33;--line:#20324a;--gold:#d9aa45;--text:#eef4ff;--muted:#91a4bd;--green:#35c98a;--red:#ef6262;--blue:#55a7ff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#06101c,#0a1728 55%,#07111f);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}.wrap{max-width:1250px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.brand{font-weight:800;font-size:23px}.brand span{color:var(--gold)}.sub{color:var(--muted);font-size:13px;margin-top:4px}.btn{border:1px solid var(--line);background:#122238;color:#fff;border-radius:10px;padding:10px 15px;cursor:pointer}.btn:hover{border-color:#39506d}.logout{border-color:#5b2930;color:#ffb6b6}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.stat small{color:var(--muted)}.stat h2{margin:8px 0 0;font-size:25px}.section{margin-top:20px;background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.section h3{margin:0 0 14px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #1b2c42;font-size:13px;vertical-align:top}th{color:var(--muted);font-weight:600}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;text-transform:capitalize}.pending{background:#4a3917;color:#ffd87b}.approved{background:#123d2d;color:#77e2b3}.rejected{background:#4a2025;color:#ff9c9c}.actions{display:flex;gap:7px;flex-wrap:wrap}.approve{background:#123d2d;border-color:#235e48;color:#7be5b7}.reject{background:#4a2025;border-color:#71343c;color:#ff9c9c}.disabled{opacity:.45;pointer-events:none}.empty{color:var(--muted);padding:18px 0}.notice{display:none;margin-bottom:15px;padding:12px 14px;border-radius:10px;background:#14283e;border:1px solid var(--line);color:#cfe0f5}.login{max-width:430px;margin:10vh auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}.login h1{margin-top:0}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:7px}.field input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#091525;color:#fff;outline:none}.login .btn{width:100%;margin-top:8px;background:#b88a2f;border-color:#b88a2f;color:#07111f;font-weight:700}.hidden{display:none!important}.wallet{max-width:280px;word-break:break-all}.refresh{float:right}.footer{color:var(--muted);font-size:12px;text-align:center;padding:25px}.danger-note{color:#ffb3b3;font-size:12px;margin-top:10px}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.wrap{padding:14px}.cards{grid-template-columns:1fr}.top{align-items:flex-start}.top .btn{padding:8px 10px}}
+</style>
+</head>
+<body>
+<div id="loginView" class="login">
+  <h1>Captain <span style="color:var(--gold)">FX</span></h1>
+  <p class="sub">Admin Panel Login</p>
+  <div id="loginMsg" class="notice"></div>
+  <div class="field"><label>Email</label><input id="email" type="email" autocomplete="username" placeholder="Admin email"></div>
+  <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Password"></div>
+  <button class="btn" id="loginBtn">Login</button>
+  <div class="danger-note">Only an account whose profile role is <b>admin</b> can access this panel.</div>
+</div>
+
+<div id="app" class="hidden">
+<div class="wrap">
+  <div class="top">
+    <div><div class="brand">Captain <span>FX</span> Admin</div><div class="sub" id="adminEmail"></div></div>
+    <div><button class="btn" id="refreshBtn">Refresh</button> <button class="btn logout" id="logoutBtn">Logout</button></div>
+  </div>
+  <div id="msg" class="notice"></div>
+  <div class="cards">
+    <div class="stat"><small>Total Clients</small><h2 id="clients">0</h2></div>
+    <div class="stat"><small>Total Deposits</small><h2 id="deposits">$0.00</h2></div>
+    <div class="stat"><small>Pending Withdrawals</small><h2 id="pendingWd">$0.00</h2></div>
+    <div class="stat"><small>Total Account Profit</small><h2 id="profit">$0.00</h2></div>
+  </div>
+
+  <div class="section"><h3>Deposit Requests</h3><div id="depositTable" class="table-wrap"></div></div>
+  <div class="section"><h3>Withdrawal Requests</h3><div id="withdrawalTable" class="table-wrap"></div></div>
+  <div class="section"><h3>Client Accounts</h3><div id="accountTable" class="table-wrap"></div></div>
+  <div class="section"><h3>Transactions</h3><div id="transactionTable" class="table-wrap"></div></div>
+  <div class="footer">Captain FX Admin Panel • Never put the Supabase service-role key in this file.</div>
+</div></div>
+
+<script>
+const SUPABASE_URL='https://nzasmkplxzirnqeteclv.supabase.co';
+const SUPABASE_KEY='sb_publishable_ywmF35YANKsFEdZOs8wDdQ__jIezHTF';
+const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+const money=n=>'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function showMsg(text,error=false){const el=$('msg');el.textContent=text;el.style.display='block';el.style.borderColor=error?'#71343c':'#20324a';el.style.color=error?'#ffb6b6':'#cfe0f5';setTimeout(()=>el.style.display='none',5000)}
+function loginMsg(text,error=false){const el=$('loginMsg');el.textContent=text;el.style.display='block';el.style.color=error?'#ffb6b6':'#cfe0f5'}
+function pill(status){return `<span class="pill ${esc(status)}">${esc(status)}</span>`}
+async function getSession(){const {data}=await client.auth.getSession();return data.session}
+async function checkAdmin(){
+ const session=await getSession();
+ if(!session){$('loginView').classList.remove('hidden');$('app').classList.add('hidden');return false}
+ const {data,error}=await client.from('profiles').select('role').eq('id',session.user.id).single();
+ if(error||!data||data.role!=='admin'){await client.auth.signOut();$('loginView').classList.remove('hidden');$('app').classList.add('hidden');loginMsg('This account is not an admin account.',true);return false}
+ $('loginView').classList.add('hidden');$('app').classList.remove('hidden');$('adminEmail').textContent=session.user.email||'';return true;
+}
+async function loadAll(){
+ if(!(await checkAdmin()))return;
+ const [profiles,accounts,deposits,withdrawals,transactions]=await Promise.all([
+  client.from('profiles').select('id,full_name,phone,wallet_address,role,created_at').eq('role','client').order('created_at',{ascending:false}),
+  client.from('accounts').select('*').order('created_at',{ascending:false}),
+  client.from('deposits').select('*').order('created_at',{ascending:false}),
+  client.from('withdrawals').select('*').order('created_at',{ascending:false}),
+  client.from('transactions').select('*').order('created_at',{ascending:false})
+ ]);
+ const results=[profiles,accounts,deposits,withdrawals,transactions];
+ const bad=results.find(r=>r.error); if(bad){showMsg(bad.error.message,true);return}
+ const P=profiles.data||[],A=accounts.data||[],D=deposits.data||[],W=withdrawals.data||[],T=transactions.data||[];
+ const names={};P.forEach(p=>names[p.id]=p);
+ $('clients').textContent=P.length;
+ $('deposits').textContent=money(D.filter(x=>x.status==='approved').reduce((a,x)=>a+Number(x.amount||0),0));
+ $('pendingWd').textContent=money(W.filter(x=>x.status==='pending').reduce((a,x)=>a+Number(x.amount||0),0));
+ $('profit').textContent=money(A.reduce((a,x)=>a+Number(x.profit||0),0));
+ renderDeposits(D,names);renderWithdrawals(W,names);renderAccounts(A,names);renderTransactions(T,names);
+}
+function renderDeposits(rows,names){
+ if(!rows.length){$('depositTable').innerHTML='<div class="empty">No deposit requests yet.</div>';return}
+ $('depositTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>Network</th><th>TX Hash</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(r=>{const p=names[r.user_id]||{};return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${money(r.amount)}</td><td>${esc(r.network||'TRC20')}</td><td class="wallet">${esc(r.tx_hash||'—')}</td><td>${pill(r.status)}</td><td>${r.status==='pending'?`<div class="actions"><button class="btn approve" onclick="approveDeposit(${r.id})">Approve</button><button class="btn reject" onclick="rejectDeposit(${r.id})">Reject</button></div>`:'—'}</td></tr>`}).join('')}</tbody></table>`;
+}
+function renderWithdrawals(rows,names){
+ if(!rows.length){$('withdrawalTable').innerHTML='<div class="empty">No withdrawal requests yet.</div>';return}
+ $('withdrawalTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>Wallet</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(r=>{const p=names[r.user_id]||{};return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${money(r.amount)}</td><td class="wallet">${esc(r.wallet_address)}</td><td>${pill(r.status)}</td><td>${r.status==='pending'?`<div class="actions"><button class="btn approve" onclick="approveWithdrawal(${r.id})">Approve</button><button class="btn reject" onclick="rejectWithdrawal(${r.id})">Reject</button></div>`:'—'}</td></tr>`}).join('')}</tbody></table>`;
+}
+function renderAccounts(rows,names){
+ if(!rows.length){$('accountTable').innerHTML='<div class="empty">No client accounts found. An account row can be created when you are ready to assign a trading balance.</div>';return}
+ $('accountTable').innerHTML=`<table><thead><tr><th>Client</th><th>Account</th><th>Initial</th><th>Balance</th><th>Profit</th><th>Status</th></tr></thead><tbody>${rows.map(r=>{const p=names[r.user_id]||{};return `<tr><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${esc(r.account_name)}</td><td>${money(r.initial_balance)}</td><td>${money(r.balance)}</td><td>${money(r.profit)}</td><td>${pill(r.status)}</td></tr>`}).join('')}</tbody></table>`;
+}
+function renderTransactions(rows,names){
+ if(!rows.length){$('transactionTable').innerHTML='<div class="empty">No transactions yet.</div>';return}
+ $('transactionTable').innerHTML=`<table><thead><tr><th>Date</th><th>Client</th><th>Type</th><th>Amount</th><th>Description</th></tr></thead><tbody>${rows.map(r=>{const p=names[r.user_id]||{};return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}</td><td>${esc(r.type)}</td><td>${money(r.amount)}</td><td>${esc(r.description||'')}</td></tr>`}).join('')}</tbody></table>`;
+}
+async function approveDeposit(id){
+ if(!confirm('Approve this deposit? This will add the deposit amount to the client account balance.'))return;
+ const {data:d,error:e}=await client.from('deposits').select('*').eq('id',id).single();if(e){showMsg(e.message,true);return}
+ if(d.status!=='pending'){showMsg('This request is no longer pending.',true);return}
+ const {data:accs,error:ae}=await client.from('accounts').select('*').eq('user_id',d.user_id).limit(1);if(ae){showMsg(ae.message,true);return}
+ if(!accs||!accs.length){showMsg('Client has no account row. Create the account first, then approve this deposit.',true);return}
+ const acc=accs[0];
+ const {error:ue}=await client.from('accounts').update({balance:Number(acc.balance||0)+Number(d.amount||0),initial_balance:Number(acc.initial_balance||0)+Number(d.amount||0)}).eq('id',acc.id);if(ue){showMsg(ue.message,true);return}
+ const {error:de}=await client.from('deposits').update({status:'approved'}).eq('id',id).eq('status','pending');if(de){showMsg(de.message,true);return}
+ await client.from('transactions').insert({user_id:d.user_id,account_id:acc.id,type:'deposit',amount:d.amount,description:'Deposit approved by admin'});
+ showMsg('Deposit approved.');loadAll();
+}
+async function rejectDeposit(id){
+ if(!confirm('Reject this deposit request?'))return;
+ const {error}=await client.from('deposits').update({status:'rejected'}).eq('id',id).eq('status','pending');if(error){showMsg(error.message,true);return}showMsg('Deposit rejected.');loadAll();
+}
+async function approveWithdrawal(id){
+ if(!confirm('Approve this withdrawal? This will subtract the amount from the client balance.'))return;
+ const {data:w,error:e}=await client.from('withdrawals').select('*').eq('id',id).single();if(e){showMsg(e.message,true);return}
+ if(w.status!=='pending'){showMsg('This request is no longer pending.',true);return}
+ const {data:accs,error:ae}=await client.from('accounts').select('*').eq('user_id',w.user_id).limit(1);if(ae){showMsg(ae.message,true);return}
+ if(!accs||!accs.length){showMsg('Client has no account row.',true);return}
+ const acc=accs[0], bal=Number(acc.balance||0), amt=Number(w.amount||0);if(amt>bal){showMsg('Insufficient client balance. Withdrawal not approved.',true);return}
+ const {error:ue}=await client.from('accounts').update({balance:bal-amt}).eq('id',acc.id);if(ue){showMsg(ue.message,true);return}
+ const {error:we}=await client.from('withdrawals').update({status:'approved'}).eq('id',id).eq('status','pending');if(we){showMsg(we.message,true);return}
+ await client.from('transactions').insert({user_id:w.user_id,account_id:acc.id,type:'withdrawal',amount:amt,description:'Withdrawal approved by admin'});
+ showMsg('Withdrawal approved and balance reduced.');loadAll();
+}
+async function rejectWithdrawal(id){
+ if(!confirm('Reject this withdrawal request?'))return;
+ const {error}=await client.from('withdrawals').update({status:'rejected'}).eq('id',id).eq('status','pending');if(error){showMsg(error.message,true);return}showMsg('Withdrawal rejected.');loadAll();
+}
+$('loginBtn').onclick=async()=>{const email=$('email').value.trim(),password=$('password').value;if(!email||!password){loginMsg('Enter email and password.',true);return}$('loginBtn').disabled=true;const {error}=await client.auth.signInWithPassword({email,password});$('loginBtn').disabled=false;if(error){loginMsg(error.message,true);return}loginMsg('Login successful.');await loadAll()};
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
+$('logoutBtn').onclick=async()=>{await client.auth.signOut();location.reload()};
+$('refreshBtn').onclick=loadAll;
+client.auth.onAuthStateChange((_event)=>{setTimeout(loadAll,0)});
+loadAll();
+</script>
+</body>
+</html>
