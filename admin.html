@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -830,10 +831,11 @@ async function getSession(){
 
 /* =========================================================
    ADMIN UID
+   UPDATED FOR NEW ADMIN USER
 ========================================================= */
 
 const ADMIN_UID =
-'8adf0a50-6aa0-436b-a645-38164f1ed288';
+'f40ac741-d4a0-4320-86ab-f5bedc3d091a';
 
 
 /* =========================================================
@@ -902,7 +904,28 @@ async function checkAdmin(){
   }
 
 
-  if(data && data.role !== 'admin'){
+  if(!data){
+
+    await client.auth.signOut();
+
+    $('loginView')
+      .classList
+      .remove('hidden');
+
+    $('app')
+      .classList
+      .add('hidden');
+
+    loginMsg(
+      'Admin profile was not found in the profiles table.',
+      true
+    );
+
+    return false;
+  }
+
+
+  if(data.role !== 'admin'){
 
     await client.auth.signOut();
 
@@ -2819,12 +2842,10 @@ async function rejectWithdrawal(id){
       status:'rejected'
     })
     .eq(
-      'id',
-      id
+      'id',id
     )
     .eq(
-      'status',
-      'pending'
+      'status','pending'
     );
 
 
@@ -2981,3 +3002,4 @@ loadAll();
 
 </body>
 </html>
+```
