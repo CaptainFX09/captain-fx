@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -147,12 +146,13 @@ footer{padding:56px 0 40px}
 .msg.show{display:block}
 
 .dashboard{display:none;min-height:70vh;padding:70px 0}
-.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0}
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:28px 0}
 .dash-card{background:var(--panel);border:1px solid var(--line);padding:24px}
 .dash-card .label{color:var(--muted);font-size:13px}
 .dash-card .value{font:28px Fraunces;color:var(--gold);margin-top:8px}
 .dash-actions{display:flex;gap:10px}
 .logout{background:none;border:1px solid var(--line);color:var(--text);padding:10px 18px;cursor:pointer;border-radius:3px}
+.dash-note{margin-top:18px;padding:12px 14px;background:rgba(255,138,61,.07);border:1px solid rgba(255,138,61,.25);border-radius:3px;font-size:13px;color:var(--gold);line-height:1.6}
 
 /* Contact */
 .contact-section{padding:88px 0;border-bottom:1px solid var(--soft)}
@@ -258,7 +258,7 @@ footer{padding:56px 0 40px}
 <div class="wrap stats-row">
 <div class="stat"><div class="stat-num">$100</div><div class="stat-label">Minimum deposit</div></div>
 <div class="stat"><div class="stat-num">60%</div><div class="stat-label">Client profit share</div></div>
-<div class="stat"><div class="stat-num">Monthly</div><div class="stat-label">Settlement cycle</div></div>
+<div class="stat"><div class="stat-num">Daily</div><div class="stat-label">Settlement cycle</div></div>
 </div>
 </section>
 
@@ -281,7 +281,7 @@ footer{padding:56px 0 40px}
 <div class="sec-tag">How it <span>works</span></div>
 <div>
 <h2>From deposit to settlement, in four steps.</h2>
-<p class="sec-desc">Every account follows the same process. Nothing is settled until the month closes and the actual trading result is verified.</p>
+<p class="sec-desc">Every account follows the same process. Daily trading results are recorded to your account automatically.</p>
 </div>
 </div>
 
@@ -289,7 +289,7 @@ footer{padding:56px 0 40px}
 <div class="step"><div class="step-num">01</div><div class="step-title">Create your account</div><div class="step-desc">Register with your details and verify your email.</div></div>
 <div class="step"><div class="step-num">02</div><div class="step-title">Deposit capital</div><div class="step-desc">Send a minimum of $100 in USDT (TRC20) to your account's deposit address. Funds are credited after confirmation.</div></div>
 <div class="step"><div class="step-num">03</div><div class="step-title">Capital is traded</div><div class="step-desc">Your funds are deployed on the forex markets under the agreed trading structure.</div></div>
-<div class="step"><div class="step-num">04</div><div class="step-title">Monthly settlement</div><div class="step-desc">At month end, the actual result is calculated and split 60% to you and 40% to the desk.</div></div>
+<div class="step"><div class="step-num">04</div><div class="step-title">Daily settlement</div><div class="step-desc">Each day's trading result is calculated and split 60% to you and 40% to the desk. Your profit share is available to withdraw on demand; your original deposit unlocks 40 days after it is credited.</div></div>
 </div>
 </div>
 </section>
@@ -356,7 +356,7 @@ footer{padding:56px 0 40px}
 
 <div class="risk-grid">
 <div><h3>Returns are not guaranteed</h3><p>Forex trading can produce losses as well as profits.</p></div>
-<div><h3>Withdrawals follow a monthly window</h3><p>Withdrawal requests open on the 1st of each month against available balance.</p></div>
+<div><h3>Profit is withdrawable on demand</h3><p>Your accumulated profit share can be withdrawn at any time. Your original deposit (principal) unlocks 40 days after it is credited to your account.</p></div>
 <div><h3>Deposits are confirmed on-chain</h3><p>A deposit is only credited after its blockchain transaction is verified.</p></div>
 <div><h3>No guaranteed-income claims</h3><p>Nothing on this site is a promise of a fixed return.</p></div>
 </div>
@@ -373,9 +373,9 @@ footer{padding:56px 0 40px}
 <div class="faq-list">
 <div class="faq-item"><div class="faq-q"><span>What's the minimum deposit?</span><span class="plus">+</span></div><div class="faq-a"><p>$100 in USDT (TRC20) to open an account.</p></div></div>
 
-<div class="faq-item"><div class="faq-q"><span>How is the profit split calculated?</span><span class="plus">+</span></div><div class="faq-a"><p>At month close, the actual trading result is calculated. You receive 60% and the desk receives 40%.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>How is the profit split calculated?</span><span class="plus">+</span></div><div class="faq-a"><p>Each day's actual trading result is calculated. You receive 60% and the desk receives 40%.</p></div></div>
 
-<div class="faq-item"><div class="faq-q"><span>When can I withdraw?</span><span class="plus">+</span></div><div class="faq-a"><p>Withdrawal requests open on the 1st of every month. Once approved, withdrawals are typically received within 5 minutes to 8 hours.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>When can I withdraw?</span><span class="plus">+</span></div><div class="faq-a"><p>Your profit share can be withdrawn on demand, any time. Your original deposit (principal) can be withdrawn once 40 days have passed since it was credited. The minimum withdrawal is $20. Once approved, withdrawals are typically received within 5 minutes to 8 hours.</p></div></div>
 
 <div class="faq-item"><div class="faq-q"><span>Is my capital guaranteed?</span><span class="plus">+</span></div><div class="faq-a"><p>No. Forex trading can result in losses.</p></div></div>
 </div>
@@ -401,7 +401,7 @@ footer{padding:56px 0 40px}
 <p>Trading results are calculated on your allocated capital and split 60% to the client and 40% to the desk. Daily trading results are recorded and updated to client accounts every day at 10:00 PM. This split applies identically to profits and to losses — a negative result reduces your account balance in the same proportion.</p>
 
 <h3>4. Withdrawals</h3>
-<p>The minimum withdrawal amount is $10. Withdrawal requests are accepted through a monthly window opening on the 1st of each month, against your available account balance at that time. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the TRC20 wallet address you provide.</p>
+<p>The minimum withdrawal amount is $20. Your accumulated profit share may be withdrawn on demand, at any time. Your original deposited capital (principal) may only be withdrawn once 40 days have passed since it was credited to your account. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the TRC20 wallet address you provide.</p>
 
 <h3>5. No guaranteed returns</h3>
 <p>Nothing in these terms, on this site, or in any communication from PipZoNe constitutes a guarantee of profit or of capital preservation. Forex trading carries a material risk of loss, up to and including the loss of your entire deposited capital.</p>
@@ -410,7 +410,7 @@ footer{padding:56px 0 40px}
 <p>You are responsible for providing accurate deposit transaction hashes and withdrawal wallet addresses. PipZoNe is not responsible for funds sent to an incorrect address, on an incorrect network, or with incorrect transaction details.</p>
 
 <h3>7. Termination</h3>
-<p>Either party may close the arrangement. On closure, your remaining available balance is paid out through the standard withdrawal process, subject to the monthly withdrawal window.</p>
+<p>Either party may close the arrangement. On closure, your remaining available balance is paid out through the standard withdrawal process, subject to the principal lock-in period described above.</p>
 
 <h3>8. Changes to these terms</h3>
 <p>We may update these terms from time to time. Continued use of your account after an update constitutes acceptance of the revised terms.</p>
@@ -466,10 +466,10 @@ footer{padding:56px 0 40px}
 <p>Forex trading is highly speculative and involves a significant risk of loss. Past performance of any trading strategy or account is not indicative of future results. You should only deposit capital you can afford to lose.</p>
 
 <h3>No guarantee of profit</h3>
-<p>The 60/40 profit split describes how a trading result is divided — it is not a promise of what that result will be. Some months may produce a loss, which is shared in the same proportion as a profit.</p>
+<p>The 60/40 profit split describes how a trading result is divided — it is not a promise of what that result will be. Some days may produce a loss, which is shared in the same proportion as a profit.</p>
 
 <h3>Liquidity and withdrawal timing</h3>
-<p>Withdrawals are processed through a monthly window and are subject to manual review. Once approved, funds are typically received within 5 minutes to 8 hours. This means your capital is not available on demand in the same way as a bank account.</p>
+<p>Your profit share can be requested for withdrawal at any time and is subject to manual review. Your original deposited capital is locked for 40 days from the date it is credited. Once a withdrawal is approved, funds are typically received within 5 minutes to 8 hours. This means your principal is not available on demand in the same way as a bank account.</p>
 
 <h3>Not a bank or regulated fund</h3>
 <p>PipZoNe is a managed trading arrangement between you and the desk. It is not a bank, is not FDIC or similarly insured, and is not a licensed or regulated investment fund. Deposits are not protected by any deposit insurance scheme.</p>
@@ -585,6 +585,11 @@ Your message is ready to be sent to our support team.
 <div class="label">Profit / Loss</div>
 <div class="value" id="dashProfit">$0.00</div>
 </div>
+
+<div class="dash-card">
+<div class="label">Total Withdrawal</div>
+<div class="value" id="dashWithdrawn">$0.00</div>
+</div>
 </div>
 
 <div class="dash-actions">
@@ -673,6 +678,7 @@ PipZoNe is a managed trading arrangement, not a bank or a regulated fund. Tradin
 Minimum deposit is $100. Send USDT only on the TRC20 network to the address above.
 A screenshot of your payment is required so we can verify it.
 Your request will remain <b>pending</b> until it is manually verified and approved.
+Your deposit unlocks for withdrawal 40 days after it is credited — your profit share is available sooner, on demand.
 </p>
 
 <div class="form-actions">
@@ -694,9 +700,11 @@ Your request will remain <b>pending</b> until it is manually verified and approv
 
 <div class="msg" id="withdrawalMsg"></div>
 
+<div id="withdrawalAvailable" class="dash-note" style="display:none;margin-bottom:14px"></div>
+
 <div class="form-group">
 <label>Amount (USDT)</label>
-<input id="withdrawalAmount" type="number" min="10" step="0.01" placeholder="10">
+<input id="withdrawalAmount" type="number" min="20" step="0.01" placeholder="20">
 </div>
 
 <div class="form-group">
@@ -705,7 +713,8 @@ Your request will remain <b>pending</b> until it is manually verified and approv
 </div>
 
 <p class="request-note">
-Minimum withdrawal is $10. Withdrawals can only be requested on the <b>1st of each month</b>.
+Minimum withdrawal is $20. Your profit share can be withdrawn on demand, any time.
+Your original deposit unlocks 40 days after it is credited.
 Once approved, withdrawals are typically received within <b>5 minutes to 8 hours</b>.
 Only your available balance can be withdrawn.
 Make sure the TRC20 wallet address is correct before submitting.
@@ -819,10 +828,13 @@ const SUPABASE_URL='https://nzasmkplxzirnqeteclv.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ywmF35YANKsFEdZOs8wDdQ__jIezHTF';
 
 const DEPOSIT_ADDRESS='TGQNwY7JfxfErzGjXrFYSKs9jKr58FDpcN';
+const PRINCIPAL_LOCK_DAYS=40;
+const MIN_WITHDRAWAL=20;
 
 let supabaseClient=null;
 let supabaseReady=false;
 let currentUser=null;
+let currentAccount=null;
 
 function $(id){return document.getElementById(id)}
 
@@ -1148,6 +1160,9 @@ async function loadDashboard(){
     document.querySelector('footer').style.display='none';
     document.querySelector('header').style.display='none';
 
+    const contactSection=$('contact');
+    if(contactSection)contactSection.style.display='none';
+
     const {data:profile}=await supabaseClient
       .from('profiles')
       .select('full_name,wallet_address')
@@ -1163,11 +1178,12 @@ async function loadDashboard(){
 
     const {data:accounts}=await supabaseClient
       .from('accounts')
-      .select('balance,initial_balance,profit')
+      .select('balance,initial_balance,profit,first_deposit_at,total_withdrawn')
       .eq('user_id',user.id)
       .limit(1);
 
-    const a=accounts?.[0];
+    const a=accounts?.[0]||null;
+    currentAccount=a;
 
     $('dashBalance').textContent='$'+Number(
       a?.balance||0
@@ -1181,6 +1197,11 @@ async function loadDashboard(){
       a?.profit||0
     ).toFixed(2);
 
+    if($('dashWithdrawn'))
+      $('dashWithdrawn').textContent='$'+Number(
+        a?.total_withdrawn||0
+      ).toFixed(2);
+
     await loadRequests();
 
   }catch(err){
@@ -1188,6 +1209,26 @@ async function loadDashboard(){
     console.error('Dashboard error:',err);
 
   }
+}
+
+function daysSince(dateStr){
+  if(!dateStr)return null;
+  const then=new Date(dateStr).getTime();
+  return (Date.now()-then)/86400000;
+}
+
+function getWithdrawableAmount(){
+  if(!currentAccount)return 0;
+
+  const balance=Number(currentAccount.balance||0);
+  const profit=Number(currentAccount.profit||0);
+  const days=daysSince(currentAccount.first_deposit_at);
+
+  const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
+
+  if(principalUnlocked)return balance;
+
+  return Math.min(profit,balance);
 }
 
 function openRequest(type){
@@ -1205,19 +1246,34 @@ function openRequest(type){
   if(type==='deposit'&&$('depositAddressField'))
     $('depositAddressField').value=DEPOSIT_ADDRESS;
 
+  if(type==='withdrawal'){
+
+    const avail=getWithdrawableAmount();
+    const days=daysSince(currentAccount?.first_deposit_at);
+    const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
+    const noteEl=$('withdrawalAvailable');
+
+    if(noteEl){
+
+      if(principalUnlocked){
+
+        noteEl.textContent='Your principal is unlocked. You can withdraw up to $'+avail.toFixed(2)+' now.';
+
+      }else{
+
+        const daysLeft=Math.max(0,Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0)));
+
+        noteEl.textContent='You can withdraw up to $'+avail.toFixed(2)+' now (your profit share). Your deposited capital unlocks in '+daysLeft+' day'+(daysLeft===1?'':'s')+'.';
+
+      }
+
+      noteEl.style.display='block';
+    }
+  }
+
   m.classList.add('show');
 
   document.body.classList.add('modal-open');
-
-  if(type==='withdrawal'&&new Date().getDate()!==1){
-
-    showMsg(
-      'withdrawalMsg',
-      'Withdrawals can only be requested on the 1st of each month. Please come back then.',
-      true
-    );
-
-  }
 
   setTimeout(()=>{
 
@@ -1432,25 +1488,13 @@ async function submitWithdrawal(){
     return;
   }
 
-  const today=new Date();
-
-  if(today.getDate()!==1){
-
-    showMsg(
-      'withdrawalMsg',
-      'Withdrawals can only be requested on the 1st of each month. Please come back then.'
-    );
-
-    return;
-  }
-
   const amount=Number($('withdrawalAmount').value);
   const wallet=$('withdrawalWallet').value.trim();
 
-  if(!Number.isFinite(amount)||amount<10){
+  if(!Number.isFinite(amount)||amount<MIN_WITHDRAWAL){
     showMsg(
       'withdrawalMsg',
-      'Minimum withdrawal is $10.'
+      'Minimum withdrawal is $'+MIN_WITHDRAWAL+'.'
     );
     return;
   }
@@ -1466,7 +1510,7 @@ async function submitWithdrawal(){
   const {data:accounts,error:accountError}=
     await supabaseClient
     .from('accounts')
-    .select('balance')
+    .select('balance,profit,first_deposit_at')
     .eq('user_id',currentUser.id)
     .limit(1);
 
@@ -1478,7 +1522,9 @@ async function submitWithdrawal(){
     return;
   }
 
-  const balance=Number(accounts?.[0]?.balance||0);
+  currentAccount=accounts?.[0]||currentAccount;
+
+  const balance=Number(currentAccount?.balance||0);
 
   if(amount>balance){
 
@@ -1486,6 +1532,23 @@ async function submitWithdrawal(){
       'withdrawalMsg',
       'Withdrawal amount is higher than your available balance of $'+
       balance.toFixed(2)+'.'
+    );
+
+    return;
+  }
+
+  const maxWithdrawable=getWithdrawableAmount();
+
+  if(amount>maxWithdrawable){
+
+    const days=daysSince(currentAccount?.first_deposit_at);
+    const daysLeft=Math.max(0,Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0)));
+
+    showMsg(
+      'withdrawalMsg',
+      'You can currently withdraw up to $'+maxWithdrawable.toFixed(2)+
+      ' (your profit share). Your deposited capital unlocks in '+
+      daysLeft+' day'+(daysLeft===1?'':'s')+'.'
     );
 
     return;
