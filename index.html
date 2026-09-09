@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1959,14 +1960,20 @@ async function submitWithdrawal(){
 
   try{
 
+    /*
+      FIX:
+      withdrawals table mein fee column nahi hai.
+      Is liye fee aur net_amount ko database insert se hata diya gaya hai.
+      $2 fee ka calculation/display upar aur confirmation message mein
+      waise hi active rahega.
+    */
+
     const {error}=
       await supabaseClient
       .from('withdrawals')
       .insert({
         user_id:currentUser.id,
         amount,
-        fee,
-        net_amount:netAmount,
         wallet_address:wallet,
         network:'TRC20',
         status:'pending'
@@ -2388,3 +2395,4 @@ document.addEventListener(
 
 </body>
 </html>
+```
