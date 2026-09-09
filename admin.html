@@ -10,6 +10,7 @@
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#0D0F13,#12151A 55%,#161A21);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}button,input{font:inherit}.wrap{max-width:1250px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.brand{font-weight:800;font-size:23px}.brand span{color:var(--gold)}.sub{color:var(--muted);font-size:13px;margin-top:4px}.btn{border:1px solid var(--line);background:#122238;color:#fff;border-radius:10px;padding:10px 15px;cursor:pointer}.btn:hover{border-color:#39506d}.logout{border-color:#5b2930;color:#ffb6b6}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.stat small{color:var(--muted)}.stat h2{margin:8px 0 0;font-size:25px}.section{margin-top:20px;background:rgba(13,26,43,.95);border:1px solid var(--line);border-radius:16px;padding:18px}.section h3{margin:0 0 14px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #1b2c42;font-size:13px;vertical-align:top}th{color:var(--muted);font-weight:600}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;text-transform:capitalize}.pending{background:#4a3917;color:#ffd87b}.approved{background:#123d2d;color:#77e2b3}.rejected{background:#4a2025;color:#ff9c9c}.actions{display:flex;gap:7px;flex-wrap:wrap}.approve{background:#123d2d;border-color:#235e48;color:#7be5b7}.reject{background:#4a2025;border-color:#71343c;color:#ff9c9c}.createacc{background:#1f2b47;border-color:#3a538a;color:#9db6ec}.pnl-row{display:flex;gap:6px;align-items:center}.pnl-input{width:90px;padding:8px 9px;border-radius:8px;border:1px solid var(--line);background:#091525;color:#fff;outline:none}.pnl-btn{background:#3a2f12;border-color:#8a6a1f;color:#f0c975}.disabled{opacity:.45;pointer-events:none}.empty{color:var(--muted);padding:18px 0}.notice{display:none;margin-bottom:15px;padding:12px 14px;border-radius:10px;background:#14283e;border:1px solid var(--line);color:#cfe0f5}.no-account-tag{display:block;margin-top:4px;font-size:11px;color:#ffb37b}.login{max-width:430px;margin:10vh auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}.login h1{margin-top:0}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:7px}.field input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#091525;color:#fff;outline:none}.login .btn{width:100%;margin-top:8px;background:#b88a2f;border-color:#b88a2f;color:#07111f;font-weight:700}.hidden{display:none!important}.wallet{max-width:280px;word-break:break-all}.refresh{float:right}.footer{color:var(--muted);font-size:12px;text-align:center;padding:25px}.danger-note{color:#ffb3b3;font-size:12px;margin-top:10px}
 .pw-wrap{position:relative}.pw-wrap input{padding-right:42px}.pw-toggle{position:absolute;right:0;top:0;height:100%;width:40px;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:pointer;color:var(--muted);padding:0}.pw-toggle:hover{color:var(--gold)}
 .proof-link{color:var(--gold);text-decoration:underline;font-size:12px;display:inline-block;margin-top:4px}
+.lock-tag{display:block;margin-top:4px;font-size:11px;color:var(--muted)}
 @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.wrap{padding:14px}.cards{grid-template-columns:1fr}.top{align-items:flex-start}.top .btn{padding:8px 10px}}
 </style>
 </head>
@@ -53,6 +54,7 @@ const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 const money=n=>'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const PRINCIPAL_LOCK_DAYS=40;
 function showMsg(text,error=false){const el=$('msg');el.textContent=text;el.style.display='block';el.style.borderColor=error?'#71343c':'#20324a';el.style.color=error?'#ffb6b6':'#cfe0f5';setTimeout(()=>el.style.display='none',5000)}
 function loginMsg(text,error=false){const el=$('loginMsg');el.textContent=text;el.style.display='block';el.style.color=error?'#ffb6b6':'#cfe0f5'}
 function pill(status){return `<span class="pill ${esc(status)}">${esc(status)}</span>`}
@@ -62,6 +64,10 @@ function togglePw(id,btn){
   input.type=isHidden?'text':'password';
   btn.textContent=isHidden?'🙈':'👁';
   btn.setAttribute('aria-label',isHidden?'Hide password':'Show password');
+}
+function daysSince(dateStr){
+  if(!dateStr)return null;
+  return (Date.now()-new Date(dateStr).getTime())/86400000;
 }
 async function getSession(){const {data}=await client.auth.getSession();return data.session}
 const ADMIN_UID='8adf0a50-6aa0-436b-a645-38164f1ed288';
@@ -133,7 +139,12 @@ function renderWithdrawals(rows,names,accByUser){
      if(!hasAccount){
        actionCell=`<div class="actions"><button class="btn createacc" onclick="createAccount('${r.user_id}')">Create Account</button></div>`;
      } else {
-       actionCell=`<div class="actions"><button class="btn approve" onclick="approveWithdrawal(${r.id})">Approve</button><button class="btn reject" onclick="rejectWithdrawal(${r.id})">Reject</button></div>`;
+       const acc=accByUser[r.user_id];
+       const days=daysSince(acc?.first_deposit_at);
+       const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
+       const maxAllowed=principalUnlocked?Number(acc.balance||0):Math.min(Number(acc.profit||0),Number(acc.balance||0));
+       const overLimit=Number(r.amount)>maxAllowed;
+       actionCell=`<div class="actions"><button class="btn approve" onclick="approveWithdrawal(${r.id})">Approve</button><button class="btn reject" onclick="rejectWithdrawal(${r.id})">Reject</button></div>${overLimit?`<span class="no-account-tag">Exceeds withdrawable ($${maxAllowed.toFixed(2)})</span>`:''}`;
      }
    }
    return `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${money(r.amount)}</td><td class="wallet">${esc(r.wallet_address)}</td><td>${pill(r.status)}</td><td>${actionCell}</td></tr>`
@@ -141,7 +152,16 @@ function renderWithdrawals(rows,names,accByUser){
 }
 function renderAccounts(rows,names){
  if(!rows.length){$('accountTable').innerHTML='<div class="empty">No client accounts found. Use "Create Account" next to a deposit request to add one.</div>';return}
- $('accountTable').innerHTML=`<table><thead><tr><th>Client</th><th>Account</th><th>Initial</th><th>Balance</th><th>Profit</th><th>Status</th><th>Record today's result</th></tr></thead><tbody>${rows.map(r=>{const p=names[r.user_id]||{};return `<tr><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${esc(r.account_name)}</td><td>${money(r.initial_balance)}</td><td>${money(r.balance)}</td><td>${money(r.profit)}</td><td>${pill(r.status)}</td><td><div class="pnl-row"><input class="pnl-input" type="number" step="0.01" id="pnl-${r.id}" placeholder="e.g. 40 or -15"><button class="btn pnl-btn" onclick="recordResult(${r.id},'${r.user_id}')">Add</button></div></td></tr>`}).join('')}</tbody></table>`;
+ $('accountTable').innerHTML=`<table><thead><tr><th>Client</th><th>Account</th><th>Initial</th><th>Balance</th><th>Profit</th><th>Withdrawn</th><th>Principal unlock</th><th>Status</th><th>Record today's result</th></tr></thead><tbody>${rows.map(r=>{
+   const p=names[r.user_id]||{};
+   const days=daysSince(r.first_deposit_at);
+   let lockCell='<span style="color:var(--muted)">No deposit yet</span>';
+   if(days!==null){
+     if(days>=PRINCIPAL_LOCK_DAYS)lockCell='<span style="color:var(--green)">Unlocked</span>';
+     else lockCell=`<span class="lock-tag">${Math.ceil(PRINCIPAL_LOCK_DAYS-days)} day(s) left</span>`;
+   }
+   return `<tr><td>${esc(p.full_name||'Unknown')}<br><small>${esc(p.id||r.user_id)}</small></td><td>${esc(r.account_name)}</td><td>${money(r.initial_balance)}</td><td>${money(r.balance)}</td><td>${money(r.profit)}</td><td>${money(r.total_withdrawn)}</td><td>${lockCell}</td><td>${pill(r.status)}</td><td><div class="pnl-row"><input class="pnl-input" type="number" step="0.01" id="pnl-${r.id}" placeholder="e.g. 40 or -15"><button class="btn pnl-btn" onclick="recordResult(${r.id},'${r.user_id}')">Add</button></div></td></tr>`
+ }).join('')}</tbody></table>`;
 }
 function renderProfitEntries(rows,names){
  if(!rows.length){$('profitTable').innerHTML='<div class="empty">No daily results recorded yet.</div>';return}
@@ -160,6 +180,7 @@ async function createAccount(userId){
    initial_balance:0,
    balance:0,
    profit:0,
+   total_withdrawn:0,
    status:'active'
  });
  if(error){showMsg(error.message,true);return}
@@ -194,7 +215,14 @@ async function approveDeposit(id){
  const {data:accs,error:ae}=await client.from('accounts').select('*').eq('user_id',d.user_id).limit(1);if(ae){showMsg(ae.message,true);return}
  if(!accs||!accs.length){showMsg('Client has no account row. Create the account first, then approve this deposit.',true);return}
  const acc=accs[0];
- const {error:ue}=await client.from('accounts').update({balance:Number(acc.balance||0)+Number(d.amount||0),initial_balance:Number(acc.initial_balance||0)+Number(d.amount||0)}).eq('id',acc.id);if(ue){showMsg(ue.message,true);return}
+ const updates={
+   balance:Number(acc.balance||0)+Number(d.amount||0),
+   initial_balance:Number(acc.initial_balance||0)+Number(d.amount||0)
+ };
+ if(!acc.first_deposit_at){
+   updates.first_deposit_at=new Date().toISOString();
+ }
+ const {error:ue}=await client.from('accounts').update(updates).eq('id',acc.id);if(ue){showMsg(ue.message,true);return}
  const {error:de}=await client.from('deposits').update({status:'approved'}).eq('id',id).eq('status','pending');if(de){showMsg(de.message,true);return}
  await client.from('transactions').insert({user_id:d.user_id,account_id:acc.id,type:'deposit',amount:d.amount,description:'Deposit approved by admin'});
  showMsg('Deposit approved.');loadAll();
@@ -209,8 +237,20 @@ async function approveWithdrawal(id){
  if(w.status!=='pending'){showMsg('This request is no longer pending.',true);return}
  const {data:accs,error:ae}=await client.from('accounts').select('*').eq('user_id',w.user_id).limit(1);if(ae){showMsg(ae.message,true);return}
  if(!accs||!accs.length){showMsg('Client has no account row.',true);return}
- const acc=accs[0], bal=Number(acc.balance||0), amt=Number(w.amount||0);if(amt>bal){showMsg('Insufficient client balance. Withdrawal not approved.',true);return}
- const {error:ue}=await client.from('accounts').update({balance:bal-amt}).eq('id',acc.id);if(ue){showMsg(ue.message,true);return}
+ const acc=accs[0], bal=Number(acc.balance||0), amt=Number(w.amount||0);
+ if(amt>bal){showMsg('Insufficient client balance. Withdrawal not approved.',true);return}
+ const days=daysSince(acc.first_deposit_at);
+ const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
+ const maxAllowed=principalUnlocked?bal:Math.min(Number(acc.profit||0),bal);
+ if(amt>maxAllowed){
+   if(!confirm(`Warning: this withdrawal ($${amt.toFixed(2)}) exceeds the client's currently withdrawable amount ($${maxAllowed.toFixed(2)}) because their principal is still locked (${Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0))} day(s) left). Approve anyway?`))return;
+ }
+ const newProfit=Math.max(0,Number(acc.profit||0)-amt);
+ const {error:ue}=await client.from('accounts').update({
+   balance:bal-amt,
+   profit:newProfit,
+   total_withdrawn:Number(acc.total_withdrawn||0)+amt
+ }).eq('id',acc.id);if(ue){showMsg(ue.message,true);return}
  const {error:we}=await client.from('withdrawals').update({status:'approved'}).eq('id',id).eq('status','pending');if(we){showMsg(we.message,true);return}
  await client.from('transactions').insert({user_id:w.user_id,account_id:acc.id,type:'withdrawal',amount:amt,description:'Withdrawal approved by admin'});
  showMsg('Withdrawal approved and balance reduced.');loadAll();
