@@ -124,7 +124,7 @@ footer{padding:56px 0 40px}
 /* auth */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;align-items:center;justify-content:center;padding:20px}
 .modal.show{display:flex}
-.auth-box{width:min(460px,100%);background:var(--panel);border:1px solid var(--line);padding:30px;border-radius:5px;position:relative}
+.auth-box{width:min(460px,100%);background:var(--panel);border:1px solid var(--line);padding:30px;border-radius:5px;position:relative;max-height:90vh;overflow:auto}
 .close{position:absolute;right:18px;top:12px;background:none;border:0;color:var(--muted);font-size:28px;cursor:pointer}
 .auth-box h2{margin-bottom:8px}
 .auth-sub{color:var(--muted);font-size:13px;margin-bottom:20px}
@@ -143,6 +143,9 @@ footer{padding:56px 0 40px}
 .form-actions .btn{width:100%;padding:12px}
 .switch{margin-top:16px;text-align:center;color:var(--muted);font-size:13px}
 .switch button{background:none;border:0;color:var(--gold);cursor:pointer}
+.forgot-link{text-align:right;margin-top:9px}
+.forgot-link button{background:none;border:0;color:var(--gold);cursor:pointer;font-size:12px;padding:0}
+.forgot-link button:hover{text-decoration:underline}
 .msg{display:none;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);font-size:13px}
 .msg.show{display:block}
 
@@ -266,7 +269,6 @@ footer{padding:56px 0 40px}
 <section class="live-strip" style="padding:0">
 <div class="wrap live-row">
 <span class="live-dot"></span>
-<!--<span><b id="liveClients">—</b> clients onboarded</span>-->
 <span class="live-sep">·</span>
 <span><b>3,500+</b> Verified Clients</span>
 <span><b id="liveDeposits">—</b> in verified deposits</span>
@@ -384,8 +386,6 @@ footer{padding:56px 0 40px}
 </div>
 </section>
 
-<!-- TERMS & CONDITIONS -->
-
 <section id="terms" class="legal-section">
 <div class="wrap">
 <div class="sec-tag">Legal</div>
@@ -420,8 +420,6 @@ footer{padding:56px 0 40px}
 </div>
 </section>
 
-<!-- PRIVACY POLICY -->
-
 <section id="privacy" class="legal-section">
 <div class="wrap">
 <div class="sec-tag">Legal</div>
@@ -454,8 +452,6 @@ footer{padding:56px 0 40px}
 </div>
 </div>
 </section>
-
-<!-- RISK DISCLOSURE -->
 
 <section id="risk-disclosure" class="legal-section">
 <div class="wrap">
@@ -736,6 +732,8 @@ Make sure the TRC20 wallet address is correct before submitting.
 
 <button class="close" onclick="closeAuth()">×</button>
 
+<!-- LOGIN -->
+
 <div id="loginForm">
 
 <h2>Client login</h2>
@@ -754,18 +752,26 @@ Make sure the TRC20 wallet address is correct before submitting.
 <input id="loginPassword" type="password" autocomplete="current-password">
 <button type="button" class="pw-toggle" onclick="togglePw('loginPassword',this)" aria-label="Show password">👁</button>
 </div>
+
+<!-- NEW: FORGOT PASSWORD -->
+<div class="forgot-link">
+<button type="button" onclick="showResetPassword()">Forgot password?</button>
+</div>
+
 </div>
 
 <div class="form-actions">
-<button class="btn btn-gold" onclick="login()">Login</button>
+<button type="button" class="btn btn-gold" onclick="login()">Login</button>
 </div>
 
 <div class="switch">
 Don't have an account?
-<button onclick="showSignup()">Create account</button>
+<button type="button" onclick="showSignup()">Create account</button>
 </div>
 
 </div>
+
+<!-- SIGNUP -->
 
 <div id="signupForm" style="display:none">
 
@@ -811,15 +817,76 @@ Don't have an account?
 </div>
 
 <div class="form-actions">
-<button class="btn btn-gold" onclick="signup()">Create account</button>
+<button type="button" class="btn btn-gold" onclick="signup()">Create account</button>
 </div>
 
 <div class="switch">
 Already have an account?
-<button onclick="showLogin()">Client login</button>
+<button type="button" onclick="showLogin()">Client login</button>
 </div>
 
 </div>
+
+<!-- NEW: RESET EMAIL FORM -->
+
+<div id="resetPasswordForm" style="display:none">
+
+<h2>Reset password</h2>
+<p class="auth-sub">Enter your account email and we'll send you a password reset link.</p>
+
+<div class="msg" id="resetMsg"></div>
+
+<div class="form-group">
+<label>Email</label>
+<input id="resetEmail" type="email" autocomplete="email" placeholder="Your account email">
+</div>
+
+<div class="form-actions">
+<button type="button" class="btn btn-gold" onclick="sendResetEmail()">Send reset link</button>
+</div>
+
+<div class="switch">
+Remember your password?
+<button type="button" onclick="showLogin()">Client login</button>
+</div>
+
+</div>
+
+<!-- NEW: NEW PASSWORD FORM -->
+
+<div id="newPasswordForm" style="display:none">
+
+<h2>Set new password</h2>
+<p class="auth-sub">Enter your new PipZoNe account password.</p>
+
+<div class="msg" id="newPasswordMsg"></div>
+
+<div class="form-group">
+<label>New Password</label>
+<div class="pw-wrap">
+<input id="newPassword" type="password" autocomplete="new-password" placeholder="New password">
+<button type="button" class="pw-toggle" onclick="togglePw('newPassword',this)" aria-label="Show password">👁</button>
+</div>
+</div>
+
+<div class="form-group">
+<label>Confirm New Password</label>
+<div class="pw-wrap">
+<input id="confirmNewPassword" type="password" autocomplete="new-password" placeholder="Confirm new password">
+<button type="button" class="pw-toggle" onclick="togglePw('confirmNewPassword',this)" aria-label="Show password">👁</button>
+</div>
+</div>
+
+<div class="form-actions">
+<button type="button" class="btn btn-gold" onclick="updatePassword()">Update password</button>
+</div>
+
+<div class="switch">
+<button type="button" onclick="showLogin()">Back to client login</button>
+</div>
+
+</div>
+
 </div>
 </div>
 
@@ -845,6 +912,7 @@ const modal=$('authModal');
 function showMsg(id,text,error=true){
   const e=$(id);
   if(!e)return;
+
   e.textContent=text;
   e.style.color=error?'var(--loss)':'var(--profit)';
   e.classList.add('show');
@@ -921,10 +989,16 @@ function copyDepositAddress(){
   }).catch(()=>{});
 }
 
+/* =========================
+   AUTH FUNCTIONS
+========================= */
+
 function openAuth(mode){
   clearMessages();
+
   modal.classList.add('show');
   document.body.classList.add('modal-open');
+
   mode==='signup'?showSignup():showLogin();
 }
 
@@ -934,16 +1008,287 @@ function closeAuth(){
   clearMessages();
 }
 
-function showSignup(){
+function hideAuthForms(){
   $('loginForm').style.display='none';
+  $('signupForm').style.display='none';
+  $('resetPasswordForm').style.display='none';
+  $('newPasswordForm').style.display='none';
+}
+
+function showSignup(){
+  hideAuthForms();
   $('signupForm').style.display='block';
   clearMessages();
 }
 
 function showLogin(){
-  $('signupForm').style.display='none';
+  hideAuthForms();
   $('loginForm').style.display='block';
   clearMessages();
+}
+
+/* =========================
+   NEW: FORGOT PASSWORD
+========================= */
+
+function showResetPassword(){
+
+  modal.classList.add('show');
+  document.body.classList.add('modal-open');
+
+  hideAuthForms();
+
+  $('resetPasswordForm').style.display='block';
+
+  clearMessages();
+
+  /* Automatically copy login email if already entered */
+  const loginEmail=$('loginEmail')?.value.trim();
+
+  if(loginEmail){
+    $('resetEmail').value=loginEmail;
+  }
+
+  setTimeout(()=>{
+    $('resetEmail')?.focus();
+  },50);
+}
+
+/* =========================
+   NEW: PASSWORD RECOVERY
+========================= */
+
+function showNewPasswordForm(){
+
+  modal.classList.add('show');
+  document.body.classList.add('modal-open');
+
+  hideAuthForms();
+
+  $('newPasswordForm').style.display='block';
+
+  clearMessages();
+
+  setTimeout(()=>{
+    $('newPassword')?.focus();
+  },50);
+}
+
+/* =========================
+   NEW: SEND RESET EMAIL
+========================= */
+
+async function sendResetEmail(){
+
+  clearMessages();
+
+  if(!supabaseReady){
+
+    showMsg(
+      'resetMsg',
+      'Connection is not ready. Please refresh the page and try again.'
+    );
+
+    return;
+  }
+
+  const email=$('resetEmail').value.trim();
+
+  if(!email){
+
+    showMsg(
+      'resetMsg',
+      'Please enter your account email.'
+    );
+
+    return;
+  }
+
+  const button=$('resetPasswordForm')
+    .querySelector('.form-actions .btn');
+
+  if(button){
+    button.disabled=true;
+    button.textContent='Sending...';
+  }
+
+  try{
+
+    const {error}=await supabaseClient.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo:window.location.origin
+      }
+    );
+
+    if(error){
+
+      console.error('Reset email error:',error);
+
+      showMsg(
+        'resetMsg',
+        error.message
+      );
+
+      return;
+    }
+
+    showMsg(
+      'resetMsg',
+      'Password reset link has been sent to your email. Please check your inbox and spam folder.',
+      false
+    );
+
+  }catch(err){
+
+    console.error(err);
+
+    showMsg(
+      'resetMsg',
+      'Unable to send reset email right now. Please try again.'
+    );
+
+  }finally{
+
+    if(button){
+      button.disabled=false;
+      button.textContent='Send reset link';
+    }
+
+  }
+}
+
+/* =========================
+   NEW: UPDATE PASSWORD
+========================= */
+
+async function updatePassword(){
+
+  clearMessages();
+
+  if(!supabaseReady){
+
+    showMsg(
+      'newPasswordMsg',
+      'Connection is not ready. Please refresh the page and try again.'
+    );
+
+    return;
+  }
+
+  const password=$('newPassword').value;
+  const confirm=$('confirmNewPassword').value;
+
+  if(!password){
+
+    showMsg(
+      'newPasswordMsg',
+      'Please enter your new password.'
+    );
+
+    return;
+  }
+
+  if(password.length<6){
+
+    showMsg(
+      'newPasswordMsg',
+      'Password must be at least 6 characters.'
+    );
+
+    return;
+  }
+
+  if(!confirm){
+
+    showMsg(
+      'newPasswordMsg',
+      'Please confirm your new password.'
+    );
+
+    return;
+  }
+
+  if(password!==confirm){
+
+    showMsg(
+      'newPasswordMsg',
+      'Passwords do not match.'
+    );
+
+    return;
+  }
+
+  const button=$('newPasswordForm')
+    .querySelector('.form-actions .btn');
+
+  if(button){
+    button.disabled=true;
+    button.textContent='Updating...';
+  }
+
+  try{
+
+    const {error}=await supabaseClient.auth.updateUser({
+      password:password
+    });
+
+    if(error){
+
+      console.error('Password update error:',error);
+
+      showMsg(
+        'newPasswordMsg',
+        error.message
+      );
+
+      return;
+    }
+
+    $('newPassword').value='';
+    $('confirmNewPassword').value='';
+
+    showMsg(
+      'newPasswordMsg',
+      'Password updated successfully. You can now login with your new password.',
+      false
+    );
+
+    /*
+      After successful password change, wait a little
+      and return the client to login.
+    */
+    setTimeout(()=>{
+
+      try{
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+      }catch(e){}
+
+      showLogin();
+
+    },1500);
+
+  }catch(err){
+
+    console.error(err);
+
+    showMsg(
+      'newPasswordMsg',
+      'Unable to update password right now. Please try again.'
+    );
+
+  }finally{
+
+    if(button){
+      button.disabled=false;
+      button.textContent='Update password';
+    }
+
+  }
 }
 
 function validWallet(w){
@@ -951,6 +1296,7 @@ function validWallet(w){
 }
 
 function togglePw(id,btn){
+
   const input=$(id);
 
   if(!input)return;
@@ -1214,19 +1560,24 @@ async function loadDashboard(){
 }
 
 function daysSince(dateStr){
+
   if(!dateStr)return null;
+
   const then=new Date(dateStr).getTime();
+
   return (Date.now()-then)/86400000;
 }
 
 function getWithdrawableAmount(){
+
   if(!currentAccount)return 0;
 
   const balance=Number(currentAccount.balance||0);
   const profit=Number(currentAccount.profit||0);
   const days=daysSince(currentAccount.first_deposit_at);
 
-  const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
+  const principalUnlocked=
+    days!==null&&days>=PRINCIPAL_LOCK_DAYS;
 
   if(principalUnlocked)return balance;
 
@@ -1252,20 +1603,35 @@ function openRequest(type){
 
     const avail=getWithdrawableAmount();
     const days=daysSince(currentAccount?.first_deposit_at);
-    const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
+    const principalUnlocked=
+      days!==null&&days>=PRINCIPAL_LOCK_DAYS;
+
     const noteEl=$('withdrawalAvailable');
 
     if(noteEl){
 
       if(principalUnlocked){
 
-        noteEl.textContent='Your principal is unlocked. You can withdraw up to $'+avail.toFixed(2)+' now.';
+        noteEl.textContent=
+          'Your principal is unlocked. You can withdraw up to $'+
+          avail.toFixed(2)+
+          ' now.';
 
       }else{
 
-        const daysLeft=Math.max(0,Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0)));
+        const daysLeft=Math.max(
+          0,
+          Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0))
+        );
 
-        noteEl.textContent='You can withdraw up to $'+avail.toFixed(2)+' now (your profit share). Your deposited capital unlocks in '+daysLeft+' day'+(daysLeft===1?'':'s')+'.';
+        noteEl.textContent=
+          'You can withdraw up to $'+
+          avail.toFixed(2)+
+          ' now (your profit share). Your deposited capital unlocks in '+
+          daysLeft+
+          ' day'+
+          (daysLeft===1?'':'s')+
+          '.';
 
       }
 
@@ -1544,13 +1910,20 @@ async function submitWithdrawal(){
   if(amount>maxWithdrawable){
 
     const days=daysSince(currentAccount?.first_deposit_at);
-    const daysLeft=Math.max(0,Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0)));
+    const daysLeft=Math.max(
+      0,
+      Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0))
+    );
 
     showMsg(
       'withdrawalMsg',
-      'You can currently withdraw up to $'+maxWithdrawable.toFixed(2)+
+      'You can currently withdraw up to $'+
+      maxWithdrawable.toFixed(2)+
       ' (your profit share). Your deposited capital unlocks in '+
-      daysLeft+' day'+(daysLeft===1?'':'s')+'.'
+      daysLeft+
+      ' day'+
+      (daysLeft===1?'':'s')+
+      '.'
     );
 
     return;
@@ -1719,6 +2092,7 @@ async function loadRequests(){
 }
 
 /* CONTACT FORM */
+
 function submitContact(event){
 
   event.preventDefault();
@@ -1790,6 +2164,11 @@ function updateCalculator(){
     Math.abs(v*.4).toFixed(2);
 }
 
+
+/* =========================
+   PAGE INITIALIZATION
+========================= */
+
 document.addEventListener(
   'DOMContentLoaded',
   async function(){
@@ -1829,9 +2208,14 @@ document.addEventListener(
         )
       );
 
+
+    /* =========================
+       ENTER KEY SUPPORT
+    ========================= */
+
     document
       .querySelectorAll(
-        '#loginForm input,#signupForm input'
+        '#loginForm input,#signupForm input,#resetPasswordForm input,#newPasswordForm input'
       )
       .forEach(input=>
         input.addEventListener(
@@ -1843,15 +2227,58 @@ document.addEventListener(
 
               if(
                 $('loginForm').style.display!=='none'
-              )
+              ){
+
                 login();
-              else
+
+              }else if(
+                $('signupForm').style.display!=='none'
+              ){
+
                 signup();
+
+              }else if(
+                $('resetPasswordForm').style.display!=='none'
+              ){
+
+                sendResetEmail();
+
+              }else if(
+                $('newPasswordForm').style.display!=='none'
+              ){
+
+                updatePassword();
+
+              }
 
             }
           }
         )
       );
+
+
+    /* =========================
+       SUPABASE PASSWORD RECOVERY
+    ========================= */
+
+    supabaseClient.auth.onAuthStateChange(
+      (event,session)=>{
+
+        if(event==='PASSWORD_RECOVERY'){
+
+          setTimeout(()=>{
+            showNewPasswordForm();
+          },0);
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       ESCAPE KEY
+    ========================= */
 
     document.addEventListener(
       'keydown',
@@ -1877,6 +2304,11 @@ document.addEventListener(
       }
     );
 
+
+    /* =========================
+       MODAL BACKDROP CLICK
+    ========================= */
+
     document
       .querySelectorAll(
         '.modal,.request-modal'
@@ -1901,13 +2333,42 @@ document.addEventListener(
         )
       );
 
+
+    /* =========================
+       SESSION CHECK
+    ========================= */
+
     try{
 
       const {data}=
         await supabaseClient.auth.getSession();
 
-      if(data?.session)
+      /*
+        Supabase recovery links normally return something like:
+        #access_token=...&refresh_token=...&type=recovery
+
+        If this is a recovery link, show the new-password form
+        instead of opening the normal dashboard.
+      */
+
+      const recoveryHash=
+        window.location.hash.includes('type=recovery');
+
+      const recoverySearch=
+        window.location.search.includes('type=recovery');
+
+      const isRecovery=
+        recoveryHash||recoverySearch;
+
+      if(isRecovery&&data?.session){
+
+        showNewPasswordForm();
+
+      }else if(data?.session){
+
         await loadDashboard();
+
+      }
 
     }catch(err){
 
