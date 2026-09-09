@@ -989,12 +989,15 @@ async function loadAll(){
   ] =
   await Promise.all([
 
+    /* CHANGED:
+       Load ALL profiles so every user's name can be found.
+    */
+
     client
       .from('profiles')
       .select(
         'id,full_name,phone,wallet_address,role,created_at'
       )
-      .eq('role','client')
       .order(
         'created_at',
         {ascending:false}
@@ -1119,10 +1122,18 @@ async function loadAll(){
   ===================================================== */
 
 
-  /* TOTAL CLIENTS */
+  /* TOTAL CLIENTS
+     Only users with role = client
+  */
+
+  const clientProfiles =
+    P.filter(
+      p => p.role === 'client'
+    );
+
 
   $('clients').textContent =
-    P.length;
+    clientProfiles.length;
 
 
   /* TOTAL APPROVED DEPOSIT */
@@ -2911,6 +2922,7 @@ async()=>{
   await client.auth.signInWithPassword({
 
     email,
+
     password
 
   });
