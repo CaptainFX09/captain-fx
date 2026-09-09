@@ -158,6 +158,11 @@ footer{padding:56px 0 40px}
 .logout{background:none;border:1px solid var(--line);color:var(--text);padding:10px 18px;cursor:pointer;border-radius:3px}
 .dash-note{margin-top:18px;padding:12px 14px;background:rgba(47,191,131,.07);border:1px solid rgba(47,191,131,.25);border-radius:3px;font-size:13px;color:var(--gold);line-height:1.6}
 
+.fee-calc{margin-top:12px;padding:14px;background:var(--bg2);border:1px solid var(--line);border-radius:3px;font-size:13px}
+.fee-row{display:flex;justify-content:space-between;padding:5px 0;color:var(--muted)}
+.fee-row.total{border-top:1px solid var(--line);margin-top:5px;padding-top:9px;font-weight:600;color:var(--text)}
+.fee-row span:last-child{font-family:'IBM Plex Mono',monospace}
+
 /* Contact */
 .contact-section{padding:88px 0;border-bottom:1px solid var(--soft)}
 .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
@@ -379,7 +384,7 @@ footer{padding:56px 0 40px}
 
 <div class="faq-item"><div class="faq-q"><span>How is the profit split calculated?</span><span class="plus">+</span></div><div class="faq-a"><p>Each day's actual trading result is calculated. You receive 60% and the desk receives 40%.</p></div></div>
 
-<div class="faq-item"><div class="faq-q"><span>When can I withdraw?</span><span class="plus">+</span></div><div class="faq-a"><p>Your profit share can be withdrawn on demand, any time. Your original deposit (principal) can be withdrawn once 40 days have passed since it was credited. The minimum withdrawal is $20. Once approved, withdrawals are typically received within 5 minutes to 8 hours.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>When can I withdraw?</span><span class="plus">+</span></div><div class="faq-a"><p>Your profit share can be withdrawn on demand, any time. Your original deposit (principal) can be withdrawn once 40 days have passed since it was credited. The minimum withdrawal is $20, and a fixed $2 withdrawal fee applies to every request. Once approved, withdrawals are typically received within 5 minutes to 8 hours.</p></div></div>
 
 <div class="faq-item"><div class="faq-q"><span>Is my capital guaranteed?</span><span class="plus">+</span></div><div class="faq-a"><p>No. Forex trading can result in losses.</p></div></div>
 </div>
@@ -403,7 +408,7 @@ footer{padding:56px 0 40px}
 <p>Trading results are calculated on your allocated capital and split 60% to the client and 40% to the desk. Daily trading results are recorded and updated to client accounts every day at 10:00 PM. This split applies identically to profits and to losses — a negative result reduces your account balance in the same proportion.</p>
 
 <h3>4. Withdrawals</h3>
-<p>The minimum withdrawal amount is $20. Your accumulated profit share may be withdrawn on demand, at any time. Your original deposited capital (principal) may only be withdrawn once 40 days have passed since it was credited to your account. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the TRC20 wallet address you provide.</p>
+<p>The minimum withdrawal amount is $20. A fixed withdrawal fee of $2 is deducted from every withdrawal request; the remaining amount is paid out to you. Your accumulated profit share may be withdrawn on demand, at any time. Your original deposited capital (principal) may only be withdrawn once 40 days have passed since it was credited to your account. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the TRC20 wallet address you provide.</p>
 
 <h3>5. No guaranteed returns</h3>
 <p>Nothing in these terms, on this site, or in any communication from PipZoNe constitutes a guarantee of profit or of capital preservation. Forex trading carries a material risk of loss, up to and including the loss of your entire deposited capital.</p>
@@ -705,13 +710,20 @@ Your deposit unlocks for withdrawal 40 days after it is credited — your profit
 <input id="withdrawalAmount" type="number" min="20" step="0.01" placeholder="20">
 </div>
 
+<div id="withdrawalCalc" class="fee-calc" style="display:none">
+<div class="fee-row"><span>Withdrawal Amount</span><span id="calcAmount">$0.00</span></div>
+<div class="fee-row"><span>Withdrawal Fee</span><span id="calcFee">$0.00</span></div>
+<div class="fee-row total"><span>You Will Receive</span><span id="calcReceive">$0.00</span></div>
+</div>
+
 <div class="form-group">
 <label>TRC20 Withdrawal Wallet</label>
 <input id="withdrawalWallet" type="text" placeholder="T...">
 </div>
 
 <p class="request-note">
-Minimum withdrawal is $20. Your profit share can be withdrawn on demand, any time.
+Minimum withdrawal is $20. A fixed <b>$2 withdrawal fee</b> applies to every request.
+Your profit share can be withdrawn on demand, any time.
 Your original deposit unlocks 40 days after it is credited.
 Once approved, withdrawals are typically received within <b>5 minutes to 8 hours</b>.
 Only your available balance can be withdrawn.
@@ -753,7 +765,6 @@ Make sure the TRC20 wallet address is correct before submitting.
 <button type="button" class="pw-toggle" onclick="togglePw('loginPassword',this)" aria-label="Show password">👁</button>
 </div>
 
-<!-- NEW: FORGOT PASSWORD -->
 <div class="forgot-link">
 <button type="button" onclick="showResetPassword()">Forgot password?</button>
 </div>
@@ -827,7 +838,7 @@ Already have an account?
 
 </div>
 
-<!-- NEW: RESET EMAIL FORM -->
+<!-- RESET EMAIL FORM -->
 
 <div id="resetPasswordForm" style="display:none">
 
@@ -852,7 +863,7 @@ Remember your password?
 
 </div>
 
-<!-- NEW: NEW PASSWORD FORM -->
+<!-- NEW PASSWORD FORM -->
 
 <div id="newPasswordForm" style="display:none">
 
@@ -899,6 +910,7 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ywmF35YANKsFEdZOs8wDdQ__jIezHTF';
 const DEPOSIT_ADDRESS='TGQNwY7JfxfErzGjXrFYSKs9jKr58FDpcN';
 const PRINCIPAL_LOCK_DAYS=40;
 const MIN_WITHDRAWAL=20;
+const WITHDRAWAL_FEE=2;
 
 let supabaseClient=null;
 let supabaseReady=false;
@@ -1027,10 +1039,6 @@ function showLogin(){
   clearMessages();
 }
 
-/* =========================
-   NEW: FORGOT PASSWORD
-========================= */
-
 function showResetPassword(){
 
   modal.classList.add('show');
@@ -1042,7 +1050,6 @@ function showResetPassword(){
 
   clearMessages();
 
-  /* Automatically copy login email if already entered */
   const loginEmail=$('loginEmail')?.value.trim();
 
   if(loginEmail){
@@ -1053,10 +1060,6 @@ function showResetPassword(){
     $('resetEmail')?.focus();
   },50);
 }
-
-/* =========================
-   NEW: PASSWORD RECOVERY
-========================= */
 
 function showNewPasswordForm(){
 
@@ -1073,10 +1076,6 @@ function showNewPasswordForm(){
     $('newPassword')?.focus();
   },50);
 }
-
-/* =========================
-   NEW: SEND RESET EMAIL
-========================= */
 
 async function sendResetEmail(){
 
@@ -1157,10 +1156,6 @@ async function sendResetEmail(){
 
   }
 }
-
-/* =========================
-   NEW: UPDATE PASSWORD
-========================= */
 
 async function updatePassword(){
 
@@ -1254,10 +1249,6 @@ async function updatePassword(){
       false
     );
 
-    /*
-      After successful password change, wait a little
-      and return the client to login.
-    */
     setTimeout(()=>{
 
       try{
@@ -1584,6 +1575,30 @@ function getWithdrawableAmount(){
   return Math.min(profit,balance);
 }
 
+function updateWithdrawalCalc(){
+
+  const amtInput=$('withdrawalAmount');
+  const calc=$('withdrawalCalc');
+
+  if(!amtInput||!calc)return;
+
+  const amt=Number(amtInput.value);
+
+  if(!Number.isFinite(amt)||amt<=0){
+    calc.style.display='none';
+    return;
+  }
+
+  const fee=WITHDRAWAL_FEE;
+  const net=Math.max(0,amt-fee);
+
+  $('calcAmount').textContent='$'+amt.toFixed(2);
+  $('calcFee').textContent='$'+fee.toFixed(2);
+  $('calcReceive').textContent='$'+net.toFixed(2);
+
+  calc.style.display='block';
+}
+
 function openRequest(type){
 
   clearRequestMessages();
@@ -1637,6 +1652,8 @@ function openRequest(type){
 
       noteEl.style.display='block';
     }
+
+    updateWithdrawalCalc();
   }
 
   m.classList.add('show');
@@ -1929,6 +1946,9 @@ async function submitWithdrawal(){
     return;
   }
 
+  const fee=WITHDRAWAL_FEE;
+  const netAmount=Math.max(0,amount-fee);
+
   const button=$('withdrawalModal')
     .querySelector('.form-actions .btn');
 
@@ -1945,6 +1965,8 @@ async function submitWithdrawal(){
       .insert({
         user_id:currentUser.id,
         amount,
+        fee,
+        net_amount:netAmount,
         wallet_address:wallet,
         network:'TRC20',
         status:'pending'
@@ -1964,17 +1986,18 @@ async function submitWithdrawal(){
 
     showMsg(
       'withdrawalMsg',
-      'Withdrawal request submitted successfully. It is pending review.',
+      'Withdrawal request submitted successfully. It is pending review. You will receive $'+netAmount.toFixed(2)+' after the $'+fee.toFixed(2)+' fee.',
       false
     );
 
     $('withdrawalAmount').value='';
+    $('withdrawalCalc').style.display='none';
 
     await loadRequests();
 
     setTimeout(
       ()=>closeRequest('withdrawal'),
-      1200
+      1800
     );
 
   }catch(err){
@@ -2199,6 +2222,14 @@ document.addEventListener(
         }
       );
 
+    const wAmtInput=$('withdrawalAmount');
+
+    if(wAmtInput)
+      wAmtInput.addEventListener(
+        'input',
+        updateWithdrawalCalc
+      );
+
     document
       .querySelectorAll('.faq-q')
       .forEach(q=>
@@ -2208,10 +2239,6 @@ document.addEventListener(
         )
       );
 
-
-    /* =========================
-       ENTER KEY SUPPORT
-    ========================= */
 
     document
       .querySelectorAll(
@@ -2257,10 +2284,6 @@ document.addEventListener(
       );
 
 
-    /* =========================
-       SUPABASE PASSWORD RECOVERY
-    ========================= */
-
     supabaseClient.auth.onAuthStateChange(
       (event,session)=>{
 
@@ -2275,10 +2298,6 @@ document.addEventListener(
       }
     );
 
-
-    /* =========================
-       ESCAPE KEY
-    ========================= */
 
     document.addEventListener(
       'keydown',
@@ -2305,10 +2324,6 @@ document.addEventListener(
     );
 
 
-    /* =========================
-       MODAL BACKDROP CLICK
-    ========================= */
-
     document
       .querySelectorAll(
         '.modal,.request-modal'
@@ -2334,22 +2349,10 @@ document.addEventListener(
       );
 
 
-    /* =========================
-       SESSION CHECK
-    ========================= */
-
     try{
 
       const {data}=
         await supabaseClient.auth.getSession();
-
-      /*
-        Supabase recovery links normally return something like:
-        #access_token=...&refresh_token=...&type=recovery
-
-        If this is a recovery link, show the new-password form
-        instead of opening the normal dashboard.
-      */
 
       const recoveryHash=
         window.location.hash.includes('type=recovery');
