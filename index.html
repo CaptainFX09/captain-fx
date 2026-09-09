@@ -1,2387 +1,963 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>PipZoNe — Managed Forex Trading</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"> <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
 
-<style>
-:root{--bg:#101513;--bg2:#0B0F0D;--panel:#171F1B;--line:#283029;--soft:#1F2622;--text:#ECF3EE;--muted:#8B9992;--muted2:#57645E;--gold:#2FBF83;--profit:#5EEAB0;--loss:#F2735E}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;line-height:1.5}
-.serif{font-family:Fraunces,serif}
-.mono{font-family:'IBM Plex Mono',monospace}
-a{color:inherit;text-decoration:none}
-.wrap{max-width:1120px;margin:auto;padding:0 32px}
-@media(max-width:640px){.wrap{padding:0 20px}}
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-header{position:sticky;top:0;z-index:50;background:rgba(14,20,32,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--soft)}
-.nav{height:76px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:10px;font:600 20px Fraunces}
-.mark{width:28px;height:28px;border:1px solid var(--gold);display:grid;place-items:center;color:var(--gold);font:500 12px 'IBM Plex Mono'}
-.navlinks{display:flex;gap:32px;color:var(--muted);font-size:14px}
-.navcta{display:flex;gap:10px}
-.btn{display:inline-block;padding:10px 20px;border:1px solid var(--line);border-radius:3px;font-size:14px;cursor:pointer;background:none;color:var(--text)}
-.btn-gold{background:var(--gold);color:#161008;border-color:var(--gold)}
-
-.hero{padding:96px 0 72px;border-bottom:1px solid var(--soft)}
-.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:64px;align-items:end}
-@media(max-width:860px){.navlinks{display:none}.hero-grid{grid-template-columns:1fr}}
-.eyebrow{color:var(--gold);font-size:13px;margin-bottom:22px}
-.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--profit);margin-right:8px}
-h1{font:500 clamp(38px,5.2vw,60px)/1.08 Fraunces;margin-bottom:22px}
-h1 em{color:var(--gold)}
-.hero-sub{color:var(--muted);font-size:17px;max-width:480px;line-height:1.65;margin-bottom:34px}
-.hero-actions{display:flex;gap:14px}
-.ledger-card,.calc-in{background:var(--panel);border:1px solid var(--line);padding:28px}
-.lc-title{font-size:12px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px}
-.lc-row,.out-row{display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--soft)}
-.lc-row:first-of-type,.out-row:first-child{border-top:0}
-.lc-label,.out-label{color:var(--muted);font-size:14px}
-.lc-value,.out-value{font:16px 'IBM Plex Mono'}
-.gold{color:var(--gold)}
-.note{color:var(--muted2);font-size:12px;margin-top:18px}
-
-.stats{border-bottom:1px solid var(--soft)}
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr)}
-.stat{padding:34px 32px;border-left:1px solid var(--soft)}
-.stat:first-child{border-left:0;padding-left:0}
-.stat-num{font:34px Fraunces;color:var(--gold)}
-.stat-label{color:var(--muted);font-size:14px}
-
-.live-strip{border-bottom:1px solid var(--soft);background:var(--bg2)}
-.live-row{display:flex;align-items:center;gap:10px;padding:14px 0;font-size:13px;color:var(--muted);flex-wrap:wrap}
-.live-dot{width:6px;height:6px;border-radius:50%;background:var(--profit);box-shadow:0 0 0 3px rgba(92,185,138,.15);flex:none}
-.live-strip b{color:var(--text);font-family:'IBM Plex Mono'}
-.live-sep{color:var(--muted2)}
-
-section{padding:88px 0;border-bottom:1px solid var(--soft)}
-.sec-head{display:grid;grid-template-columns:.6fr 1fr;gap:48px;margin-bottom:56px}
-.sec-tag{color:#1F7A54;font-size:13px}
-.sec-tag span{color:var(--gold)}
-h2{font:500 clamp(26px,3.4vw,36px)/1.2 Fraunces}
-.sec-desc{color:var(--muted);max-width:500px;margin-top:10px}
-
-.steps{border-top:1px solid var(--line)}
-.step{display:grid;grid-template-columns:70px 1fr 1.3fr;gap:32px;padding:30px 0;border-bottom:1px solid var(--line)}
-.step-num{color:#1F7A54;font:14px 'IBM Plex Mono'}
-.step-title{font:20px Fraunces}
-.step-desc{color:var(--muted);font-size:14px}
-
-.calc{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)}
-.calc-in{border-right:1px solid var(--line)}
-.calc-out{padding:40px;background:var(--bg2)}
-.field-label{color:var(--muted);font-size:13px}
-.amount-display{font:44px Fraunces;color:var(--gold);margin:10px 0 18px}
-input[type=range]{width:100%;accent-color:var(--gold)}
-.calc-scale,.split-legend{display:flex;justify-content:space-between;color:var(--muted2);font-size:12px}
-.split-bar{display:flex;height:10px;margin:28px 0 14px}
-.split-client{width:60%;background:var(--gold)}
-.split-mgr{width:40%;background:var(--line)}
-.calc-warn{margin-top:24px;padding:14px;background:rgba(47,191,131,.07);border:1px solid rgba(47,191,131,.25);color:var(--gold);font-size:12px}
-
-.out-value.hi{color:var(--gold);font-size:20px}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;color:var(--muted2);font-size:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
-th:not(:first-child),td:not(:first-child){text-align:right}
-td{padding:18px 0;border-bottom:1px solid var(--soft);font-size:14px}
-.up{color:var(--profit)}
-.bar-track{height:6px;background:var(--soft);margin-top:6px}
-.bar-fill{height:100%;background:var(--gold)}
-
-.risk{background:var(--bg2)}
-.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
-.risk h3{font:18px Fraunces;color:var(--gold);margin-bottom:8px}
-.risk p{color:var(--muted);font-size:14px}
-
-.faq-item{border-bottom:1px solid var(--soft)}
-.faq-q{display:flex;justify-content:space-between;padding:22px 0;cursor:pointer;font:17px Fraunces}
-.faq-a{max-height:0;overflow:hidden}
-.faq-a p{color:var(--muted);padding-bottom:22px}
-.faq-item.open .faq-a{max-height:200px}
-.faq-item.open .plus{transform:rotate(45deg);color:var(--gold)}
-
-footer{padding:56px 0 40px}
-.foot-grid{display:flex;justify-content:space-between;gap:24px}
-.foot-links{display:flex;gap:24px;color:var(--muted);font-size:13px}
-.foot-bottom{border-top:1px solid var(--soft);padding-top:24px;margin-top:30px;color:var(--muted2);font-size:12px}
-
-/* legal pages */
-.legal-section{padding:72px 0;border-bottom:1px solid var(--soft)}
-.legal-section h2{margin-bottom:8px}
-.legal-updated{color:var(--muted2);font-size:12px;margin-bottom:36px}
-.legal-block{max-width:760px}
-.legal-block h3{font:18px Fraunces;color:var(--gold);margin:30px 0 10px}
-.legal-block h3:first-child{margin-top:0}
-.legal-block p{color:var(--muted);font-size:14px;line-height:1.75;margin-bottom:10px}
-.legal-block ul{color:var(--muted);font-size:14px;line-height:1.75;padding-left:20px;margin-bottom:10px}
-.legal-block li{margin-bottom:4px}
-.legal-disclaimer{margin-top:32px;padding:14px 16px;background:rgba(47,191,131,.07);border:1px solid rgba(47,191,131,.25);border-radius:3px;font-size:12.5px;color:var(--gold);line-height:1.6}
-
-/* auth */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;align-items:center;justify-content:center;padding:20px}
-.modal.show{display:flex}
-.auth-box{width:min(460px,100%);background:var(--panel);border:1px solid var(--line);padding:30px;border-radius:5px;position:relative;max-height:90vh;overflow:auto}
-.close{position:absolute;right:18px;top:12px;background:none;border:0;color:var(--muted);font-size:28px;cursor:pointer}
-.auth-box h2{margin-bottom:8px}
-.auth-sub{color:var(--muted);font-size:13px;margin-bottom:20px}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
-.form-group input{width:100%;padding:11px 12px;background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:3px;outline:none}
-.form-group input:focus{border-color:var(--gold)}
-.form-group textarea{width:100%;min-height:140px;padding:11px 12px;background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:3px;outline:none;resize:vertical;font-family:inherit}
-.form-group textarea:focus{border-color:var(--gold)}
-.pw-wrap{position:relative}
-.pw-wrap input{padding-right:40px}
-.pw-toggle{position:absolute;right:0;top:0;height:100%;width:38px;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:pointer;color:var(--muted);padding:0}
-.pw-toggle:hover{color:var(--gold)}
-.pw-toggle svg{width:18px;height:18px}
-.form-actions{margin-top:18px}
-.form-actions .btn{width:100%;padding:12px}
-.switch{margin-top:16px;text-align:center;color:var(--muted);font-size:13px}
-.switch button{background:none;border:0;color:var(--gold);cursor:pointer}
-.forgot-link{text-align:right;margin-top:9px}
-.forgot-link button{background:none;border:0;color:var(--gold);cursor:pointer;font-size:12px;padding:0}
-.forgot-link button:hover{text-decoration:underline}
-.msg{display:none;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);font-size:13px}
-.msg.show{display:block}
-
-.dashboard{display:none;min-height:70vh;padding:70px 0}
-.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:28px 0}
-.dash-card{background:var(--panel);border:1px solid var(--line);padding:24px}
-.dash-card .label{color:var(--muted);font-size:13px}
-.dash-card .value{font:28px Fraunces;color:var(--gold);margin-top:8px}
-.dash-actions{display:flex;gap:10px}
-.logout{background:none;border:1px solid var(--line);color:var(--text);padding:10px 18px;cursor:pointer;border-radius:3px}
-.dash-note{margin-top:18px;padding:12px 14px;background:rgba(47,191,131,.07);border:1px solid rgba(47,191,131,.25);border-radius:3px;font-size:13px;color:var(--gold);line-height:1.6}
-
-/* Contact */
-.contact-section{padding:88px 0;border-bottom:1px solid var(--soft)}
-.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
-.contact-info h3{font:18px Fraunces;color:var(--gold);margin-bottom:8px}
-.contact-info p{color:var(--muted);font-size:14px;line-height:1.8}
-.contact-info a{color:var(--gold)}
-.contact-form{background:var(--panel);border:1px solid var(--line);padding:28px}
-.contact-form .form-group:last-of-type{margin-bottom:0}
-.contact-form textarea{width:100%;min-height:150px;padding:11px 12px;background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:3px;outline:none;resize:vertical;font-family:inherit}
-.contact-form textarea:focus{border-color:var(--gold)}
-.contact-success{display:none;margin-top:14px;padding:10px 12px;border:1px solid rgba(63,214,140,.3);color:var(--profit);font-size:13px;background:rgba(63,214,140,.05)}
-
-@media(max-width:760px){
-  .sec-head,.calc,.risk-grid,.contact-grid{grid-template-columns:1fr}
-  .calc-in{border-right:0;border-bottom:1px solid var(--line)}
-  .step{grid-template-columns:44px 1fr}
-  .step-desc{grid-column:2}
-  .stats-row,.dash-grid{grid-template-columns:1fr}
-  .foot-grid{flex-direction:column}
-  .foot-links{flex-wrap:wrap}
-  .stat{border-left:0;border-top:1px solid var(--soft);padding-left:0}
-  .stat:first-child{border-top:0}
-}
-
-/* mobile nav */
-@media(max-width:860px){
-  .nav{flex-wrap:wrap;height:auto;padding:14px 0}
-  .navlinks{display:none}
-  .navcta{width:100%;order:3;margin-top:12px;gap:10px}
-  .navcta .btn{flex:1;text-align:center;padding:11px 14px}
-}
-
-/* deposit / withdrawal */
-.request-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:110;align-items:center;justify-content:center;padding:20px}
-.request-modal.show{display:flex}
-.request-box{width:min(500px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);padding:30px;border-radius:5px;position:relative}
-.request-box h2{margin-bottom:8px}
-.request-close{position:absolute;right:18px;top:12px;background:none;border:0;color:var(--muted);font-size:28px;cursor:pointer}
-.request-note{font-size:12px;color:var(--muted);line-height:1.6;margin:14px 0}
-.request-actions{display:flex;gap:10px;margin-top:18px}
-.request-actions .btn{flex:1}
-.request-status{margin-top:14px}
-.request-list{margin-top:34px;border-top:1px solid var(--line)}
-.request-list h3{font:18px Fraunces;margin:24px 0 12px}
-.request-item{display:flex;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid var(--soft);font-size:13px}
-.request-item .meta{color:var(--muted)}
-.status-pending{color:var(--gold)}
-.status-approved{color:var(--profit)}
-.status-rejected{color:var(--loss)}
-</style>
+<style> :root{ --bg:#07100d; --bg2:#0b1713; --panel:#0d1c17; --panel2:#10221b; --line:#1d352b; --text:#edf5f0; --muted:#8fa69a; --green:#48d597; --green2:#2eb878; --profit:#54e09e; --red:#ff6d78; --yellow:#e6c86e; --white:#fff; } *{ box-sizing:border-box; margin:0; padding:0; } html{ scroll-behavior:smooth; } body{ background:var(--bg); color:var(--text); font-family:Inter,Arial,sans-serif; line-height:1.6; } a{ color:inherit; text-decoration:none; } button, input, textarea{ font:inherit; } button{ cursor:pointer; } .container{ width:min(1180px,92%); margin:auto; } /* NAVBAR */ .navbar{ position:sticky; top:0; z-index:1000; background:rgba(7,16,13,.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); } .nav-inner{ min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:20px; } .logo{ font-family:Fraunces,serif; font-size:27px; font-weight:600; letter-spacing:.5px; } .logo span{ color:var(--green); } .nav-links{ display:flex; align-items:center; gap:28px; color:var(--muted); font-size:14px; } .nav-links a:hover{ color:var(--text); } .nav-actions{ display:flex; align-items:center; gap:10px; } .btn{ border:1px solid var(--line); background:var(--panel); color:var(--text); padding:11px 17px; border-radius:4px; transition:.2s; } .btn:hover{ border-color:var(--green); } .btn-primary{ background:var(--green); color:#04100b; border-color:var(--green); font-weight:700; } .btn-primary:hover{ background:#61e6a8; } /* HERO */ .hero{ padding:100px 0 85px; } .hero-grid{ display:grid; grid-template-columns:1.2fr .8fr; gap:60px; align-items:center; } .eyebrow{ color:var(--green); font-family:"IBM Plex Mono",monospace; font-size:12px; text-transform:uppercase; letter-spacing:2px; margin-bottom:18px; } .hero h1{ font-family:Fraunces,serif; font-size:clamp(45px,6vw,78px); line-height:1.02; font-weight:500; margin-bottom:24px; } .hero h1 span{ color:var(--green); } .hero p{ color:var(--muted); max-width:620px; font-size:17px; margin-bottom:30px; } .hero-buttons{ display:flex; gap:12px; flex-wrap:wrap; } .hero-card{ background:linear-gradient(145deg,var(--panel),var(--panel2)); border:1px solid var(--line); padding:30px; border-radius:6px; } .hero-card-title{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted); margin-bottom:20px; } .hero-stat{ display:flex; justify-content:space-between; padding:15px 0; border-bottom:1px solid var(--line); } .hero-stat:last-child{ border-bottom:0; } .hero-stat span{ color:var(--muted); } .hero-stat strong{ color:var(--profit); } /* SECTIONS */ section{ padding:85px 0; } .section-head{ margin-bottom:40px; } .section-head h2{ font-family:Fraunces,serif; font-size:42px; font-weight:500; margin-bottom:10px; } .section-head p{ color:var(--muted); max-width:700px; } /* CARDS */ .cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; } .card{ background:var(--panel); border:1px solid var(--line); padding:25px; border-radius:5px; } .card h3{ margin-bottom:10px; } .card p{ color:var(--muted); font-size:14px; } /* CALCULATOR */ .calc{ display:grid; grid-template-columns:1fr 1fr; gap:25px; } .calc-box{ background:var(--panel); border:1px solid var(--line); padding:30px; border-radius:5px; } .form-group{ margin-bottom:18px; } .form-group label{ display:block; color:var(--muted); font-size:13px; margin-bottom:7px; } input, textarea{ width:100%; padding:13px 14px; background:#08140f; color:var(--text); border:1px solid var(--line); border-radius:4px; outline:none; } input:focus, textarea:focus{ border-color:var(--green); } .calc-result{ margin-top:20px; padding:20px; background:var(--bg2); border:1px solid var(--line); } .calc-result-row{ display:flex; justify-content:space-between; padding:8px 0; color:var(--muted); } .calc-result-row strong{ color:var(--text); font-family:"IBM Plex Mono",monospace; } /* PERFORMANCE */ .performance{ display:grid; grid-template-columns:repeat(4,1fr); gap:15px; } .metric{ background:var(--panel); border:1px solid var(--line); padding:25px; } .metric-value{ font-family:"IBM Plex Mono",monospace; font-size:28px; color:var(--profit); } .metric-label{ color:var(--muted); font-size:13px; } /* LEGAL */ .legal{ background:#09140f; } .legal-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; } .legal-box{ background:var(--panel); border:1px solid var(--line); padding:25px; } .legal-box h3{ margin-bottom:12px; } .legal-box p{ color:var(--muted); font-size:14px; } /* CONTACT */ .contact-grid{ display:grid; grid-template-columns:.8fr 1.2fr; gap:30px; } .contact-info{ display:flex; flex-direction:column; gap:15px; } .contact-item{ background:var(--panel); border:1px solid var(--line); padding:20px; } .contact-item span{ display:block; color:var(--muted); font-size:12px; margin-bottom:5px; } /* AUTH */ .auth-overlay, .modal-overlay{ position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,.75); display:none; align-items:center; justify-content:center; padding:20px; } .auth-box, .modal{ width:min(470px,100%); max-height:90vh; overflow:auto; background:var(--panel); border:1px solid var(--line); padding:28px; border-radius:6px; } .modal{ width:min(550px,100%); } .auth-box h2, .modal h2{ font-family:Fraunces,serif; font-size:30px; margin-bottom:6px; } .modal-sub{ color:var(--muted); font-size:13px; margin-bottom:25px; } .close{ float:right; border:0; background:transparent; color:var(--muted); font-size:24px; } .close:hover{ color:var(--text); } .auth-switch{ text-align:center; margin-top:18px; color:var(--muted); font-size:13px; } .auth-switch a{ color:var(--green); } /* DASHBOARD */ .dashboard{ display:none; padding:50px 0 90px; } .dashboard-head{ display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:25px; } .dashboard-head h2{ font-family:Fraunces,serif; font-size:38px; } .dashboard-head p{ color:var(--muted); font-size:13px; } .dashboard-actions{ display:flex; gap:8px; flex-wrap:wrap; } .dashboard-cards{ display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin-bottom:25px; } .dashboard-card{ background:var(--panel); border:1px solid var(--line); padding:22px; border-radius:5px; } .dashboard-card-label{ color:var(--muted); font-size:12px; margin-bottom:8px; } .dashboard-card-value{ font-family:"IBM Plex Mono",monospace; font-size:25px; } .dashboard-card-value.green{ color:var(--profit); } .dashboard-card-value.red{ color:var(--red); } .dashboard-section{ background:var(--panel); border:1px solid var(--line); padding:25px; margin-bottom:18px; } .dashboard-section h3{ margin-bottom:18px; } .table-wrap{ overflow-x:auto; } table{ width:100%; border-collapse:collapse; min-width:650px; } th, td{ padding:12px 10px; border-bottom:1px solid var(--line); text-align:left; font-size:13px; } th{ color:var(--muted); font-weight:500; } td{ color:var(--text); } .status{ display:inline-block; padding:4px 8px; border:1px solid var(--line); border-radius:3px; font-size:11px; } .status.pending{ color:var(--yellow); } .status.approved{ color:var(--profit); } .status.rejected{ color:var(--red); } /* WITHDRAWAL SUMMARY */ .withdrawal-summary{ margin-top:14px; padding:14px 16px; background:var(--bg2); border:1px solid var(--line); border-radius:3px; } .withdrawal-summary-row{ display:flex; justify-content:space-between; align-items:center; gap:15px; padding:7px 0; font-size:13px; color:var(--muted); } .withdrawal-summary-row strong{ color:var(--text); font-family:"IBM Plex Mono",monospace; } .withdrawal-summary-row.receive{ border-top:1px solid var(--line); margin-top:6px; padding-top:12px; color:var(--text); } .withdrawal-summary-row.receive strong{ color:var(--profit); font-size:16px; } /* INFO */ .info-box{ background:#0b1b14; border:1px solid var(--line); padding:15px; margin-bottom:18px; color:var(--muted); font-size:13px; } .info-box strong{ color:var(--text); } /* FOOTER */ footer{ border-top:1px solid var(--line); padding:30px 0; color:var(--muted); font-size:13px; } .footer-inner{ display:flex; justify-content:space-between; gap:20px; } /* MOBILE */ @media(max-width:900px){ .nav-links{ display:none; } .hero-grid, .calc, .contact-grid, .legal-grid{ grid-template-columns:1fr; } .cards{ grid-template-columns:1fr 1fr; } .performance{ grid-template-columns:1fr 1fr; } .dashboard-cards{ grid-template-columns:1fr 1fr; } } @media(max-width:600px){ .hero{ padding:70px 0; } section{ padding:60px 0; } .cards, .performance, .dashboard-cards{ grid-template-columns:1fr; } .dashboard-head{ align-items:flex-start; flex-direction:column; } .nav-actions .btn:not(.btn-primary){ display:none; } .footer-inner{ flex-direction:column; } } </style>
 
 </head>
 
 <body>
 
-<header>
-<div class="wrap nav">
-<div class="brand"><span class="mark">PZ</span>PipZoNe</div>
+<!-- NAVBAR -->
 
-<nav class="navlinks">
-<a href="#how">How it works</a>
-<a href="#calculator">Calculator</a>
-<a href="#performance">Performance</a>
-<a href="#faq">FAQ</a>
-<a href="#contact">Contact</a>
+<header class="navbar"> <div class="container nav-inner">
+
+<a href="#" class="logo">
+  Pip<span>ZoNe</span>
+</a>
+
+<nav class="nav-links">
+  <a href="#about">About</a>
+  <a href="#calculator">Calculator</a>
+  <a href="#performance">Performance</a>
+  <a href="#contact">Contact</a>
 </nav>
 
-<div class="navcta">
-<button class="btn" onclick="openAuth('login')">Client login</button>
-<button class="btn btn-gold" onclick="openAuth('signup')">Create account</button>
+<div class="nav-actions">
+  <button class="btn" onclick="openAuth('login')">Client Login</button>
+  <button class="btn btn-primary" onclick="openAuth('register')">Get Started</button>
 </div>
-</div>
-</header>
 
-<div id="home">
+</div> </header>
 
-<section class="hero">
-<div class="wrap hero-grid">
+<!-- HERO -->
+
+<section class="hero"> <div class="container hero-grid">
+
 <div>
-<div class="eyebrow"><span class="dot"></span>Trading desk open — September 2026 cycle</div>
-<h1>Your capital, our<br>desk, <em>one shared</em><br>outcome.</h1>
-<p class="hero-sub">PipZoNe manages client capital on the forex markets under a fixed 60/40 profit split. No flat fees, no management charges — we only earn when your account does.</p>
 
-<div class="hero-actions">
-<button class="btn btn-gold" onclick="openAuth('signup')">Create account</button>
-<a class="btn" href="#how">See how it works</a>
-</div>
-</div>
+  <div class="eyebrow">
+    Managed Forex Trading
+  </div>
 
-<div class="ledger-card">
-<div class="lc-title">Sample account · illustrative</div>
-<div class="lc-row"><span class="lc-label">Deposited capital</span><span class="lc-value">$500.00</span></div>
-<div class="lc-row"><span class="lc-label">August result</span><span class="lc-value" style="color:var(--profit)">+$100.00</span></div>
-<div class="lc-row"><span class="lc-label">Your share (60%)</span><span class="lc-value gold">$60.00</span></div>
-<div class="lc-row"><span class="lc-label">Closing balance</span><span class="lc-value">$560.00</span></div>
-<div class="note">Figures are illustrative only. Actual results vary month to month and losses are possible.</div>
-</div>
-</div>
-</section>
+  <h1>
+    Trade smarter.<br>
+    <span>Grow consistently.</span>
+  </h1>
 
-<section class="stats" style="padding:0">
-<div class="wrap stats-row">
-<div class="stat"><div class="stat-num">$100</div><div class="stat-label">Minimum deposit</div></div>
-<div class="stat"><div class="stat-num">60%</div><div class="stat-label">Client profit share</div></div>
-<div class="stat"><div class="stat-num">Daily</div><div class="stat-label">Settlement cycle</div></div>
-</div>
-</section>
+  <p>
+    PipZoNe provides managed forex trading with a transparent
+    client dashboard, structured risk management and simple
+    profit-sharing.
+  </p>
 
-<section class="live-strip" style="padding:0">
-<div class="wrap live-row">
-<span class="live-dot"></span>
-<span class="live-sep">·</span>
-<span><b>3,500+</b> Verified Clients</span>
-<span><b id="liveDeposits">—</b> in verified deposits</span>
-<span class="live-sep">·</span>
-<span><b id="liveWithdrawals">—</b> Total Withdrawal</span>
-<span class="live-sep">·</span>
-<span>updated live from account records</span>
-</div>
-</section>
+  <div class="hero-buttons">
+    <button class="btn btn-primary" onclick="openAuth('register')">
+      Start Investing
+    </button>
 
-<section id="how">
-<div class="wrap">
-<div class="sec-head">
-<div class="sec-tag">How it <span>works</span></div>
-<div>
-<h2>From deposit to settlement, in four steps.</h2>
-<p class="sec-desc">Every account follows the same process. Daily trading results are recorded to your account automatically.</p>
-</div>
+    <a href="#calculator" class="btn">
+      Calculate Returns
+    </a>
+  </div>
+
 </div>
 
-<div class="steps">
-<div class="step"><div class="step-num">01</div><div class="step-title">Create your account</div><div class="step-desc">Register with your details and verify your email.</div></div>
-<div class="step"><div class="step-num">02</div><div class="step-title">Deposit capital</div><div class="step-desc">Send a minimum of $100 in USDT (TRC20) to your account's deposit address. Funds are credited after confirmation.</div></div>
-<div class="step"><div class="step-num">03</div><div class="step-title">Capital is traded</div><div class="step-desc">Your funds are deployed on the forex markets under the agreed trading structure.</div></div>
-<div class="step"><div class="step-num">04</div><div class="step-title">Daily settlement</div><div class="step-desc">Each day's trading result is calculated and split 60% to you and 40% to the desk. Your profit share is available to withdraw on demand; your original deposit unlocks 40 days after it is credited.</div></div>
-</div>
-</div>
-</section>
 
-<section id="calculator">
-<div class="wrap">
-<div class="sec-head">
-<div class="sec-tag">Profit <span>split</span></div>
-<div>
-<h2>See how a result would split.</h2>
-<p class="sec-desc">Move the slider to model a trading result. This does not predict or guarantee any outcome.</p>
+<div class="hero-card">
+
+  <div class="hero-card-title">
+    PIPZONE / ACCOUNT OVERVIEW
+  </div>
+
+  <div class="hero-stat">
+    <span>Minimum Deposit</span>
+    <strong>$100</strong>
+  </div>
+
+  <div class="hero-stat">
+    <span>Client Profit Share</span>
+    <strong>60%</strong>
+  </div>
+
+  <div class="hero-stat">
+    <span>Desk Share</span>
+    <strong>40%</strong>
+  </div>
+
+  <div class="hero-stat">
+    <span>Principal Lock</span>
+    <strong>40 Days</strong>
+  </div>
+
 </div>
+
+</div> </section>
+
+<!-- ABOUT -->
+
+<section id="about"> <div class="container">
+
+<div class="section-head">
+  <div class="eyebrow">How It Works</div>
+
+  <h2>Simple. Transparent. Structured.</h2>
+
+  <p>
+    PipZoNe is designed to keep the client experience simple
+    while maintaining clear trading and withdrawal rules.
+  </p>
 </div>
+
+
+<div class="cards">
+
+  <div class="card">
+    <h3>01 — Register</h3>
+    <p>
+      Create your client account and complete the registration
+      information.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>02 — Deposit</h3>
+    <p>
+      Deposit at least $100 USDT through the supported TRC20
+      network and submit your transaction proof.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>03 — Managed Trading</h3>
+    <p>
+      Your approved capital is reflected in your dashboard and
+      managed according to the trading arrangement.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>04 — Track</h3>
+    <p>
+      Monitor your balance, deposited capital, profit and
+      withdrawal history from your dashboard.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>05 — Withdraw</h3>
+    <p>
+      Available profit can be requested on demand. Original
+      deposited capital unlocks after 40 days.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>06 — Receive</h3>
+    <p>
+      Approved withdrawals are sent to your registered TRC20
+      wallet after processing.
+    </p>
+  </div>
+
+</div>
+
+</div> </section>
+
+<!-- CALCULATOR -->
+
+<section id="calculator"> <div class="container">
+
+<div class="section-head">
+  <div class="eyebrow">Return Calculator</div>
+  <h2>Estimate your account growth.</h2>
+  <p>
+    Use this calculator for an illustrative estimate only.
+    Actual trading results can vary.
+  </p>
+</div>
+
 
 <div class="calc">
-<div class="calc-in">
-<div class="field-label">Modeled monthly trading result</div>
-<div class="amount-display">$<span id="amtOut">100</span></div>
-<input type="range" id="amtSlider" min="-200" max="1000" step="10" value="100">
-<div class="calc-scale"><span>-$200</span><span>$1,000</span></div>
-<div class="split-bar"><div class="split-client"></div><div class="split-mgr"></div></div>
-<div class="split-legend"><span style="color:var(--gold)">Client · 60%</span><span>Desk · 40%</span></div>
+
+  <div class="calc-box">
+
+    <div class="form-group">
+      <label>Investment (USDT)</label>
+      <input
+        id="calcInvestment"
+        type="number"
+        min="100"
+        value="1000"
+        oninput="calculateReturns()"
+      >
+    </div>
+
+    <div class="form-group">
+      <label>Estimated Monthly Return (%)</label>
+      <input
+        id="calcReturn"
+        type="number"
+        min="0"
+        value="5"
+        step="0.1"
+        oninput="calculateReturns()"
+      >
+    </div>
+
+  </div>
+
+
+  <div class="calc-box">
+
+    <div class="calc-result">
+
+      <div class="calc-result-row">
+        <span>Investment</span>
+        <strong id="calcInitial">$1,000.00</strong>
+      </div>
+
+      <div class="calc-result-row">
+        <span>Estimated Profit</span>
+        <strong id="calcProfit">$50.00</strong>
+      </div>
+
+      <div class="calc-result-row">
+        <span>Client Share — 60%</span>
+        <strong id="calcClient">$30.00</strong>
+      </div>
+
+      <div class="calc-result-row">
+        <span>Estimated Client Balance</span>
+        <strong id="calcTotal">$1,030.00</strong>
+      </div>
+
+    </div>
+
+  </div>
+
 </div>
 
-<div class="calc-out">
-<div class="out-row"><span class="out-label">Trading result</span><span class="out-value" id="outResult">$100.00</span></div>
-<div class="out-row"><span class="out-label">Your share (60%)</span><span class="out-value hi" id="outClient">$60.00</span></div>
-<div class="out-row"><span class="out-label">Desk share (40%)</span><span class="out-value" id="outMgr">$40.00</span></div>
-<div class="calc-warn">This is a modeling tool, not a forecast. Forex trading carries risk of loss.</div>
+</div> </section>
+
+<!-- PERFORMANCE -->
+
+<section id="performance"> <div class="container">
+
+<div class="section-head">
+  <div class="eyebrow">Performance</div>
+
+  <h2>Built around transparency.</h2>
+
+  <p>
+    Your account dashboard provides a clear view of your
+    deposited capital, current balance, profit and withdrawals.
+  </p>
 </div>
+
+
+<div class="performance">
+
+  <div class="metric">
+    <div class="metric-value">60%</div>
+    <div class="metric-label">Client Profit Share</div>
+  </div>
+
+  <div class="metric">
+    <div class="metric-value">40%</div>
+    <div class="metric-label">Desk Share</div>
+  </div>
+
+  <div class="metric">
+    <div class="metric-value">40</div>
+    <div class="metric-label">Principal Lock Days</div>
+  </div>
+
+  <div class="metric">
+    <div class="metric-value">$20</div>
+    <div class="metric-label">Minimum Withdrawal</div>
+  </div>
+
 </div>
+
+</div> </section>
+
+<!-- LEGAL -->
+
+<section class="legal">
+
+<div class="container">
+
+<div class="section-head">
+  <div class="eyebrow">Important Information</div>
+  <h2>Understand the rules.</h2>
 </div>
+
+
+<div class="legal-grid">
+
+  <div class="legal-box">
+    <h3>Profit Withdrawals</h3>
+    <p>
+      Available client profit can be requested on demand,
+      subject to account balance and approval.
+    </p>
+  </div>
+
+  <div class="legal-box">
+    <h3>Principal Lock</h3>
+    <p>
+      Original deposited capital becomes withdrawable
+      40 days after the deposit is credited to the account.
+    </p>
+  </div>
+
+  <div class="legal-box">
+    <h3>Minimum Withdrawal</h3>
+    <p>
+      The minimum withdrawal request is $20 USDT.
+    </p>
+  </div>
+
+  <div class="legal-box">
+    <h3>Withdrawal Fee</h3>
+    <p>
+      A fixed $2 fee is deducted from every approved withdrawal.
+      Example: request $50 → fee $2 → receive $48.
+    </p>
+  </div>
+
+</div>
+
+</div>
+
 </section>
 
-<section id="performance">
-<div class="wrap">
-<div class="sec-head">
-<div class="sec-tag">Verified <span>performance</span></div>
-<div>
-<h2>Monthly results, as they closed.</h2>
-<p class="sec-desc">Only settled, verified results are published here. Daily results are updated every day at 10:00 PM. Past performance does not guarantee future results.</p>
-</div>
-</div>
+<!-- CONTACT -->
 
-<table>
-<thead>
-<tr><th>Month</th><th>Trading result</th><th>Client 60%</th><th>Desk 40%</th></tr>
-</thead>
-<tbody>
-<tr><td>January</td><td><span class="up">+$500</span><div class="bar-track"><div class="bar-fill" style="width:62%"></div></div></td><td>$300</td><td>$200</td></tr>
-<tr><td>February</td><td><span class="up">+$350</span><div class="bar-track"><div class="bar-fill" style="width:43%"></div></div></td><td>$210</td><td>$140</td></tr>
-<tr><td>March</td><td><span class="up">+$620</span><div class="bar-track"><div class="bar-fill" style="width:77%"></div></div></td><td>$372</td><td>$248</td></tr>
-</tbody>
-</table>
-</div>
-</section>
+<section id="contact">
 
-<section class="risk">
-<div class="wrap">
-<div class="sec-head">
-<div class="sec-tag">Before you <span>deposit</span></div>
-<div><h2>Understand the arrangement.</h2></div>
+<div class="container">
+
+<div class="section-head">
+  <div class="eyebrow">Contact</div>
+  <h2>Need assistance?</h2>
+  <p>
+    Contact the PipZoNe support team for account-related
+    questions.
+  </p>
 </div>
 
-<div class="risk-grid">
-<div><h3>Returns are not guaranteed</h3><p>Forex trading can produce losses as well as profits.</p></div>
-<div><h3>Profit is withdrawable on demand</h3><p>Your accumulated profit share can be withdrawn at any time. Your original deposit (principal) unlocks 40 days after it is credited to your account.</p></div>
-<div><h3>Deposits are confirmed on-chain</h3><p>A deposit is only credited after its blockchain transaction is verified.</p></div>
-<div><h3>No guaranteed-income claims</h3><p>Nothing on this site is a promise of a fixed return.</p></div>
-</div>
-</div>
-</section>
-
-<section id="faq">
-<div class="wrap">
-<div class="sec-head">
-<div class="sec-tag">Common <span>questions</span></div>
-<div><h2>FAQ</h2></div>
-</div>
-
-<div class="faq-list">
-<div class="faq-item"><div class="faq-q"><span>What's the minimum deposit?</span><span class="plus">+</span></div><div class="faq-a"><p>$100 in USDT (TRC20) to open an account.</p></div></div>
-
-<div class="faq-item"><div class="faq-q"><span>How is the profit split calculated?</span><span class="plus">+</span></div><div class="faq-a"><p>Each day's actual trading result is calculated. You receive 60% and the desk receives 40%.</p></div></div>
-
-<div class="faq-item"><div class="faq-q"><span>When can I withdraw?</span><span class="plus">+</span></div><div class="faq-a"><p>Your profit share can be withdrawn on demand, any time. Your original deposit (principal) can be withdrawn once 40 days have passed since it was credited. The minimum withdrawal is $20. Once approved, withdrawals are typically received within 5 minutes to 8 hours.</p></div></div>
-
-<div class="faq-item"><div class="faq-q"><span>Is my capital guaranteed?</span><span class="plus">+</span></div><div class="faq-a"><p>No. Forex trading can result in losses.</p></div></div>
-</div>
-</div>
-</section>
-
-<section id="terms" class="legal-section">
-<div class="wrap">
-<div class="sec-tag">Legal</div>
-<h2>Terms &amp; Conditions</h2>
-<div class="legal-updated">Last updated: September 2026</div>
-
-<div class="legal-block">
-<h3>1. The arrangement</h3>
-<p>PipZoNe ("the desk", "we", "us") accepts client capital for the purpose of forex trading under a fixed profit-sharing arrangement. By creating an account you agree to deposit capital on the terms described here and on the rest of this site.</p>
-
-<h3>2. Minimum deposit</h3>
-<p>The minimum deposit to open an account is $100, sent in USDT on the TRC20 network only. Deposits are credited to your account balance only after the transaction is confirmed on-chain.</p>
-
-<h3>3. Profit and loss sharing</h3>
-<p>Trading results are calculated on your allocated capital and split 60% to the client and 40% to the desk. Daily trading results are recorded and updated to client accounts every day at 10:00 PM. This split applies identically to profits and to losses — a negative result reduces your account balance in the same proportion.</p>
-
-<h3>4. Withdrawals</h3>
-<p>The minimum withdrawal amount is $20. Your accumulated profit share may be withdrawn on demand, at any time. Your original deposited capital (principal) may only be withdrawn once 40 days have passed since it was credited to your account. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the TRC20 wallet address you provide.</p>
-
-<h3>5. No guaranteed returns</h3>
-<p>Nothing in these terms, on this site, or in any communication from PipZoNe constitutes a guarantee of profit or of capital preservation. Forex trading carries a material risk of loss, up to and including the loss of your entire deposited capital.</p>
-
-<h3>6. Account accuracy</h3>
-<p>You are responsible for providing accurate deposit transaction hashes and withdrawal wallet addresses. PipZoNe is not responsible for funds sent to an incorrect address, on an incorrect network, or with incorrect transaction details.</p>
-
-<h3>7. Termination</h3>
-<p>Either party may close the arrangement. On closure, your remaining available balance is paid out through the standard withdrawal process, subject to the principal lock-in period described above.</p>
-
-<h3>8. Changes to these terms</h3>
-<p>We may update these terms from time to time. Continued use of your account after an update constitutes acceptance of the revised terms.</p>
-</div>
-</div>
-</section>
-
-<section id="privacy" class="legal-section">
-<div class="wrap">
-<div class="sec-tag">Legal</div>
-<h2>Privacy Policy</h2>
-<div class="legal-updated">Last updated: September 2026</div>
-
-<div class="legal-block">
-<h3>1. Information we collect</h3>
-<p>When you create an account we collect your full name, email address, phone number, and the TRC20 wallet address you provide for withdrawals. We also record your deposit and withdrawal requests and the resulting account balance history.</p>
-
-<h3>2. How we use your information</h3>
-<ul>
-<li>To create and manage your client account</li>
-<li>To verify deposits and process withdrawal requests</li>
-<li>To send account and transaction notifications</li>
-<li>To respond to support requests</li>
-</ul>
-
-<h3>3. What we do not do</h3>
-<p>We do not sell your personal information to third parties. We do not share your data with anyone outside of what is required to operate your account and process your transactions.</p>
-
-<h3>4. Data storage</h3>
-<p>Account data is stored with our database provider using industry-standard access controls. Passwords are stored in hashed form and are never visible to us in plain text.</p>
-
-<h3>5. Your rights</h3>
-<p>You may request a copy of the personal data we hold about you, or request that your account be closed and your data removed, subject to any records we are required to retain for financial record-keeping.</p>
-
-<h3>6. Contact</h3>
-<p>For any privacy-related request, please reach out through the contact details at the bottom of this page.</p>
-</div>
-</div>
-</section>
-
-<section id="risk-disclosure" class="legal-section">
-<div class="wrap">
-<div class="sec-tag">Legal</div>
-<h2>Risk Disclosure</h2>
-<div class="legal-updated">Last updated: September 2026</div>
-
-<div class="legal-block">
-<h3>Trading risk</h3>
-<p>Forex trading is highly speculative and involves a significant risk of loss. Past performance of any trading strategy or account is not indicative of future results. You should only deposit capital you can afford to lose.</p>
-
-<h3>No guarantee of profit</h3>
-<p>The 60/40 profit split describes how a trading result is divided — it is not a promise of what that result will be. Some days may produce a loss, which is shared in the same proportion as a profit.</p>
-
-<h3>Liquidity and withdrawal timing</h3>
-<p>Your profit share can be requested for withdrawal at any time and is subject to manual review. Your original deposited capital is locked for 40 days from the date it is credited. Once a withdrawal is approved, funds are typically received within 5 minutes to 8 hours. This means your principal is not available on demand in the same way as a bank account.</p>
-
-<h3>Not a bank or regulated fund</h3>
-<p>PipZoNe is a managed trading arrangement between you and the desk. It is not a bank, is not FDIC or similarly insured, and is not a licensed or regulated investment fund. Deposits are not protected by any deposit insurance scheme.</p>
-
-<h3>Independent advice</h3>
-<p>Nothing on this site is financial or investment advice. You are encouraged to seek independent financial advice before depositing capital, and to only invest an amount you are fully prepared to lose.</p>
-
-<div class="legal-disclaimer">This page is a plain-language summary for clients and is not a substitute for professional legal advice. If you are operating PipZoNe as a business, have this page (and the Terms &amp; Privacy pages above) reviewed by a qualified lawyer in your jurisdiction before relying on them.</div>
-</div>
-</div>
-</section>
-
-</div>
-
-<!-- CONTACT US -->
-
-<section id="contact" class="contact-section">
-<div class="wrap">
-
-<div class="sec-head">
-<div class="sec-tag">Contact <span>Us</span></div>
-<div>
-<h2>We're here to help.</h2>
-<p class="sec-desc">If you have an account, deposit, withdrawal, or general support issue, send us a message and our support team will review it.</p>
-</div>
-</div>
 
 <div class="contact-grid">
 
-<div class="contact-info">
+  <div class="contact-info">
 
-<h3>Support Email</h3>
-<p>
-<a href="mailto:support.pipzone@gmail.com">support.pipzone@gmail.com</a>
-</p>
+    <div class="contact-item">
+      <span>Email</span>
+      support.pipzone@gmail.com
+    </div>
 
-<h3 style="margin-top:30px">Office Address</h3>
-<p>
-Thanon Hat<br>
-Pattaya, Chon Buri 20260<br>
-Thailand
-</p>
+    <div class="contact-item">
+      <span>Network</span>
+      TRC20 / USDT
+    </div>
 
-<h3 style="margin-top:30px">Support</h3>
-<p>
-For account, deposit, withdrawal, or general support questions, please use the contact form and provide enough information for our support team to understand the issue.
-</p>
+  </div>
+
+
+  <form
+    class="card"
+    onsubmit="submitContact(event)"
+  >
+
+    <div class="form-group">
+      <label>Name</label>
+      <input id="contactName" required>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input id="contactEmail" type="email" required>
+    </div>
+
+    <div class="form-group">
+      <label>Message</label>
+      <textarea id="contactMessage" rows="6" required></textarea>
+    </div>
+
+    <button class="btn btn-primary" type="submit">
+      Send Message
+    </button>
+
+  </form>
+
+</div>
 
 </div>
 
-<div class="contact-form">
-
-<form onsubmit="submitContact(event)">
-
-<div class="form-group">
-<label>Name</label>
-<input id="contactName" type="text" placeholder="Your name" required>
-</div>
-
-<div class="form-group">
-<label>Email</label>
-<input id="contactEmail" type="email" placeholder="Your email" required>
-</div>
-
-<div class="form-group">
-<label>Issue / Subject</label>
-<input id="contactSubject" type="text" placeholder="What can we help with?" required>
-</div>
-
-<div class="form-group">
-<label>Message</label>
-<textarea id="contactMessage" placeholder="Describe your issue..." required></textarea>
-</div>
-
-<div class="form-actions">
-<button type="submit" class="btn btn-gold" style="width:100%;padding:12px">
-Submit
-</button>
-</div>
-
-<div id="contactSuccess" class="contact-success">
-Your message is ready to be sent to our support team.
-</div>
-
-</form>
-
-</div>
-</div>
-</div>
-</section>
-
-<!-- DASHBOARD -->
-
-<section id="dashboard" class="dashboard">
-<div class="wrap">
-
-<div class="sec-tag">Client <span>dashboard</span></div>
-<h2 id="welcome" style="margin-top:8px">Welcome</h2>
-<p class="sec-desc">Your account information will appear here.</p>
-
-<div class="dash-grid">
-<div class="dash-card">
-<div class="label">Account balance</div>
-<div class="value" id="dashBalance">$0.00</div>
-</div>
-
-<div class="dash-card">
-<div class="label">Deposited capital</div>
-<div class="value" id="dashDeposit">$0.00</div>
-</div>
-
-<div class="dash-card">
-<div class="label">Profit / Loss</div>
-<div class="value" id="dashProfit">$0.00</div>
-</div>
-
-<div class="dash-card">
-<div class="label">Total Withdrawal</div>
-<div class="value" id="dashWithdrawn">$0.00</div>
-</div>
-</div>
-
-<div class="dash-actions">
-<button type="button" class="btn btn-gold" onclick="openRequest('deposit')">Deposit</button>
-<button type="button" class="btn" onclick="openRequest('withdrawal')">Withdrawal</button>
-<button type="button" class="logout" onclick="logout()">Logout</button>
-</div>
-
-<div class="request-list">
-<h3>Recent requests</h3>
-<div id="requestList">
-<div class="request-item"><span class="meta">Loading...</span></div>
-</div>
-</div>
-
-</div>
 </section>
 
 <!-- FOOTER -->
 
-<footer>
-<div class="wrap">
+<footer> <div class="container footer-inner"> <div> © 2026 PipZoNe. All rights reserved. </div>
 
-<div class="foot-grid">
-
-<div class="brand" style="font-size:17px">
-<span class="mark">PZ</span>PipZoNe
+<div>
+  Managed Forex Trading
 </div>
 
-<div class="foot-links">
-<a href="#how">How it works</a>
-<a href="#performance">Performance</a>
-<a href="#faq">FAQ</a>
-<a href="#contact">Contact</a>
-<a href="#terms">Terms</a>
-<a href="#privacy">Privacy</a>
-<a href="#risk-disclosure">Risk Disclosure</a>
-</div>
-
-</div>
-
-<div class="foot-bottom">
-PipZoNe is a managed trading arrangement, not a bank or a regulated fund. Trading forex carries a high level of risk and may not be suitable for all investors.
-</div>
-
-</div>
-</footer>
-
-<!-- DEPOSIT MODAL -->
-
-<div class="request-modal" id="depositModal">
-<div class="request-box">
-
-<button type="button" class="request-close" onclick="closeRequest('deposit')">×</button>
-
-<h2>Deposit USDT</h2>
-<p class="auth-sub">Submit your USDT TRC20 deposit for review.</p>
-
-<div class="msg" id="depositMsg"></div>
-
-<div class="form-group">
-<label>Deposit to this TRC20 address</label>
-<div style="display:flex;gap:8px">
-<input id="depositAddressField" type="text" readonly value="Loading..." style="flex:1">
-<button type="button" class="btn" style="white-space:nowrap" onclick="copyDepositAddress()">Copy</button>
-</div>
-</div>
-
-<div class="form-group">
-<label>Amount (USDT)</label>
-<input id="depositAmount" type="number" min="100" step="0.01" placeholder="100">
-</div>
-
-<div class="form-group">
-<label>TRC20 Transaction Hash</label>
-<input id="depositTx" type="text" placeholder="Paste transaction hash">
-</div>
-
-<div class="form-group">
-<label>Payment Screenshot <span style="color:var(--gold)">*required</span></label>
-<input id="depositProof" type="file" accept="image/*" style="padding:8px">
-<div id="depositProofName" style="font-size:12px;color:var(--muted2);margin-top:6px"></div>
-</div>
-
-<p class="request-note">
-Minimum deposit is $100. Send USDT only on the TRC20 network to the address above.
-A screenshot of your payment is required so we can verify it.
-Your request will remain <b>pending</b> until it is manually verified and approved.
-Your deposit unlocks for withdrawal 40 days after it is credited — your profit share is available sooner, on demand.
-</p>
-
-<div class="form-actions">
-<button type="button" class="btn btn-gold" onclick="submitDeposit()">Submit deposit request</button>
-</div>
-
-</div>
-</div>
-
-<!-- WITHDRAWAL MODAL -->
-
-<div class="request-modal" id="withdrawalModal">
-<div class="request-box">
-
-<button type="button" class="request-close" onclick="closeRequest('withdrawal')">×</button>
-
-<h2>Withdrawal request</h2>
-<p class="auth-sub">Request a withdrawal to your saved TRC20 wallet.</p>
-
-<div class="msg" id="withdrawalMsg"></div>
-
-<div id="withdrawalAvailable" class="dash-note" style="display:none;margin-bottom:14px"></div>
-
-<div class="form-group">
-<label>Amount (USDT)</label>
-<input id="withdrawalAmount" type="number" min="20" step="0.01" placeholder="20">
-</div>
-
-<div class="form-group">
-<label>TRC20 Withdrawal Wallet</label>
-<input id="withdrawalWallet" type="text" placeholder="T...">
-</div>
-
-<p class="request-note">
-Minimum withdrawal is $20. Your profit share can be withdrawn on demand, any time.
-Your original deposit unlocks 40 days after it is credited.
-Once approved, withdrawals are typically received within <b>5 minutes to 8 hours</b>.
-Only your available balance can be withdrawn.
-Make sure the TRC20 wallet address is correct before submitting.
-</p>
-
-<div class="form-actions">
-<button type="button" class="btn btn-gold" onclick="submitWithdrawal()">Submit withdrawal request</button>
-</div>
-
-</div>
-</div>
+</div> </footer>
 
 <!-- AUTH MODAL -->
 
-<div class="modal" id="authModal">
+<div class="auth-overlay" id="authOverlay">
+
 <div class="auth-box">
 
 <button class="close" onclick="closeAuth()">×</button>
 
+<h2 id="authTitle">Client Login</h2>
+
+<p class="modal-sub" id="authSubtitle">
+  Login to access your PipZoNe dashboard.
+</p>
+
+
 <!-- LOGIN -->
 
-<div id="loginForm">
+<form id="loginForm" onsubmit="loginUser(event)">
 
-<h2>Client login</h2>
-<p class="auth-sub">Sign in to your PipZoNe account.</p>
+  <div class="form-group">
+    <label>Email</label>
+    <input id="loginEmail" type="email" required>
+  </div>
 
-<div class="msg" id="loginMsg"></div>
+  <div class="form-group">
+    <label>Password</label>
+    <input id="loginPassword" type="password" required>
+  </div>
+
+  <button
+    class="btn btn-primary"
+    style="width:100%"
+    type="submit"
+    id="loginBtn"
+  >
+    Login
+  </button>
+
+  <div class="auth-switch">
+    <a href="#" onclick="openForgotPassword(event)">
+      Forgot Password?
+    </a>
+  </div>
+
+  <div class="auth-switch">
+    Don't have an account?
+    <a href="#" onclick="openAuth('register')">
+      Register
+    </a>
+  </div>
+
+</form>
+
+
+<!-- REGISTER -->
+
+<form
+  id="registerForm"
+  style="display:none"
+  onsubmit="registerUser(event)"
+>
+
+  <div class="form-group">
+    <label>Full Name</label>
+    <input id="registerName" required>
+  </div>
+
+  <div class="form-group">
+    <label>Email</label>
+    <input id="registerEmail" type="email" required>
+  </div>
+
+  <div class="form-group">
+    <label>Password</label>
+    <input
+      id="registerPassword"
+      type="password"
+      minlength="6"
+      required
+    >
+  </div>
+
+  <button
+    class="btn btn-primary"
+    style="width:100%"
+    type="submit"
+    id="registerBtn"
+  >
+    Create Account
+  </button>
+
+  <div class="auth-switch">
+    Already have an account?
+    <a href="#" onclick="openAuth('login')">
+      Login
+    </a>
+  </div>
+
+</form>
+
+
+<!-- FORGOT PASSWORD -->
+
+<form
+  id="forgotForm"
+  style="display:none"
+  onsubmit="sendResetEmail(event)"
+>
+
+  <div class="form-group">
+    <label>Email</label>
+    <input id="forgotEmail" type="email" required>
+  </div>
+
+  <button
+    class="btn btn-primary"
+    style="width:100%"
+    type="submit"
+  >
+    Send Reset Link
+  </button>
+
+  <div class="auth-switch">
+    <a href="#" onclick="openAuth('login')">
+      Back to Login
+    </a>
+  </div>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- DEPOSIT MODAL -->
+
+<div class="modal-overlay" id="depositModal">
+
+<div class="modal">
+
+<button class="close" onclick="closeModal('depositModal')">
+  ×
+</button>
+
+<h2>Deposit Funds</h2>
+
+<p class="modal-sub">
+  Send USDT through the TRC20 network and submit your
+  transaction details.
+</p>
+
+
+<div class="info-box">
+  <strong>Deposit Address</strong><br>
+  <span id="depositAddressText">
+    TGQNwY7JfxfErzGjXrFYSKs9jKr58FDpcN
+  </span>
+</div>
+
 
 <div class="form-group">
-<label>Email</label>
-<input id="loginEmail" type="email" autocomplete="email">
+  <label>Amount (USDT)</label>
+  <input
+    id="depositAmount"
+    type="number"
+    min="100"
+    step="0.01"
+    placeholder="100"
+  >
 </div>
+
 
 <div class="form-group">
-<label>Password</label>
-<div class="pw-wrap">
-<input id="loginPassword" type="password" autocomplete="current-password">
-<button type="button" class="pw-toggle" onclick="togglePw('loginPassword',this)" aria-label="Show password">👁</button>
+  <label>TRC20 Transaction Hash</label>
+  <input
+    id="depositTxHash"
+    placeholder="Enter transaction hash"
+  >
 </div>
 
-<!-- NEW: FORGOT PASSWORD -->
-<div class="forgot-link">
-<button type="button" onclick="showResetPassword()">Forgot password?</button>
-</div>
 
-</div>
+<button
+  class="btn btn-primary"
+  style="width:100%"
+  onclick="submitDeposit()"
+  id="depositBtn"
+>
+  Submit Deposit
+</button>
 
-<div class="form-actions">
-<button type="button" class="btn btn-gold" onclick="login()">Login</button>
-</div>
-
-<div class="switch">
-Don't have an account?
-<button type="button" onclick="showSignup()">Create account</button>
 </div>
 
 </div>
 
-<!-- SIGNUP -->
+<!-- WITHDRAWAL MODAL -->
 
-<div id="signupForm" style="display:none">
+<div class="modal-overlay" id="withdrawalModal">
 
-<h2>Create account</h2>
-<p class="auth-sub">Create your client account.</p>
+<div class="modal">
 
-<div class="msg" id="signupMsg"></div>
+<button class="close" onclick="closeModal('withdrawalModal')">
+  ×
+</button>
+
+<h2>Request Withdrawal</h2>
+
+<p class="modal-sub">
+  Request a withdrawal from your available account balance.
+</p>
+
+
+<div class="info-box" id="withdrawalAvailableInfo">
+  Available withdrawal: $0.00
+</div>
+
 
 <div class="form-group">
-<label>Full Name</label>
-<input id="fullName" type="text" autocomplete="name">
-</div>
 
-<div class="form-group">
-<label>Email</label>
-<input id="signupEmail" type="email" autocomplete="email">
-</div>
+  <label>Amount (USDT)</label>
 
-<div class="form-group">
-<label>Phone / WhatsApp</label>
-<input id="phone" type="text" autocomplete="tel">
-</div>
-
-<div class="form-group">
-<label>TRC20 Withdrawal Wallet <span style="color:var(--gold)">*required</span></label>
-<input id="wallet" type="text" placeholder="T..." autocomplete="off">
-</div>
-
-<div class="form-group">
-<label>Password</label>
-<div class="pw-wrap">
-<input id="signupPassword" type="password" autocomplete="new-password">
-<button type="button" class="pw-toggle" onclick="togglePw('signupPassword',this)" aria-label="Show password">👁</button>
-</div>
-</div>
-
-<div class="form-group">
-<label>Confirm Password</label>
-<div class="pw-wrap">
-<input id="confirmPassword" type="password" autocomplete="new-password">
-<button type="button" class="pw-toggle" onclick="togglePw('confirmPassword',this)" aria-label="Show password">👁</button>
-</div>
-</div>
-
-<div class="form-actions">
-<button type="button" class="btn btn-gold" onclick="signup()">Create account</button>
-</div>
-
-<div class="switch">
-Already have an account?
-<button type="button" onclick="showLogin()">Client login</button>
-</div>
+  <input
+    id="withdrawalAmount"
+    type="number"
+    min="20"
+    step="0.01"
+    placeholder="20"
+  >
 
 </div>
 
-<!-- NEW: RESET EMAIL FORM -->
 
-<div id="resetPasswordForm" style="display:none">
+<!-- WITHDRAWAL FEE SUMMARY -->
 
-<h2>Reset password</h2>
-<p class="auth-sub">Enter your account email and we'll send you a password reset link.</p>
+<div class="withdrawal-summary">
 
-<div class="msg" id="resetMsg"></div>
+  <div class="withdrawal-summary-row">
+    <span>Withdrawal Amount</span>
+    <strong id="withdrawalGross">$0.00</strong>
+  </div>
 
-<div class="form-group">
-<label>Email</label>
-<input id="resetEmail" type="email" autocomplete="email" placeholder="Your account email">
-</div>
+  <div class="withdrawal-summary-row">
+    <span>Withdrawal Fee</span>
+    <strong>$2.00</strong>
+  </div>
 
-<div class="form-actions">
-<button type="button" class="btn btn-gold" onclick="sendResetEmail()">Send reset link</button>
-</div>
-
-<div class="switch">
-Remember your password?
-<button type="button" onclick="showLogin()">Client login</button>
-</div>
+  <div class="withdrawal-summary-row receive">
+    <span>You Will Receive</span>
+    <strong id="withdrawalNet">$0.00</strong>
+  </div>
 
 </div>
 
-<!-- NEW: NEW PASSWORD FORM -->
 
-<div id="newPasswordForm" style="display:none">
+<div class="form-group" style="margin-top:18px">
 
-<h2>Set new password</h2>
-<p class="auth-sub">Enter your new PipZoNe account password.</p>
+  <label>TRC20 Wallet Address</label>
 
-<div class="msg" id="newPasswordMsg"></div>
+  <input
+    id="withdrawalWallet"
+    placeholder="Enter your TRC20 wallet address"
+  >
 
-<div class="form-group">
-<label>New Password</label>
-<div class="pw-wrap">
-<input id="newPassword" type="password" autocomplete="new-password" placeholder="New password">
-<button type="button" class="pw-toggle" onclick="togglePw('newPassword',this)" aria-label="Show password">👁</button>
-</div>
 </div>
 
-<div class="form-group">
-<label>Confirm New Password</label>
-<div class="pw-wrap">
-<input id="confirmNewPassword" type="password" autocomplete="new-password" placeholder="Confirm new password">
-<button type="button" class="pw-toggle" onclick="togglePw('confirmNewPassword',this)" aria-label="Show password">👁</button>
-</div>
+
+<div class="info-box">
+
+  Minimum withdrawal is <strong>$20</strong>.
+
+  A fixed <strong>$2 withdrawal fee</strong> is deducted
+  from every approved withdrawal.
+
+  Example:
+  <strong>Request $50 → Fee $2 → Receive $48.</strong>
+
+  <br><br>
+
+  Your profit share can be withdrawn on demand, any time.
+
+  Your original deposit unlocks
+  <strong>40 days</strong> after it is credited.
+
+  <br><br>
+
+  Once approved, withdrawals are typically received within
+  5 minutes to 8 hours.
+
+  Only your available balance can be withdrawn.
+
+  Make sure the TRC20 wallet address is correct before
+  submitting.
+
 </div>
 
-<div class="form-actions">
-<button type="button" class="btn btn-gold" onclick="updatePassword()">Update password</button>
-</div>
 
-<div class="switch">
-<button type="button" onclick="showLogin()">Back to client login</button>
+<button
+  class="btn btn-primary"
+  style="width:100%"
+  onclick="submitWithdrawal()"
+  id="withdrawalBtn"
+>
+  Submit Withdrawal Request
+</button>
+
 </div>
 
 </div>
 
+<!-- CLIENT DASHBOARD -->
+
+<section class="dashboard" id="dashboard">
+
+<div class="container">
+
+<div class="dashboard-head">
+
+  <div>
+    <h2>Client Dashboard</h2>
+
+    <p id="dashboardWelcome">
+      Welcome back.
+    </p>
+  </div>
+
+
+  <div class="dashboard-actions">
+
+    <button
+      class="btn btn-primary"
+      onclick="openRequest('deposit')"
+    >
+      + Deposit
+    </button>
+
+    <button
+      class="btn"
+      onclick="openRequest('withdrawal')"
+    >
+      Withdraw
+    </button>
+
+    <button
+      class="btn"
+      onclick="logoutUser()"
+    >
+      Logout
+    </button>
+
+  </div>
+
 </div>
+
+
+<!-- DASHBOARD CARDS -->
+
+<div class="dashboard-cards">
+
+  <div class="dashboard-card">
+
+    <div class="dashboard-card-label">
+      Account Balance
+    </div>
+
+    <div
+      class="dashboard-card-value green"
+      id="dashBalance"
+    >
+      $0.00
+    </div>
+
+  </div>
+
+
+  <div class="dashboard-card">
+
+    <div class="dashboard-card-label">
+      Deposited Capital
+    </div>
+
+    <div
+      class="dashboard-card-value"
+      id="dashCapital"
+    >
+      $0.00
+    </div>
+
+  </div>
+
+
+  <div class="dashboard-card">
+
+    <div class="dashboard-card-label">
+      Profit / Loss
+    </div>
+
+    <div
+      class="dashboard-card-value green"
+      id="dashProfit"
+    >
+      $0.00
+    </div>
+
+  </div>
+
+
+  <div class="dashboard-card">
+
+    <div class="dashboard-card-label">
+      Total Withdrawal
+    </div>
+
+    <div
+      class="dashboard-card-value"
+      id="dashWithdrawn"
+    >
+      $0.00
+    </div>
+
+  </div>
+
 </div>
 
-<script>
-'use strict';
-
-const SUPABASE_URL='https://nzasmkplxzirnqeteclv.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ywmF35YANKsFEdZOs8wDdQ__jIezHTF';
-
-const DEPOSIT_ADDRESS='TGQNwY7JfxfErzGjXrFYSKs9jKr58FDpcN';
-const PRINCIPAL_LOCK_DAYS=40;
-const MIN_WITHDRAWAL=20;
-
-let supabaseClient=null;
-let supabaseReady=false;
-let currentUser=null;
-let currentAccount=null;
-
-function $(id){return document.getElementById(id)}
-
-const modal=$('authModal');
-
-function showMsg(id,text,error=true){
-  const e=$(id);
-  if(!e)return;
-
-  e.textContent=text;
-  e.style.color=error?'var(--loss)':'var(--profit)';
-  e.classList.add('show');
-}
-
-function clearMessages(){
-  document.querySelectorAll('.msg').forEach(e=>e.classList.remove('show'));
-}
-
-function initSupabase(){
-  try{
-    if(!window.supabase || typeof window.supabase.createClient!=='function'){
-      console.error('Supabase library did not load.');
-      return false;
-    }
-
-    supabaseClient=window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
-    supabaseReady=true;
-    return true;
-
-  }catch(err){
-    console.error('Supabase initialization error:',err);
-    supabaseReady=false;
-    return false;
-  }
-}
-
-async function loadLiveStats(){
-  if(!supabaseReady)return;
 
-  try{
-    const {data,error}=await supabaseClient.rpc('get_public_stats');
+<!-- ACCOUNT INFO -->
 
-    if(error){
-      console.error('Live stats error:',error);
-      return;
-    }
+<div class="dashboard-section">
 
-    const clientsEl=$('liveClients');
-    const depositsEl=$('liveDeposits');
-    const withdrawalsEl=$('liveWithdrawals');
+  <h3>Account Information</h3>
 
-    if(clientsEl)
-      clientsEl.textContent=Number(data.total_clients||0).toLocaleString();
+  <div class="table-wrap">
 
-    if(depositsEl)
-      depositsEl.textContent='$'+Number(data.total_verified_deposits||0).toLocaleString(undefined,{
-        minimumFractionDigits:0,
-        maximumFractionDigits:0
-      });
+    <table>
 
-    if(withdrawalsEl)
-      withdrawalsEl.textContent='$'+Number(data.total_verified_withdrawals||0).toLocaleString(undefined,{
-        minimumFractionDigits:0,
-        maximumFractionDigits:0
-      });
+      <tbody>
 
-  }catch(err){
-    console.error('Live stats error:',err);
-  }
-}
+        <tr>
+          <td>Account Status</td>
+          <td id="dashStatus">Active</td>
+        </tr>
 
-function copyDepositAddress(){
-  const field=$('depositAddressField');
+        <tr>
+          <td>Principal Lock</td>
+          <td id="dashLock">
+            40 Days
+          </td>
+        </tr>
 
-  if(!field||!field.value)return;
+        <tr>
+          <td>Available Withdrawal</td>
+          <td id="dashAvailable">
+            $0.00
+          </td>
+        </tr>
 
-  navigator.clipboard?.writeText(field.value).then(()=>{
-    showMsg('depositMsg','Address copied to clipboard.',false);
-  }).catch(()=>{});
-}
+      </tbody>
 
-/* =========================
-   AUTH FUNCTIONS
-========================= */
+    </table>
 
-function openAuth(mode){
-  clearMessages();
+  </div>
 
-  modal.classList.add('show');
-  document.body.classList.add('modal-open');
+</div>
 
-  mode==='signup'?showSignup():showLogin();
-}
 
-function closeAuth(){
-  modal.classList.remove('show');
-  document.body.classList.remove('modal-open');
-  clearMessages();
-}
+<!-- REQUEST HISTORY -->
 
-function hideAuthForms(){
-  $('loginForm').style.display='none';
-  $('signupForm').style.display='none';
-  $('resetPasswordForm').style.display='none';
-  $('newPasswordForm').style.display='none';
-}
+<div class="dashboard-section">
 
-function showSignup(){
-  hideAuthForms();
-  $('signupForm').style.display='block';
-  clearMessages();
-}
+  <h3>Request History</h3>
 
-function showLogin(){
-  hideAuthForms();
-  $('loginForm').style.display='block';
-  clearMessages();
-}
+  <div class="table-wrap">
 
-/* =========================
-   NEW: FORGOT PASSWORD
-========================= */
+    <table>
 
-function showResetPassword(){
+      <thead>
 
-  modal.classList.add('show');
-  document.body.classList.add('modal-open');
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Details</th>
+        </tr>
 
-  hideAuthForms();
+      </thead>
 
-  $('resetPasswordForm').style.display='block';
+      <tbody id="requestHistory">
 
-  clearMessages();
+        <tr>
+          <td colspan="5">
+            Loading...
+          </td>
+        </tr>
 
-  /* Automatically copy login email if already entered */
-  const loginEmail=$('loginEmail')?.value.trim();
+      </tbody>
 
-  if(loginEmail){
-    $('resetEmail').value=loginEmail;
-  }
+    </table>
 
-  setTimeout(()=>{
-    $('resetEmail')?.focus();
-  },50);
-}
+  </div>
 
-/* =========================
-   NEW: PASSWORD RECOVERY
-========================= */
+</div>
 
-function showNewPasswordForm(){
 
-  modal.classList.add('show');
-  document.body.classList.add('modal-open');
+<!-- TRANSACTION HISTORY -->
 
-  hideAuthForms();
+<div class="dashboard-section">
 
-  $('newPasswordForm').style.display='block';
+  <h3>Transaction History</h3>
 
-  clearMessages();
+  <div class="table-wrap">
 
-  setTimeout(()=>{
-    $('newPassword')?.focus();
-  },50);
-}
+    <table>
 
-/* =========================
-   NEW: SEND RESET EMAIL
-========================= */
+      <thead>
 
-async function sendResetEmail(){
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Amount</th>
+        </tr>
 
-  clearMessages();
+      </thead>
 
-  if(!supabaseReady){
+      <tbody id="transactionHistory">
 
-    showMsg(
-      'resetMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
+        <tr>
+          <td colspan="3">
+            Loading...
+          </td>
+        </tr>
 
-    return;
-  }
+      </tbody>
 
-  const email=$('resetEmail').value.trim();
+    </table>
 
-  if(!email){
+  </div>
 
-    showMsg(
-      'resetMsg',
-      'Please enter your account email.'
-    );
+</div>
 
-    return;
-  }
+</div>
 
-  const button=$('resetPasswordForm')
-    .querySelector('.form-actions .btn');
+</section>
 
-  if(button){
-    button.disabled=true;
-    button.textContent='Sending...';
-  }
+<script> /* ========================================================= SUPABASE ========================================================= */ const SUPABASE_URL = 'https://nzasmkplxzirnqeteclv.supabase.co'; const SUPABASE_KEY = 'sb_publishable_ywmF35YANKsFEdZOs8wDdQ__jIezHTF'; const supabaseClient = supabase.createClient( SUPABASE_URL, SUPABASE_KEY ); /* ========================================================= SETTINGS ========================================================= */ const DEPOSIT_ADDRESS = 'TGQNwY7JfxfErzGjXrFYSKs9jKr58FDpcN'; const PRINCIPAL_LOCK_DAYS = 40; const MIN_WITHDRAWAL = 20; const WITHDRAWAL_FEE = 2; /* ========================================================= HELPERS ========================================================= */ function $(id){ return document.getElementById(id); } function money(value){ const n = Number(value) || 0; return '$' + n.toFixed(2); } function escapeHtml(value){ return String(value ?? '') .replace(/&/g,'&amp;') .replace(/</g,'&lt;') .replace(/>/g,'&gt;') .replace(/"/g,'&quot;') .replace(/'/g,'&#039;'); } /* ========================================================= CALCULATOR ========================================================= */ function calculateReturns(){ const investment = Number($('calcInvestment')?.value) || 0; const monthlyReturn = Number($('calcReturn')?.value) || 0; const totalProfit = investment * monthlyReturn / 100; const clientProfit = totalProfit * 0.60; const clientBalance = investment + clientProfit; if($('calcInitial')) $('calcInitial').textContent = money(investment); if($('calcProfit')) $('calcProfit').textContent = money(totalProfit); if($('calcClient')) $('calcClient').textContent = money(clientProfit); if($('calcTotal')) $('calcTotal').textContent = money(clientBalance); } /* ========================================================= AUTH MODAL ========================================================= */ function openAuth(type){ $('authOverlay').style.display='flex'; $('loginForm').style.display = type === 'login' ? 'block' : 'none'; $('registerForm').style.display = type === 'register' ? 'block' : 'none'; $('forgotForm').style.display='none'; if(type === 'login'){ $('authTitle').textContent = 'Client Login'; $('authSubtitle').textContent = 'Login to access your PipZoNe dashboard.'; }else{ $('authTitle').textContent = 'Create Client Account'; $('authSubtitle').textContent = 'Register your PipZoNe client account.'; } } function openForgotPassword(event){ if(event) event.preventDefault(); $('authOverlay').style.display='flex'; $('loginForm').style.display='none'; $('registerForm').style.display='none'; $('forgotForm').style.display='block'; $('authTitle').textContent = 'Reset Password'; $('authSubtitle').textContent = 'Enter your email and we will send you a password reset link.'; } function closeAuth(){ $('authOverlay').style.display='none'; } /* ========================================================= REGISTER ========================================================= */ async function registerUser(event){ event.preventDefault(); const btn = $('registerBtn'); const name = $('registerName').value.trim(); const email = $('registerEmail').value.trim(); const password = $('registerPassword').value; btn.disabled=true; btn.textContent='Creating...'; try{ const { data, error } = await supabaseClient.auth.signUp({ email, password, options:{ data:{ full_name:name }, emailRedirectTo: window.location.origin } }); if(error) throw error; /* Profile creation is handled by Supabase trigger if configured. */ alert( 'Registration successful. Please check your email to confirm your account.' ); openAuth('login'); }catch(error){ alert( error.message || 'Registration failed.' ); }finally{ btn.disabled=false; btn.textContent='Create Account'; } } /* ========================================================= LOGIN ========================================================= */ async function loginUser(event){ event.preventDefault(); const btn = $('loginBtn'); const email = $('loginEmail').value.trim(); const password = $('loginPassword').value; btn.disabled=true; btn.textContent='Logging in...'; try{ const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password }); if(error) throw error; closeAuth(); await showDashboard(); }catch(error){ alert( error.message || 'Login failed.' ); }finally{ btn.disabled=false; btn.textContent='Login'; } } /* ========================================================= PASSWORD RESET ========================================================= */ async function sendResetEmail(event){ event.preventDefault(); const email = $('forgotEmail').value.trim(); try{ const { error } = await supabaseClient.auth.resetPasswordForEmail( email, { redirectTo: window.location.origin } ); if(error) throw error; alert( 'Password reset link has been sent to your email.' ); openAuth('login'); }catch(error){ alert( error.message || 'Unable to send reset email.' ); } } /* ========================================================= LOGOUT ========================================================= */ async function logoutUser(){ await supabaseClient.auth.signOut(); $('dashboard').style.display='none'; window.scrollTo({ top:0, behavior:'smooth' }); } /* ========================================================= GET ACCOUNT ========================================================= */ async function getMyAccount(){ const { data:{ user } } = await supabaseClient.auth.getUser(); if(!user) return null; const { data, error } = await supabaseClient .from('accounts') .select('*') .eq('user_id',user.id) .maybeSingle(); if(error) throw error; return data; } /* ========================================================= WITHDRAWABLE AMOUNT ========================================================= */ function getWithdrawableAmount(account){ if(!account) return 0; const balance = Number(account.balance) || 0; const profit = Number(account.profit) || 0; if(!account.first_deposit_at){ return Math.min( profit, balance ); } const firstDeposit = new Date(account.first_deposit_at); const unlockDate = new Date(firstDeposit); unlockDate.setDate( unlockDate.getDate() + PRINCIPAL_LOCK_DAYS ); const now = new Date(); if(now >= unlockDate){ return balance; } return Math.min( profit, balance ); } /* ========================================================= DAYS LEFT ========================================================= */ function getPrincipalDaysLeft(account){ if(!account?.first_deposit_at) return PRINCIPAL_LOCK_DAYS; const firstDeposit = new Date(account.first_deposit_at); const unlockDate = new Date(firstDeposit); unlockDate.setDate( unlockDate.getDate() + PRINCIPAL_LOCK_DAYS ); const diff = unlockDate.getTime() - Date.now(); const days = Math.ceil( diff / (1000 * 60 * 60 * 24) ); return Math.max(0,days); } /* ========================================================= SHOW DASHBOARD ========================================================= */ async function showDashboard(){ try{ const { data:{ user } } = await supabaseClient.auth.getUser(); if(!user) return; $('dashboard').style.display='block'; $('dashboardWelcome').textContent = 'Welcome, ' + ( user.user_metadata?.full_name || user.email ); await loadDashboard(); $('dashboard').scrollIntoView({ behavior:'smooth' }); }catch(error){ console.error(error); alert( 'Unable to load dashboard.' ); } } /* ========================================================= LOAD DASHBOARD ========================================================= */ async function loadDashboard(){ const { data:{ user } } = await supabaseClient.auth.getUser(); if(!user) return; const account = await getMyAccount(); if(!account){ $('dashBalance').textContent='$0.00'; $('dashCapital').textContent='$0.00'; $('dashProfit').textContent='$0.00'; $('dashWithdrawn').textContent='$0.00'; $('dashAvailable').textContent='$0.00'; return; } const balance = Number(account.balance) || 0; const capital = Number(account.initial_balance) || 0; const profit = Number(account.profit) || 0; const withdrawn = Number(account.total_withdrawn) || 0; const available = getWithdrawableAmount(account); $('dashBalance').textContent = money(balance); $('dashCapital').textContent = money(capital); $('dashProfit').textContent = money(profit); $('dashWithdrawn').textContent = money(withdrawn); $('dashAvailable').textContent = money(available); $('dashStatus').textContent = account.status || 'Active'; const daysLeft = getPrincipalDaysLeft(account); if(daysLeft > 0){ $('dashLock').textContent = daysLeft + ' day(s) remaining'; }else{ $('dashLock').textContent = 'Unlocked'; } await loadRequests(); await loadTransactions(); } /* ========================================================= OPEN REQUEST ========================================================= */ async function openRequest(type){ if(type === 'deposit'){ $('depositModal').style.display='flex'; $('depositAddressText').textContent = DEPOSIT_ADDRESS; return; } if(type === 'withdrawal'){ try{ const account = await getMyAccount(); if(!account){ alert( 'Your account has not been created yet.' ); return; } const available = getWithdrawableAmount(account); const daysLeft = getPrincipalDaysLeft(account); if(daysLeft > 0){ $('withdrawalAvailableInfo').innerHTML = 'Available profit withdrawal: <strong>' + money(available) + '</strong><br><br>' + 'Principal unlocks in <strong>' + daysLeft + ' day(s)</strong>.'; }else{ $('withdrawalAvailableInfo').innerHTML = 'Available withdrawal: <strong>' + money(available) + '</strong><br><br>' + 'Your principal lock has expired.'; } $('withdrawalAmount').value=''; $('withdrawalWallet').value=''; updateWithdrawalSummary(); $('withdrawalModal').style.display='flex'; }catch(error){ console.error(error); alert( error.message || 'Unable to open withdrawal request.' ); } } } /* ========================================================= CLOSE MODAL ========================================================= */ function closeModal(id){ const modal = $(id); if(modal) modal.style.display='none'; } /* ========================================================= WITHDRAWAL SUMMARY ========================================================= */ function updateWithdrawalSummary(){ const input = $('withdrawalAmount'); const grossEl = $('withdrawalGross'); const netEl = $('withdrawalNet'); if(!input || !grossEl || !netEl) return; const amount = Number(input.value) || 0; const fee = amount > 0 ? WITHDRAWAL_FEE : 0; const net = Math.max( 0, amount - fee ); grossEl.textContent = money(amount); netEl.textContent = money(net); } /* ========================================================= SUBMIT DEPOSIT ========================================================= */ async function submitDeposit(){ const btn = $('depositBtn'); const amount = Number( $('depositAmount').value ); const txHash = $('depositTxHash') .value .trim(); if(!amount || amount < 100){ alert( 'Minimum deposit is $100.' ); return; } if(!txHash){ alert( 'Please enter the TRC20 transaction hash.' ); return; } const { data:{ user } } = await supabaseClient.auth.getUser(); if(!user){ alert( 'Please login first.' ); return; } btn.disabled=true; btn.textContent='Submitting...'; try{ const { error } = await supabaseClient .from('deposits') .insert({ user_id:user.id, amount:amount, tx_hash:txHash, network:'TRC20', status:'pending' }); if(error) throw error; alert( 'Deposit request submitted successfully. Please wait for admin approval.' ); $('depositAmount').value=''; $('depositTxHash').value=''; closeModal('depositModal'); await loadDashboard(); }catch(error){ console.error(error); alert( error.message || 'Unable to submit deposit.' ); }finally{ btn.disabled=false; btn.textContent='Submit Deposit'; } } /* ========================================================= SUBMIT WITHDRAWAL ========================================================= */ async function submitWithdrawal(){ const btn = $('withdrawalBtn'); const amount = Number( $('withdrawalAmount').value ); const wallet = $('withdrawalWallet') .value .trim(); /* BASIC VALIDATION */ if(!amount){ alert( 'Please enter withdrawal amount.' ); return; } if(amount < MIN_WITHDRAWAL){ alert( 'Minimum withdrawal is $' + MIN_WITHDRAWAL + '.' ); return; } if(amount <= WITHDRAWAL_FEE){ alert( 'Withdrawal amount must be greater than the $' + WITHDRAWAL_FEE + ' fee.' ); return; } if(!wallet){ alert( 'Please enter your TRC20 wallet address.' ); return; } /* TRC20 BASIC ADDRESS CHECK */ if( !wallet.startsWith('T') || wallet.length < 30 || wallet.length > 40 ){ alert( 'Please enter a valid TRC20 wallet address.' ); return; } /* GET CURRENT USER */ const { data:{ user } } = await supabaseClient.auth.getUser(); if(!user){ alert( 'Your session has expired. Please login again.' ); return; } btn.disabled=true; btn.textContent='Checking...'; try{ /* Reload account from database before submitting so the user cannot request more than the current balance. */ const { data:account, error:accountError } = await supabaseClient .from('accounts') .select( 'balance,profit,first_deposit_at' ) .eq('user_id',user.id) .maybeSingle(); if(accountError) throw accountError; if(!account){ throw new Error( 'Account not found.' ); } const balance = Number(account.balance) || 0; const maxWithdrawable = getWithdrawableAmount(account); if(amount > balance){ throw new Error( 'Withdrawal amount is greater than your account balance.' ); } if(amount > maxWithdrawable){ throw new Error( 'You can currently withdraw only ' + money(maxWithdrawable) + '.' ); } const fee = WITHDRAWAL_FEE; const receiveAmount = amount - fee; /* Confirmation: User requests $50 Fee = $2 Client receives $48 */ const confirmed = confirm( 'Withdrawal Amount: ' + money(amount) + '\nWithdrawal Fee: ' + money(fee) + '\nYou Will Receive: ' + money(receiveAmount) + '\n\nDo you want to submit this withdrawal request?' ); if(!confirmed){ btn.disabled=false; btn.textContent = 'Submit Withdrawal Request'; return; } btn.textContent='Submitting...'; /* IMPORTANT: amount remains the requested/gross amount. Example: amount = 50 fee = 2 client receives = 48 Admin approval handles the actual balance deduction. */ const { error } = await supabaseClient .from('withdrawals') .insert({ user_id:user.id, amount:amount, wallet_address:wallet, network:'TRC20', status:'pending' }); if(error) throw error; alert( 'Withdrawal request submitted successfully.\n\n' + 'Requested: ' + money(amount) + '\nFee: ' + money(fee) + '\nYou will receive: ' + money(receiveAmount) + '\n\nPlease wait for admin approval.' ); $('withdrawalAmount').value=''; $('withdrawalWallet').value=''; updateWithdrawalSummary(); closeModal('withdrawalModal'); await loadDashboard(); }catch(error){ console.error(error); alert( error.message || 'Unable to submit withdrawal.' ); }finally{ btn.disabled=false; btn.textContent = 'Submit Withdrawal Request'; } } /* ========================================================= LOAD REQUESTS ========================================================= */ async function loadRequests(){ const { data:{ user } } = await supabaseClient.auth.getUser(); if(!user) return; const { data, error } = await supabaseClient .from('withdrawals') .select('*') .eq('user_id',user.id) .order( 'created_at', { ascending:false } ); if(error){ console.error(error); return; } const withdrawals = data || []; const { data:deposits, error:depositError } = await supabaseClient .from('deposits') .select('*') .eq('user_id',user.id) .order( 'created_at', { ascending:false } ); if(depositError){ console.error(depositError); } const rows=[]; (deposits || []).forEach(item => { rows.push({ date:item.created_at, type:'Deposit', amount:Number(item.amount)||0, status:item.status, details: item.tx_hash ? 'TX: ' + escapeHtml( item.tx_hash ) : '-' }); }); withdrawals.forEach(item => { const amount = Number(item.amount)||0; const receive = Math.max( 0, amount - WITHDRAWAL_FEE ); rows.push({ date:item.created_at, type:'Withdrawal', amount:amount, status:item.status, details: 'Fee ' + money(WITHDRAWAL_FEE) + ' → Receive ' + money(receive) }); }); rows.sort( (a,b) => new Date(b.date) - new Date(a.date) ); if(!rows.length){ $('requestHistory').innerHTML = '<tr><td colspan="5">No requests yet.</td></tr>'; return; } $('requestHistory').innerHTML = rows.map(item => { const status = String(item.status || 'pending') .toLowerCase(); const statusClass = status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : 'pending'; return ` <tr> <td> ${new Date(item.date).toLocaleString()} </td> <td> ${escapeHtml(item.type)} </td> <td> ${money(item.amount)} </td> <td> <span class="status ${statusClass}"> ${escapeHtml(status)} </span> </td> <td> ${item.details} </td> </tr> `; }).join(''); } /* ========================================================= LOAD TRANSACTIONS ========================================================= */ async function loadTransactions(){ const { data:{ user } } = await supabaseClient.auth.getUser(); if(!user) return; const { data, error } = await supabaseClient .from('transactions') .select('*') .eq('user_id',user.id) .order( 'created_at', { ascending:false } ); if(error){ console.error(error); return; } if(!data?.length){ $('transactionHistory').innerHTML = '<tr><td colspan="3">No transactions yet.</td></tr>'; return; } $('transactionHistory').innerHTML = data.map(item => { const amount = Number(item.amount)||0; return ` <tr> <td> ${new Date( item.created_at ).toLocaleString()} </td> <td> ${escapeHtml( item.description || item.type || 'Transaction' )} </td> <td> ${money(amount)} </td> </tr> `; }).join(''); } /* ========================================================= CONTACT FORM ========================================================= */ async function submitContact(event){ event.preventDefault(); const name = $('contactName') .value .trim(); const email = $('contactEmail') .value .trim(); const message = $('contactMessage') .value .trim(); if(!name || !email || !message){ alert( 'Please fill all fields.' ); return; } /* If a contact_messages table exists, save the message there. */ try{ const { error } = await supabaseClient .from('contact_messages') .insert({ name:name, email:email, message:message, status:'new' }); if(error) throw error; alert( 'Your message has been sent successfully.' ); $('contactName').value=''; $('contactEmail').value=''; $('contactMessage').value=''; }catch(error){ console.error(error); alert( 'Unable to send message right now. Please contact support.pipzone@gmail.com.' ); } } /* ========================================================= AUTH STATE ========================================================= */ supabaseClient.auth.onAuthStateChange( async (event,session) => { if(session){ /* Small delay prevents auth-state race conditions while Supabase finishes restoring the session. */ setTimeout( () => showDashboard(), 100 ); }else{ $('dashboard').style.display='none'; } } ); /* ========================================================= EVENT LISTENERS ========================================================= */ document.addEventListener( 'DOMContentLoaded', () => { calculateReturns(); const withdrawalAmountInput = $('withdrawalAmount'); if(withdrawalAmountInput){ withdrawalAmountInput.addEventListener( 'input', updateWithdrawalSummary ); withdrawalAmountInput.addEventListener( 'change', updateWithdrawalSummary ); } /* Check existing Supabase session. */ supabaseClient.auth.getSession() .then(({data}) => { if(data.session){ showDashboard(); } }); } ); /* ========================================================= CLOSE MODALS WHEN CLICKING OUTSIDE ========================================================= */ $('authOverlay').addEventListener( 'click', function(event){ if(event.target === this) closeAuth(); } ); $('depositModal').addEventListener( 'click', function(event){ if(event.target === this) closeModal('depositModal'); } ); $('withdrawalModal').addEventListener( 'click', function(event){ if(event.target === this) closeModal('withdrawalModal'); } ); </script>
 
-  try{
-
-    const {error}=await supabaseClient.auth.resetPasswordForEmail(
-      email,
-      {
-        redirectTo:window.location.origin
-      }
-    );
-
-    if(error){
-
-      console.error('Reset email error:',error);
-
-      showMsg(
-        'resetMsg',
-        error.message
-      );
-
-      return;
-    }
-
-    showMsg(
-      'resetMsg',
-      'Password reset link has been sent to your email. Please check your inbox and spam folder.',
-      false
-    );
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'resetMsg',
-      'Unable to send reset email right now. Please try again.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Send reset link';
-    }
-
-  }
-}
-
-/* =========================
-   NEW: UPDATE PASSWORD
-========================= */
-
-async function updatePassword(){
-
-  clearMessages();
-
-  if(!supabaseReady){
-
-    showMsg(
-      'newPasswordMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
-
-    return;
-  }
-
-  const password=$('newPassword').value;
-  const confirm=$('confirmNewPassword').value;
-
-  if(!password){
-
-    showMsg(
-      'newPasswordMsg',
-      'Please enter your new password.'
-    );
-
-    return;
-  }
-
-  if(password.length<6){
-
-    showMsg(
-      'newPasswordMsg',
-      'Password must be at least 6 characters.'
-    );
-
-    return;
-  }
-
-  if(!confirm){
-
-    showMsg(
-      'newPasswordMsg',
-      'Please confirm your new password.'
-    );
-
-    return;
-  }
-
-  if(password!==confirm){
-
-    showMsg(
-      'newPasswordMsg',
-      'Passwords do not match.'
-    );
-
-    return;
-  }
-
-  const button=$('newPasswordForm')
-    .querySelector('.form-actions .btn');
-
-  if(button){
-    button.disabled=true;
-    button.textContent='Updating...';
-  }
-
-  try{
-
-    const {error}=await supabaseClient.auth.updateUser({
-      password:password
-    });
-
-    if(error){
-
-      console.error('Password update error:',error);
-
-      showMsg(
-        'newPasswordMsg',
-        error.message
-      );
-
-      return;
-    }
-
-    $('newPassword').value='';
-    $('confirmNewPassword').value='';
-
-    showMsg(
-      'newPasswordMsg',
-      'Password updated successfully. You can now login with your new password.',
-      false
-    );
-
-    /*
-      After successful password change, wait a little
-      and return the client to login.
-    */
-    setTimeout(()=>{
-
-      try{
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname
-        );
-      }catch(e){}
-
-      showLogin();
-
-    },1500);
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'newPasswordMsg',
-      'Unable to update password right now. Please try again.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Update password';
-    }
-
-  }
-}
-
-function validWallet(w){
-  return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(w)
-}
-
-function togglePw(id,btn){
-
-  const input=$(id);
-
-  if(!input)return;
-
-  const isHidden=input.type==='password';
-
-  input.type=isHidden?'text':'password';
-
-  btn.textContent=isHidden?'🙈':'👁';
-
-  btn.setAttribute(
-    'aria-label',
-    isHidden?'Hide password':'Show password'
-  );
-}
-
-async function signup(){
-
-  clearMessages();
-
-  if(!supabaseReady){
-    showMsg(
-      'signupMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
-    return;
-  }
-
-  const name=$('fullName').value.trim();
-  const email=$('signupEmail').value.trim();
-  const phone=$('phone').value.trim();
-  const wallet=$('wallet').value.trim();
-  const pass=$('signupPassword').value;
-  const confirm=$('confirmPassword').value;
-
-  if(!name||!email||!pass){
-    showMsg(
-      'signupMsg',
-      'Please fill Full Name, Email and Password.'
-    );
-    return;
-  }
-
-  if(!wallet){
-    showMsg(
-      'signupMsg',
-      'A TRC20 withdrawal wallet address is required to create an account.'
-    );
-    return;
-  }
-
-  if(!validWallet(wallet)){
-    showMsg(
-      'signupMsg',
-      'Please enter a valid TRC20 wallet address starting with T.'
-    );
-    return;
-  }
-
-  if(pass.length<6){
-    showMsg(
-      'signupMsg',
-      'Password must be at least 6 characters.'
-    );
-    return;
-  }
-
-  if(pass!==confirm){
-    showMsg(
-      'signupMsg',
-      'Passwords do not match.'
-    );
-    return;
-  }
-
-  const button=$('signupForm').querySelector('.form-actions .btn');
-
-  if(button){
-    button.disabled=true;
-    button.textContent='Creating...';
-  }
-
-  try{
-
-    const {data,error}=await supabaseClient.auth.signUp({
-      email,
-      password:pass,
-      options:{
-        data:{
-          full_name:name,
-          phone,
-          wallet_address:wallet
-        },
-        emailRedirectTo:window.location.origin
-      }
-    });
-
-    if(error){
-      showMsg('signupMsg',error.message);
-      return;
-    }
-
-    if(data&&data.session){
-      closeAuth();
-      await loadDashboard();
-    }else{
-      showMsg(
-        'signupMsg',
-        'Account created. Please check your email to verify your account.',
-        false
-      );
-    }
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'signupMsg',
-      'Unable to create account right now. Please try again.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Create account';
-    }
-
-  }
-}
-
-async function login(){
-
-  clearMessages();
-
-  if(!supabaseReady){
-    showMsg(
-      'loginMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
-    return;
-  }
-
-  const email=$('loginEmail').value.trim();
-  const password=$('loginPassword').value;
-
-  if(!email||!password){
-    showMsg('loginMsg','Enter email and password.');
-    return;
-  }
-
-  const button=$('loginForm').querySelector('.form-actions .btn');
-
-  if(button){
-    button.disabled=true;
-    button.textContent='Logging in...';
-  }
-
-  try{
-
-    const {data,error}=await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if(error){
-      showMsg('loginMsg',error.message);
-      return;
-    }
-
-    closeAuth();
-    await loadDashboard();
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'loginMsg',
-      'Unable to login right now. Please try again.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Login';
-    }
-
-  }
-}
-
-async function loadDashboard(){
-
-  if(!supabaseReady)return;
-
-  try{
-
-    const {data:{user},error}=await supabaseClient.auth.getUser();
-
-    if(error||!user)return;
-
-    currentUser=user;
-
-    $('home').style.display='none';
-    $('dashboard').style.display='block';
-
-    document.querySelector('footer').style.display='none';
-    document.querySelector('header').style.display='none';
-
-    const contactSection=$('contact');
-    if(contactSection)contactSection.style.display='none';
-
-    const {data:profile}=await supabaseClient
-      .from('profiles')
-      .select('full_name,wallet_address')
-      .eq('id',user.id)
-      .maybeSingle();
-
-    $('welcome').textContent='Welcome, '+(
-      profile?.full_name||user.email
-    );
-
-    if($('withdrawalWallet')&&profile?.wallet_address)
-      $('withdrawalWallet').value=profile.wallet_address;
-
-    const {data:accounts}=await supabaseClient
-      .from('accounts')
-      .select('balance,initial_balance,profit,first_deposit_at,total_withdrawn')
-      .eq('user_id',user.id)
-      .limit(1);
-
-    const a=accounts?.[0]||null;
-    currentAccount=a;
-
-    $('dashBalance').textContent='$'+Number(
-      a?.balance||0
-    ).toFixed(2);
-
-    $('dashDeposit').textContent='$'+Number(
-      a?.initial_balance||0
-    ).toFixed(2);
-
-    $('dashProfit').textContent='$'+Number(
-      a?.profit||0
-    ).toFixed(2);
-
-    if($('dashWithdrawn'))
-      $('dashWithdrawn').textContent='$'+Number(
-        a?.total_withdrawn||0
-      ).toFixed(2);
-
-    await loadRequests();
-
-  }catch(err){
-
-    console.error('Dashboard error:',err);
-
-  }
-}
-
-function daysSince(dateStr){
-
-  if(!dateStr)return null;
-
-  const then=new Date(dateStr).getTime();
-
-  return (Date.now()-then)/86400000;
-}
-
-function getWithdrawableAmount(){
-
-  if(!currentAccount)return 0;
-
-  const balance=Number(currentAccount.balance||0);
-  const profit=Number(currentAccount.profit||0);
-  const days=daysSince(currentAccount.first_deposit_at);
-
-  const principalUnlocked=
-    days!==null&&days>=PRINCIPAL_LOCK_DAYS;
-
-  if(principalUnlocked)return balance;
-
-  return Math.min(profit,balance);
-}
-
-function openRequest(type){
-
-  clearRequestMessages();
-
-  const id=type==='deposit'
-    ?'depositModal'
-    :'withdrawalModal';
-
-  const m=$(id);
-
-  if(!m)return;
-
-  if(type==='deposit'&&$('depositAddressField'))
-    $('depositAddressField').value=DEPOSIT_ADDRESS;
-
-  if(type==='withdrawal'){
-
-    const avail=getWithdrawableAmount();
-    const days=daysSince(currentAccount?.first_deposit_at);
-    const principalUnlocked=
-      days!==null&&days>=PRINCIPAL_LOCK_DAYS;
-
-    const noteEl=$('withdrawalAvailable');
-
-    if(noteEl){
-
-      if(principalUnlocked){
-
-        noteEl.textContent=
-          'Your principal is unlocked. You can withdraw up to $'+
-          avail.toFixed(2)+
-          ' now.';
-
-      }else{
-
-        const daysLeft=Math.max(
-          0,
-          Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0))
-        );
-
-        noteEl.textContent=
-          'You can withdraw up to $'+
-          avail.toFixed(2)+
-          ' now (your profit share). Your deposited capital unlocks in '+
-          daysLeft+
-          ' day'+
-          (daysLeft===1?'':'s')+
-          '.';
-
-      }
-
-      noteEl.style.display='block';
-    }
-  }
-
-  m.classList.add('show');
-
-  document.body.classList.add('modal-open');
-
-  setTimeout(()=>{
-
-    const e=$(
-      type==='deposit'
-      ?'depositAmount'
-      :'withdrawalAmount'
-    );
-
-    if(e)e.focus();
-
-  },50);
-}
-
-function closeRequest(type){
-
-  const m=$(
-    type==='deposit'
-    ?'depositModal'
-    :'withdrawalModal'
-  );
-
-  if(m)m.classList.remove('show');
-
-  document.body.classList.remove('modal-open');
-}
-
-function clearRequestMessages(){
-
-  ['depositMsg','withdrawalMsg'].forEach(id=>{
-
-    const e=$(id);
-
-    if(e)e.classList.remove('show');
-
-  });
-}
-
-async function submitDeposit(){
-
-  clearRequestMessages();
-
-  if(!supabaseReady){
-    showMsg(
-      'depositMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
-    return;
-  }
-
-  if(!currentUser){
-    showMsg('depositMsg','Please login again.');
-    return;
-  }
-
-  const amount=Number($('depositAmount').value);
-  const tx=$('depositTx').value.trim();
-  const proofFile=$('depositProof')?.files?.[0]||null;
-
-  if(!Number.isFinite(amount)||amount<100){
-    showMsg('depositMsg','Minimum deposit is $100.');
-    return;
-  }
-
-  if(!tx){
-    showMsg('depositMsg','Please enter the TRC20 transaction hash.');
-    return;
-  }
-
-  if(!proofFile){
-    showMsg(
-      'depositMsg',
-      'Please upload a screenshot of your payment.'
-    );
-    return;
-  }
-
-  if(proofFile.size>5*1024*1024){
-    showMsg(
-      'depositMsg',
-      'Screenshot must be under 5MB.'
-    );
-    return;
-  }
-
-  const button=$('depositModal')
-    .querySelector('.form-actions .btn');
-
-  if(button){
-    button.disabled=true;
-    button.textContent='Submitting...';
-  }
-
-  try{
-
-    let proofUrl=null;
-
-    if(proofFile){
-
-      const ext=proofFile.name.split('.').pop();
-
-      const path=
-        currentUser.id+
-        '/'+
-        Date.now()+
-        '.'+
-        ext;
-
-      const {error:uploadError}=
-        await supabaseClient
-        .storage
-        .from('deposit-proofs')
-        .upload(path,proofFile);
-
-      if(uploadError){
-
-        console.error(uploadError);
-
-        showMsg(
-          'depositMsg',
-          'Screenshot upload failed: '+uploadError.message
-        );
-
-        return;
-      }
-
-      const {data:urlData}=
-        supabaseClient
-        .storage
-        .from('deposit-proofs')
-        .getPublicUrl(path);
-
-      proofUrl=urlData?.publicUrl||null;
-    }
-
-    const {error}=
-      await supabaseClient
-      .from('deposits')
-      .insert({
-        user_id:currentUser.id,
-        amount,
-        currency:'USDT',
-        network:'TRC20',
-        tx_hash:tx,
-        status:'pending',
-        proof_url:proofUrl
-      });
-
-    if(error){
-
-      console.error(error);
-
-      showMsg(
-        'depositMsg',
-        error.message
-      );
-
-      return;
-    }
-
-    showMsg(
-      'depositMsg',
-      'Deposit request submitted successfully. It is pending verification.',
-      false
-    );
-
-    $('depositAmount').value='';
-    $('depositTx').value='';
-    $('depositProof').value='';
-    $('depositProofName').textContent='';
-
-    await loadRequests();
-
-    setTimeout(
-      ()=>closeRequest('deposit'),
-      1200
-    );
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'depositMsg',
-      'Unable to submit deposit request right now.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Submit deposit request';
-    }
-
-  }
-}
-
-async function submitWithdrawal(){
-
-  clearRequestMessages();
-
-  if(!supabaseReady){
-    showMsg(
-      'withdrawalMsg',
-      'Connection is not ready. Please refresh the page and try again.'
-    );
-    return;
-  }
-
-  if(!currentUser){
-    showMsg('withdrawalMsg','Please login again.');
-    return;
-  }
-
-  const amount=Number($('withdrawalAmount').value);
-  const wallet=$('withdrawalWallet').value.trim();
-
-  if(!Number.isFinite(amount)||amount<MIN_WITHDRAWAL){
-    showMsg(
-      'withdrawalMsg',
-      'Minimum withdrawal is $'+MIN_WITHDRAWAL+'.'
-    );
-    return;
-  }
-
-  if(!validWallet(wallet)){
-    showMsg(
-      'withdrawalMsg',
-      'Please enter a valid TRC20 wallet address starting with T.'
-    );
-    return;
-  }
-
-  const {data:accounts,error:accountError}=
-    await supabaseClient
-    .from('accounts')
-    .select('balance,profit,first_deposit_at')
-    .eq('user_id',currentUser.id)
-    .limit(1);
-
-  if(accountError){
-    showMsg(
-      'withdrawalMsg',
-      accountError.message
-    );
-    return;
-  }
-
-  currentAccount=accounts?.[0]||currentAccount;
-
-  const balance=Number(currentAccount?.balance||0);
-
-  if(amount>balance){
-
-    showMsg(
-      'withdrawalMsg',
-      'Withdrawal amount is higher than your available balance of $'+
-      balance.toFixed(2)+'.'
-    );
-
-    return;
-  }
-
-  const maxWithdrawable=getWithdrawableAmount();
-
-  if(amount>maxWithdrawable){
-
-    const days=daysSince(currentAccount?.first_deposit_at);
-    const daysLeft=Math.max(
-      0,
-      Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0))
-    );
-
-    showMsg(
-      'withdrawalMsg',
-      'You can currently withdraw up to $'+
-      maxWithdrawable.toFixed(2)+
-      ' (your profit share). Your deposited capital unlocks in '+
-      daysLeft+
-      ' day'+
-      (daysLeft===1?'':'s')+
-      '.'
-    );
-
-    return;
-  }
-
-  const button=$('withdrawalModal')
-    .querySelector('.form-actions .btn');
-
-  if(button){
-    button.disabled=true;
-    button.textContent='Submitting...';
-  }
-
-  try{
-
-    const {error}=
-      await supabaseClient
-      .from('withdrawals')
-      .insert({
-        user_id:currentUser.id,
-        amount,
-        wallet_address:wallet,
-        network:'TRC20',
-        status:'pending'
-      });
-
-    if(error){
-
-      console.error(error);
-
-      showMsg(
-        'withdrawalMsg',
-        error.message
-      );
-
-      return;
-    }
-
-    showMsg(
-      'withdrawalMsg',
-      'Withdrawal request submitted successfully. It is pending review.',
-      false
-    );
-
-    $('withdrawalAmount').value='';
-
-    await loadRequests();
-
-    setTimeout(
-      ()=>closeRequest('withdrawal'),
-      1200
-    );
-
-  }catch(err){
-
-    console.error(err);
-
-    showMsg(
-      'withdrawalMsg',
-      'Unable to submit withdrawal request right now.'
-    );
-
-  }finally{
-
-    if(button){
-      button.disabled=false;
-      button.textContent='Submit withdrawal request';
-    }
-
-  }
-}
-
-async function loadRequests(){
-
-  if(
-    !currentUser||
-    !supabaseReady||
-    !$('requestList')
-  )return;
-
-  try{
-
-    const [d,w]=await Promise.all([
-
-      supabaseClient
-      .from('deposits')
-      .select('amount,status,created_at')
-      .eq('user_id',currentUser.id)
-      .order('created_at',{ascending:false})
-      .limit(5),
-
-      supabaseClient
-      .from('withdrawals')
-      .select('amount,status,created_at')
-      .eq('user_id',currentUser.id)
-      .order('created_at',{ascending:false})
-      .limit(5)
-
-    ]);
-
-    const rows=[];
-
-    (d.data||[]).forEach(x=>
-      rows.push({
-        type:'Deposit',
-        amount:x.amount,
-        status:x.status,
-        date:x.created_at
-      })
-    );
-
-    (w.data||[]).forEach(x=>
-      rows.push({
-        type:'Withdrawal',
-        amount:x.amount,
-        status:x.status,
-        date:x.created_at
-      })
-    );
-
-    rows.sort(
-      (a,b)=>new Date(b.date)-new Date(a.date)
-    );
-
-    const el=$('requestList');
-
-    if(!rows.length){
-
-      el.innerHTML=
-        '<div class="request-item">'+
-        '<span class="meta">No deposit or withdrawal requests yet.</span>'+
-        '</div>';
-
-      return;
-    }
-
-    el.innerHTML=rows.slice(0,8).map(x=>
-      '<div class="request-item">'+
-      '<div>'+
-      '<strong>'+x.type+'</strong>'+
-      '<div class="meta">'+
-      new Date(x.date).toLocaleString()+
-      '</div>'+
-      '</div>'+
-      '<div style="text-align:right">'+
-      '<strong>$'+
-      Number(x.amount).toFixed(2)+
-      '</strong>'+
-      '<div class="status-'+
-      String(x.status).toLowerCase()+
-      '">'+
-      String(x.status).toUpperCase()+
-      '</div>'+
-      '</div>'+
-      '</div>'
-    ).join('');
-
-  }catch(err){
-
-    console.error(
-      'Requests error:',
-      err
-    );
-
-  }
-}
-
-/* CONTACT FORM */
-
-function submitContact(event){
-
-  event.preventDefault();
-
-  const name=$('contactName').value.trim();
-  const email=$('contactEmail').value.trim();
-  const subject=$('contactSubject').value.trim();
-  const message=$('contactMessage').value.trim();
-
-  if(!name||!email||!subject||!message){
-
-    alert('Please fill all fields.');
-
-    return;
-  }
-
-  const body=
-    'Name: '+name+'\n'+
-    'Email: '+email+'\n\n'+
-    'Issue / Subject: '+subject+'\n\n'+
-    'Message:\n'+message;
-
-  const mailto=
-    'mailto:support.pipzone@gmail.com'+
-    '?subject='+
-    encodeURIComponent(
-      'PipZoNe Support: '+subject
-    )+
-    '&body='+
-    encodeURIComponent(body);
-
-  $('contactSuccess').style.display='block';
-
-  window.location.href=mailto;
-}
-
-async function logout(){
-
-  if(supabaseReady)
-    await supabaseClient.auth.signOut();
-
-  location.reload();
-}
-
-function updateCalculator(){
-
-  const slider=$('amtSlider');
-
-  if(!slider)return;
-
-  const v=Number(slider.value);
-
-  $('amtOut').textContent=
-    v.toLocaleString();
-
-  $('outResult').textContent=
-    (v<0?'-':'')+
-    '$'+
-    Math.abs(v).toFixed(2);
-
-  $('outClient').textContent=
-    (v<0?'-':'')+
-    '$'+
-    Math.abs(v*.6).toFixed(2);
-
-  $('outMgr').textContent=
-    (v<0?'-':'')+
-    '$'+
-    Math.abs(v*.4).toFixed(2);
-}
-
-
-/* =========================
-   PAGE INITIALIZATION
-========================= */
-
-document.addEventListener(
-  'DOMContentLoaded',
-  async function(){
-
-    if(!initSupabase())return;
-
-    updateCalculator();
-    loadLiveStats();
-
-    const slider=$('amtSlider');
-
-    if(slider)
-      slider.addEventListener(
-        'input',
-        updateCalculator
-      );
-
-    const proofInput=$('depositProof');
-
-    if(proofInput)
-      proofInput.addEventListener(
-        'change',
-        ()=>{
-          const f=proofInput.files?.[0];
-
-          $('depositProofName').textContent=
-            f?f.name:'';
-        }
-      );
-
-    document
-      .querySelectorAll('.faq-q')
-      .forEach(q=>
-        q.addEventListener(
-          'click',
-          ()=>q.parentElement.classList.toggle('open')
-        )
-      );
-
-
-    /* =========================
-       ENTER KEY SUPPORT
-    ========================= */
-
-    document
-      .querySelectorAll(
-        '#loginForm input,#signupForm input,#resetPasswordForm input,#newPasswordForm input'
-      )
-      .forEach(input=>
-        input.addEventListener(
-          'keydown',
-          e=>{
-            if(e.key==='Enter'){
-
-              e.preventDefault();
-
-              if(
-                $('loginForm').style.display!=='none'
-              ){
-
-                login();
-
-              }else if(
-                $('signupForm').style.display!=='none'
-              ){
-
-                signup();
-
-              }else if(
-                $('resetPasswordForm').style.display!=='none'
-              ){
-
-                sendResetEmail();
-
-              }else if(
-                $('newPasswordForm').style.display!=='none'
-              ){
-
-                updatePassword();
-
-              }
-
-            }
-          }
-        )
-      );
-
-
-    /* =========================
-       SUPABASE PASSWORD RECOVERY
-    ========================= */
-
-    supabaseClient.auth.onAuthStateChange(
-      (event,session)=>{
-
-        if(event==='PASSWORD_RECOVERY'){
-
-          setTimeout(()=>{
-            showNewPasswordForm();
-          },0);
-
-        }
-
-      }
-    );
-
-
-    /* =========================
-       ESCAPE KEY
-    ========================= */
-
-    document.addEventListener(
-      'keydown',
-      e=>{
-
-        if(e.key==='Escape'){
-
-          if(modal.classList.contains('show'))
-            closeAuth();
-
-          if(
-            $('depositModal')?.classList.contains('show')
-          )
-            closeRequest('deposit');
-
-          if(
-            $('withdrawalModal')?.classList.contains('show')
-          )
-            closeRequest('withdrawal');
-
-        }
-
-      }
-    );
-
-
-    /* =========================
-       MODAL BACKDROP CLICK
-    ========================= */
-
-    document
-      .querySelectorAll(
-        '.modal,.request-modal'
-      )
-      .forEach(m=>
-        m.addEventListener(
-          'click',
-          e=>{
-
-            if(e.target!==m)return;
-
-            if(m.id==='authModal')
-              closeAuth();
-
-            if(m.id==='depositModal')
-              closeRequest('deposit');
-
-            if(m.id==='withdrawalModal')
-              closeRequest('withdrawal');
-
-          }
-        )
-      );
-
-
-    /* =========================
-       SESSION CHECK
-    ========================= */
-
-    try{
-
-      const {data}=
-        await supabaseClient.auth.getSession();
-
-      /*
-        Supabase recovery links normally return something like:
-        #access_token=...&refresh_token=...&type=recovery
-
-        If this is a recovery link, show the new-password form
-        instead of opening the normal dashboard.
-      */
-
-      const recoveryHash=
-        window.location.hash.includes('type=recovery');
-
-      const recoverySearch=
-        window.location.search.includes('type=recovery');
-
-      const isRecovery=
-        recoveryHash||recoverySearch;
-
-      if(isRecovery&&data?.session){
-
-        showNewPasswordForm();
-
-      }else if(data?.session){
-
-        await loadDashboard();
-
-      }
-
-    }catch(err){
-
-      console.error(
-        'Session check error:',
-        err
-      );
-
-    }
-
-  }
-);
-</script>
-
-</body>
-</html>
+</body> </html>
