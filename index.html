@@ -1328,10 +1328,13 @@ el.innerHTML=rows.slice(0,8).map(x=>'<div class="request-item"><div><strong>'+x.
 
 /* CONTACT FORM — direct Supabase submission with optional attachment */
 
+/* CONTACT FORM — Supabase + Brevo email */
+
 async function submitContact(event){
 event.preventDefault();
 
 const btn=$('contactSubmitBtn');
+
 const name=$('contactName').value.trim();
 const email=$('contactEmail').value.trim();
 const subject=$('contactSubject').value.trim();
@@ -1353,36 +1356,126 @@ alert('Connection is not ready. Please refresh the page and try again.');
 return;
 }
 
-if(btn){btn.disabled=true;btn.textContent='Sending...'}
+if(btn){
+btn.disabled=true;
+btn.textContent='Sending...';
+}
 
 try{
+
 let attachmentUrl=null;
 
+/* Upload attachment first */
 if(attachmentFile){
+
 const ext=attachmentFile.name.split('.').pop();
-const path='contact/'+Date.now()+'-'+Math.random().toString(36).slice(2)+'.'+ext;
-const {error:uploadError}=await supabaseClient.storage.from('contact-attachments').upload(path,attachmentFile);
+
+const path=
+'contact/'+
+Date.now()+
+'-'+
+Math.random().toString(36).slice(2)+
+'.'+
+ext;
+
+const {error:uploadError}=await supabaseClient
+.storage
+.from('contact-attachments')
+.upload(path,attachmentFile);
+
 if(uploadError){
 console.error(uploadError);
-alert('Attachment upload failed: '+uploadError.message);
-if(btn){btn.disabled=false;btn.textContent='Submit'}
+
+alert(
+'Attachment upload failed: '+
+uploadError.message
+);
+
 return;
 }
-const {data:urlData}=supabaseClient.storage.from('contact-attachments').getPublicUrl(path);
+
+const {data:urlData}=supabaseClient
+.storage
+.from('contact-attachments')
+.getPublicUrl(path);
+
 attachmentUrl=urlData?.publicUrl||null;
 }
 
-const {error}=await supabaseClient.from('contact_messages').insert({
-name,email,subject,message,attachment_url:attachmentUrl,status:'new'
+
+/* Save message in Supabase */
+const {error:dbError}=await supabaseClient
+.from('contact_messages')
+.insert({
+name,
+email,
+subject,
+message,
+attachment_url:attachmentUrl,
+status:'new'
 });
 
-if(error){
-console.error(error);
-alert('Unable to send message right now. Please email support.pipzone@gmail.com directly.');
+if(dbError){
+
+console.error('Contact database error:',dbError);
+
+alert(
+'Unable to save your message right now. Please email support.pipzone@gmail.com directly.'
+);
+
 return;
 }
 
+
+/* Send email through Supabase Edge Function */
+const {data:emailResult,error:emailError}=await supabaseClient.functions.invoke(
+'send-contact-email',
+{
+body:{
+name,
+email,
+subject,
+message,
+attachment_url:attachmentUrl
+}
+}
+);
+
+if(emailError){
+
+console.error(
+'Contact email function error:',
+emailError
+);
+
+alert(
+'Your message was saved, but the support email could not be sent. Please try again or email support.pipzone@gmail.com directly.'
+);
+
+return;
+}
+
+if(!emailResult?.success){
+
+console.error(
+'Brevo email error:',
+emailResult
+);
+
+alert(
+'Your message was saved, but the support email could not be sent. Please try again.'
+);
+
+return;
+}
+
+
+/* Success */
+$('contactSuccess').textContent=
+'Your message has been sent to our support team.';
+
 $('contactSuccess').style.display='block';
+
 $('contactName').value='';
 $('contactEmail').value='';
 $('contactSubject').value='';
@@ -1390,97 +1483,30 @@ $('contactMessage').value='';
 $('contactAttachment').value='';
 $('contactAttachmentName').textContent='';
 
-setTimeout(()=>{$('contactSuccess').style.display='none'},5000);
+setTimeout(()=>{
+$('contactSuccess').style.display='none';
+},5000);
 
 }catch(err){
-console.error(err);
-alert('Unable to send message right now. Please email support.pipzone@gmail.com directly.');
+
+console.error(
+'Contact submission error:',
+err
+);
+
+alert(
+'Unable to send message right now. Please email support.pipzone@gmail.com directly.'
+);
+
 }finally{
-if(btn){btn.disabled=false;btn.textContent='Submit'}
-}
-}
 
-async function logout(){
-if(supabaseReady)await supabaseClient.auth.signOut();
-location.reload();
+if(btn){
+btn.disabled=false;
+btn.textContent='Submit';
 }
 
-function updateCalculator(){
-const slider=$('amtSlider');
-if(!slider)return;
-const v=Number(slider.value);
-$('amtOut').textContent=v.toLocaleString();
-$('outResult').textContent=(v<0?'-':'')+'$'+Math.abs(v).toFixed(2);
-$('outClient').textContent=(v<0?'-':'')+'$'+Math.abs(v*.6).toFixed(2);
-$('outMgr').textContent=(v<0?'-':'')+'$'+Math.abs(v*.4).toFixed(2);
 }
-
-document.addEventListener('DOMContentLoaded',async function(){
-if(!initSupabase())return;
-updateCalculator();
-loadLiveStats();
-selectDepositNetwork('TRC20');
-
-const slider=$('amtSlider');
-if(slider)slider.addEventListener('input',updateCalculator);
-
-const proofInput=$('depositProof');
-if(proofInput)proofInput.addEventListener('change',()=>{
-const f=proofInput.files?.[0];
-$('depositProofName').textContent=f?f.name:'';
-});
-
-const attachmentInput=$('contactAttachment');
-if(attachmentInput)attachmentInput.addEventListener('change',()=>{
-const f=attachmentInput.files?.[0];
-$('contactAttachmentName').textContent=f?f.name:'';
-});
-
-const wAmtInput=$('withdrawalAmount');
-if(wAmtInput)wAmtInput.addEventListener('input',updateWithdrawalCalc);
-
-document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open')));
-
-document.querySelectorAll('#loginForm input,#signupForm input,#resetPasswordForm input,#newPasswordForm input').forEach(input=>input.addEventListener('keydown',e=>{
-if(e.key==='Enter'){
-e.preventDefault();
-if($('loginForm').style.display!=='none'){login()}
-else if($('signupForm').style.display!=='none'){signup()}
-else if($('resetPasswordForm').style.display!=='none'){sendResetEmail()}
-else if($('newPasswordForm').style.display!=='none'){updatePassword()}
 }
-}));
-
-supabaseClient.auth.onAuthStateChange((event,session)=>{
-if(event==='PASSWORD_RECOVERY'){
-setTimeout(()=>{showNewPasswordForm()},0);
-}
-});
-
-document.addEventListener('keydown',e=>{
-if(e.key==='Escape'){
-if(modal.classList.contains('show'))closeAuth();
-if($('depositModal')?.classList.contains('show'))closeRequest('deposit');
-if($('withdrawalModal')?.classList.contains('show'))closeRequest('withdrawal');
-}
-});
-
-document.querySelectorAll('.modal,.request-modal').forEach(m=>m.addEventListener('click',e=>{
-if(e.target!==m)return;
-if(m.id==='authModal')closeAuth();
-if(m.id==='depositModal')closeRequest('deposit');
-if(m.id==='withdrawalModal')closeRequest('withdrawal');
-}));
-
-try{
-const {data}=await supabaseClient.auth.getSession();
-const recoveryHash=window.location.hash.includes('type=recovery');
-const recoverySearch=window.location.search.includes('type=recovery');
-const isRecovery=recoveryHash||recoverySearch;
-if(isRecovery&&data?.session){showNewPasswordForm()}
-else if(data?.session){await loadDashboard()}
-}catch(err){console.error('Session check error:',err)}
-});
 </script>
 
 </body>
