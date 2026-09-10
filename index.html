@@ -728,6 +728,28 @@ margin-top:5px
 }
 
 .dash-status{
+  .dash-top-right{
+display:flex;
+align-items:center;
+gap:12px;
+margin-left:auto
+}
+
+.dash-top-logout{
+padding:8px 15px;
+border:1px solid var(--line);
+border-radius:20px;
+background:transparent;
+color:var(--muted);
+font:500 12px 'IBM Plex Sans';
+cursor:pointer;
+transition:.15s
+}
+
+.dash-top-logout:hover{
+border-color:var(--loss);
+color:var(--loss)
+}
 display:flex;
 align-items:center;
 gap:8px;
@@ -2239,9 +2261,21 @@ Account: —
 </div>
 
 
+<div class="dash-top-right">
+
 <div class="dash-status">
 <span class="dash-status-dot"></span>
 Account active
+</div>
+
+<button
+type="button"
+class="dash-top-logout"
+onclick="logout()"
+>
+Logout
+</button>
+
 </div>
 
 </div>
@@ -2428,15 +2462,6 @@ class="dash-action-btn"
 onclick="openRequest('withdrawal')"
 >
 ↑ Request withdrawal
-</button>
-
-
-<button
-type="button"
-class="logout"
-onclick="logout()"
->
-Logout
 </button>
 
 </div>
