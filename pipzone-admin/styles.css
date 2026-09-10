@@ -1,0 +1,472 @@
+/* =========================================================
+   PIPZONE ADMIN PANEL — STYLES
+   =========================================================
+   Table of contents:
+   1. Reset & Base
+   2. Layout wrapper / top bar
+   3. Buttons
+   4. Dashboard summary cards
+   5. Sections (tables container)
+   6. Status pills
+   7. Action buttons (approve/reject/create account)
+   8. P&L (record result) row
+   9. Empty / notice messages
+   10. Login screen
+   11. Misc utility classes (wallet, footer, links, tags)
+   12. Password show/hide toggle
+   13. Responsive breakpoints
+========================================================= */
+
+
+/* =========================================================
+   1. RESET & BASE
+========================================================= */
+
+:root{
+  --bg:#101513;
+  --card:#171F1B;
+  --card2:#1F2622;
+  --line:#283029;
+  --gold:#2FBF83;
+  --text:#ECF3EE;
+  --muted:#8B9992;
+  --green:#5EEAB0;
+  --red:#F2735E;
+  --blue:#55A7FF
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:linear-gradient(135deg,#0B0F0D,#101513 55%,#141C18);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+  min-height:100vh
+}
+
+button,input{
+  font:inherit
+}
+
+
+/* =========================================================
+   2. LAYOUT WRAPPER / TOP BAR
+========================================================= */
+
+.wrap{
+  max-width:1250px;
+  margin:auto;
+  padding:24px
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:22px
+}
+
+.brand{
+  font-weight:800;
+  font-size:23px
+}
+
+.brand span{
+  color:var(--gold)
+}
+
+.sub{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:4px
+}
+
+
+/* =========================================================
+   3. BUTTONS
+========================================================= */
+
+.btn{
+  border:1px solid var(--line);
+  background:#122238;
+  color:#fff;
+  border-radius:10px;
+  padding:10px 15px;
+  cursor:pointer
+}
+
+.btn:hover{
+  border-color:#39506d
+}
+
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed
+}
+
+.logout{
+  border-color:#5b2930;
+  color:#ffb6b6
+}
+
+
+/* =========================================================
+   4. DASHBOARD SUMMARY CARDS
+========================================================= */
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px
+}
+
+.stat{
+  background:rgba(13,26,43,.95);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px
+}
+
+.stat small{
+  color:var(--muted)
+}
+
+.stat h2{
+  margin:8px 0 0;
+  font-size:25px
+}
+
+
+/* =========================================================
+   5. SECTIONS (TABLES CONTAINER)
+========================================================= */
+
+.section{
+  margin-top:20px;
+  background:rgba(13,26,43,.95);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px
+}
+
+.section h3{
+  margin:0 0 14px
+}
+
+.table-wrap{
+  overflow:auto
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:760px
+}
+
+th,td{
+  text-align:left;
+  padding:12px 10px;
+  border-bottom:1px solid #1b2c42;
+  font-size:13px;
+  vertical-align:top
+}
+
+th{
+  color:var(--muted);
+  font-weight:600
+}
+
+
+/* =========================================================
+   6. STATUS PILLS
+========================================================= */
+
+.pill{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:11px;
+  text-transform:capitalize
+}
+
+.pending{
+  background:#4a3917;
+  color:#ffd87b
+}
+
+.approved{
+  background:#123d2d;
+  color:#77e2b3
+}
+
+.rejected{
+  background:#4a2025;
+  color:#ff9c9c
+}
+
+
+/* =========================================================
+   7. ACTION BUTTONS (APPROVE / REJECT / CREATE ACCOUNT)
+========================================================= */
+
+.actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap
+}
+
+.approve{
+  background:#123d2d;
+  border-color:#235e48;
+  color:#7be5b7
+}
+
+.reject{
+  background:#4a2025;
+  border-color:#71343c;
+  color:#ff9c9c
+}
+
+.createacc{
+  background:#1f2b47;
+  border-color:#3a538a;
+  color:#9db6ec
+}
+
+
+/* =========================================================
+   8. P&L (RECORD DAILY RESULT) ROW
+========================================================= */
+
+.pnl-row{
+  display:flex;
+  gap:6px;
+  align-items:center
+}
+
+.pnl-input{
+  width:90px;
+  padding:8px 9px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:#091525;
+  color:#fff;
+  outline:none
+}
+
+.pnl-btn{
+  background:#3a2f12;
+  border-color:#8a6a1f;
+  color:#f0c975
+}
+
+.disabled{
+  opacity:.45;
+  pointer-events:none
+}
+
+
+/* =========================================================
+   9. EMPTY / NOTICE MESSAGES
+========================================================= */
+
+.empty{
+  color:var(--muted);
+  padding:18px 0
+}
+
+.notice{
+  display:none;
+  margin-bottom:15px;
+  padding:12px 14px;
+  border-radius:10px;
+  background:#14283e;
+  border:1px solid var(--line);
+  color:#cfe0f5
+}
+
+.no-account-tag{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  color:#ffb37b
+}
+
+
+/* =========================================================
+   10. LOGIN SCREEN
+========================================================= */
+
+.login{
+  max-width:430px;
+  margin:10vh auto;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:24px
+}
+
+.login h1{
+  margin-top:0
+}
+
+.field{
+  margin:12px 0
+}
+
+.field label{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:7px
+}
+
+.field input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#091525;
+  color:#fff;
+  outline:none
+}
+
+.login .btn{
+  width:100%;
+  margin-top:8px;
+  background:#b88a2f;
+  border-color:#b88a2f;
+  color:#07111f;
+  font-weight:700
+}
+
+.hidden{
+  display:none!important
+}
+
+
+/* =========================================================
+   11. MISC UTILITY CLASSES (WALLET, FOOTER, LINKS, TAGS)
+========================================================= */
+
+.wallet{
+  max-width:280px;
+  word-break:break-all
+}
+
+.refresh{
+  float:right
+}
+
+.footer{
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+  padding:25px
+}
+
+.danger-note{
+  color:#ffb3b3;
+  font-size:12px;
+  margin-top:10px
+}
+
+.proof-link{
+  color:var(--gold);
+  text-decoration:underline;
+  font-size:12px;
+  display:inline-block;
+  margin-top:4px
+}
+
+.lock-tag{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  color:var(--muted)
+}
+
+.fee-note{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  color:#ffd87b
+}
+
+.net-note{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  color:var(--green)
+}
+
+
+/* =========================================================
+   12. PASSWORD SHOW/HIDE TOGGLE
+========================================================= */
+
+.pw-wrap{
+  position:relative
+}
+
+.pw-wrap input{
+  padding-right:42px
+}
+
+.pw-toggle{
+  position:absolute;
+  right:0;
+  top:0;
+  height:100%;
+  width:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:none;
+  border:0;
+  cursor:pointer;
+  color:var(--muted);
+  padding:0
+}
+
+.pw-toggle:hover{
+  color:var(--gold)
+}
+
+
+/* =========================================================
+   13. RESPONSIVE BREAKPOINTS
+========================================================= */
+
+@media(max-width:1100px){
+  .cards{
+    grid-template-columns:repeat(3,1fr)
+  }
+}
+
+@media(max-width:900px){
+  .cards{
+    grid-template-columns:repeat(2,1fr)
+  }
+}
+
+@media(max-width:600px){
+
+  .wrap{
+    padding:14px
+  }
+
+  .cards{
+    grid-template-columns:1fr
+  }
+
+  .top{
+    align-items:flex-start
+  }
+
+  .top .btn{
+    padding:8px 10px
+  }
+}
