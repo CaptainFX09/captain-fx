@@ -578,7 +578,9 @@ For account, deposit, withdrawal, or general support questions, please use the c
 <div class="wrap">
 
 <div class="sec-tag">Client <span>dashboard</span></div>
-<h2 id="welcome" style="margin-top:8px">Welcome</h2>
+<h2 id="welcome" style="margin-top:8px">Welcome,</h2>
+<h3 id="welcomeName" style="margin-top:6px;margin-bottom:0">Client</h3>
+<p id="welcomeEmail" class="sec-desc" style="margin-top:4px">Gmail: —</p>
 <p class="sec-desc">Your account information will appear here.</p>
 
 <div class="dash-grid">
@@ -1216,7 +1218,7 @@ const contactSection=$('contact');
 if(contactSection)contactSection.style.display='none';
 const {data:profile}=await supabaseClient.from('profiles').select('full_name,wallet_address,wallet_address_bep20').eq('id',user.id).maybeSingle();
 currentProfile=profile||null;
-$('welcome').textContent='Welcome, '+(profile?.full_name||user.email);
+$('welcome').textContent='Welcome,'; $('welcomeName').textContent=profile?.full_name||'Client'; $('welcomeEmail').textContent='Gmail: '+(user.email||'—');
 const {data:accounts}=await supabaseClient.from('accounts').select('balance,initial_balance,profit,first_deposit_at,total_withdrawn').eq('user_id',user.id).limit(1);
 const a=accounts?.[0]||null;
 currentAccount=a;
