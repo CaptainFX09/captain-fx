@@ -79,6 +79,11 @@ button,input{
   border-color:#39506d
 }
 
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed
+}
+
 .logout{
   border-color:#5b2930;
   color:#ffb6b6
@@ -499,11 +504,11 @@ th{
 
     <div>
 
-      <button class="btn" id="refreshBtn">
+      <button class="btn" id="refreshBtn" type="button">
         Refresh
       </button>
 
-      <button class="btn logout" id="logoutBtn">
+      <button class="btn logout" id="logoutBtn" type="button">
         Logout
       </button>
 
@@ -970,306 +975,320 @@ let LATEST_ACCOUNTS_BY_USER = {};
 
 /* =========================================================
    LOAD ALL DATA
+   (wrapped so any unexpected error is visible instead of
+   silently doing nothing)
 ========================================================= */
 
 async function loadAll(){
 
-  if(!(await checkAdmin()))
-    return;
+  try{
+
+    if(!(await checkAdmin()))
+      return;
 
 
-  const [
-    profiles,
-    accounts,
-    deposits,
-    withdrawals,
-    transactions,
-    profitEntries
-  ] =
-  await Promise.all([
+    const [
+      profiles,
+      accounts,
+      deposits,
+      withdrawals,
+      transactions,
+      profitEntries
+    ] =
+    await Promise.all([
 
-    /* CHANGED:
-       Load ALL profiles so every user's name can be found.
-    */
+      client
+        .from('profiles')
+        .select(
+          'id,full_name,phone,wallet_address,role,created_at'
+        )
+        .order(
+          'created_at',
+          {ascending:false}
+        ),
 
-    client
-      .from('profiles')
-      .select(
-        'id,full_name,phone,wallet_address,role,created_at'
-      )
-      .order(
-        'created_at',
-        {ascending:false}
-      ),
+      client
+        .from('accounts')
+        .select('*')
+        .order(
+          'created_at',
+          {ascending:false}
+        ),
 
-    client
-      .from('accounts')
-      .select('*')
-      .order(
-        'created_at',
-        {ascending:false}
-      ),
+      client
+        .from('deposits')
+        .select('*')
+        .order(
+          'created_at',
+          {ascending:false}
+        ),
 
-    client
-      .from('deposits')
-      .select('*')
-      .order(
-        'created_at',
-        {ascending:false}
-      ),
+      client
+        .from('withdrawals')
+        .select('*')
+        .order(
+          'created_at',
+          {ascending:false}
+        ),
 
-    client
-      .from('withdrawals')
-      .select('*')
-      .order(
-        'created_at',
-        {ascending:false}
-      ),
+      client
+        .from('transactions')
+        .select('*')
+        .order(
+          'created_at',
+          {ascending:false}
+        ),
 
-    client
-      .from('transactions')
-      .select('*')
-      .order(
-        'created_at',
-        {ascending:false}
-      ),
+      client
+        .from('profit_entries')
+        .select('*')
+        .order(
+          'created_at',
+          {ascending:false}
+        )
+        .limit(30)
 
-    client
-      .from('profit_entries')
-      .select('*')
-      .order(
-        'created_at',
-        {ascending:false}
-      )
-      .limit(30)
-
-  ]);
+    ]);
 
 
-  const results = [
-    profiles,
-    accounts,
-    deposits,
-    withdrawals,
-    transactions,
-    profitEntries
-  ];
+    const results = [
+      profiles,
+      accounts,
+      deposits,
+      withdrawals,
+      transactions,
+      profitEntries
+    ];
 
 
-  const bad =
-    results.find(
-      r => r.error
+    const bad =
+      results.find(
+        r => r.error
+      );
+
+
+    if(bad){
+
+      console.error('loadAll query error:', bad.error);
+
+      showMsg(
+        bad.error.message,
+        true
+      );
+
+      return;
+    }
+
+
+    const P =
+      profiles.data || [];
+
+    const A =
+      accounts.data || [];
+
+    const D =
+      deposits.data || [];
+
+    const W =
+      withdrawals.data || [];
+
+    const T =
+      transactions.data || [];
+
+    const PE =
+      profitEntries.data || [];
+
+
+    /* CLIENT NAMES */
+
+    const names = {};
+
+    P.forEach(
+      p =>
+      names[p.id] = p
     );
 
 
-  if(bad){
+    /* ACCOUNTS */
+
+    const accByUser = {};
+
+    A.forEach(
+      a =>
+      accByUser[a.user_id] = a
+    );
+
+
+    LATEST_ACCOUNTS_BY_USER =
+      accByUser;
+
+
+    /* =====================================================
+       DASHBOARD CALCULATIONS
+    ===================================================== */
+
+
+    /* TOTAL CLIENTS
+       Only users with role = client
+    */
+
+    const clientProfiles =
+      P.filter(
+        p => p.role === 'client'
+      );
+
+
+    $('clients').textContent =
+      clientProfiles.length;
+
+
+    /* TOTAL APPROVED DEPOSIT */
+
+    const totalDeposits =
+      D
+      .filter(
+        x => x.status === 'approved'
+      )
+      .reduce(
+        (a,x) =>
+        a + Number(x.amount || 0),
+        0
+      );
+
+
+    $('deposits').textContent =
+      money(totalDeposits);
+
+
+    /* PENDING DEPOSIT */
+
+    const pendingDeposit =
+      D
+      .filter(
+        x => x.status === 'pending'
+      )
+      .reduce(
+        (a,x) =>
+        a + Number(x.amount || 0),
+        0
+      );
+
+
+    $('pendingDp').textContent =
+      money(pendingDeposit);
+
+
+    /* PENDING WITHDRAWAL */
+
+    const pendingWithdrawal =
+      W
+      .filter(
+        x => x.status === 'pending'
+      )
+      .reduce(
+        (a,x) =>
+        a + Number(x.amount || 0),
+        0
+      );
+
+
+    $('pendingWd').textContent =
+      money(pendingWithdrawal);
+
+
+    /* TOTAL CLIENT PROFIT
+       60% CLIENT SHARE
+    */
+
+    const totalProfit =
+      PE.reduce(
+        (a,x) =>
+        a + Number(x.client_share || 0),
+        0
+      );
+
+
+    $('profit').textContent =
+      money(totalProfit);
+
+
+    /* APPROVED WITHDRAWAL COUNT */
+
+    const approvedWithdrawals =
+      W.filter(
+        x => x.status === 'approved'
+      );
+
+
+    /* TOTAL WITHDRAWAL FEE */
+
+    const withdrawalFee =
+      approvedWithdrawals.length *
+      WITHDRAWAL_FEE;
+
+
+    $('withdrawalFee').textContent =
+      money(withdrawalFee);
+
+
+    /* DESK PROFIT
+       MANAGER 40%
+    */
+
+    const deskProfit =
+      PE.reduce(
+        (a,x) =>
+        a + Number(x.manager_share || 0),
+        0
+      );
+
+
+    $('deskProfit').textContent =
+      money(deskProfit);
+
+
+    /* =====================================================
+       RENDER TABLES
+    ===================================================== */
+
+    renderDeposits(
+      D,
+      names,
+      accByUser
+    );
+
+    renderWithdrawals(
+      W,
+      names,
+      accByUser
+    );
+
+    renderAccounts(
+      A,
+      names
+    );
+
+    renderTransactions(
+      T,
+      names
+    );
+
+    renderProfitEntries(
+      PE,
+      names
+    );
+
+  }catch(err){
+
+    console.error('loadAll unexpected error:', err);
 
     showMsg(
-      bad.error.message,
+      'Something went wrong while loading data: ' +
+      (err && err.message ? err.message : String(err)),
       true
     );
 
-    return;
   }
-
-
-  const P =
-    profiles.data || [];
-
-  const A =
-    accounts.data || [];
-
-  const D =
-    deposits.data || [];
-
-  const W =
-    withdrawals.data || [];
-
-  const T =
-    transactions.data || [];
-
-  const PE =
-    profitEntries.data || [];
-
-
-  /* CLIENT NAMES */
-
-  const names = {};
-
-  P.forEach(
-    p =>
-    names[p.id] = p
-  );
-
-
-  /* ACCOUNTS */
-
-  const accByUser = {};
-
-  A.forEach(
-    a =>
-    accByUser[a.user_id] = a
-  );
-
-
-  LATEST_ACCOUNTS_BY_USER =
-    accByUser;
-
-
-  /* =====================================================
-     DASHBOARD CALCULATIONS
-  ===================================================== */
-
-
-  /* TOTAL CLIENTS
-     Only users with role = client
-  */
-
-  const clientProfiles =
-    P.filter(
-      p => p.role === 'client'
-    );
-
-
-  $('clients').textContent =
-    clientProfiles.length;
-
-
-  /* TOTAL APPROVED DEPOSIT */
-
-  const totalDeposits =
-    D
-    .filter(
-      x => x.status === 'approved'
-    )
-    .reduce(
-      (a,x) =>
-      a + Number(x.amount || 0),
-      0
-    );
-
-
-  $('deposits').textContent =
-    money(totalDeposits);
-
-
-  /* PENDING DEPOSIT */
-
-  const pendingDeposit =
-    D
-    .filter(
-      x => x.status === 'pending'
-    )
-    .reduce(
-      (a,x) =>
-      a + Number(x.amount || 0),
-      0
-    );
-
-
-  $('pendingDp').textContent =
-    money(pendingDeposit);
-
-
-  /* PENDING WITHDRAWAL */
-
-  const pendingWithdrawal =
-    W
-    .filter(
-      x => x.status === 'pending'
-    )
-    .reduce(
-      (a,x) =>
-      a + Number(x.amount || 0),
-      0
-    );
-
-
-  $('pendingWd').textContent =
-    money(pendingWithdrawal);
-
-
-  /* TOTAL CLIENT PROFIT
-     60% CLIENT SHARE
-  */
-
-  const totalProfit =
-    PE.reduce(
-      (a,x) =>
-      a + Number(x.client_share || 0),
-      0
-    );
-
-
-  $('profit').textContent =
-    money(totalProfit);
-
-
-  /* APPROVED WITHDRAWAL COUNT */
-
-  const approvedWithdrawals =
-    W.filter(
-      x => x.status === 'approved'
-    );
-
-
-  /* TOTAL WITHDRAWAL FEE */
-
-  const withdrawalFee =
-    approvedWithdrawals.length *
-    WITHDRAWAL_FEE;
-
-
-  $('withdrawalFee').textContent =
-    money(withdrawalFee);
-
-
-  /* DESK PROFIT
-     MANAGER 40%
-  */
-
-  const deskProfit =
-    PE.reduce(
-      (a,x) =>
-      a + Number(x.manager_share || 0),
-      0
-    );
-
-
-  $('deskProfit').textContent =
-    money(deskProfit);
-
-
-  /* =====================================================
-     RENDER TABLES
-  ===================================================== */
-
-  renderDeposits(
-    D,
-    names,
-    accByUser
-  );
-
-  renderWithdrawals(
-    W,
-    names,
-    accByUser
-  );
-
-  renderAccounts(
-    A,
-    names
-  );
-
-  renderTransactions(
-    T,
-    names
-  );
-
-  renderProfitEntries(
-    PE,
-    names
-  );
 }
 
 
@@ -2860,8 +2879,7 @@ async function rejectWithdrawal(id){
    LOGIN
 ========================================================= */
 
-$('loginBtn').onclick =
-async()=>{
+$('loginBtn').addEventListener('click', async()=>{
 
   const email =
     $('email')
@@ -2890,37 +2908,53 @@ async()=>{
   $('loginBtn')
     .disabled = true;
 
-  const {
-    error
-  } =
-  await client.auth.signInWithPassword({
-   email,
+  try{
 
-    password
+    const {
+      error
+    } =
+    await client.auth.signInWithPassword({
+      email,
 
-  });
+      password
 
-
-  $('loginBtn')
-    .disabled = false;
+    });
 
 
-  if(error){
+    if(error){
+
+      loginMsg(
+        error.message,
+        true
+      );
+
+      return;
+    }
 
     loginMsg(
-      error.message,
+      'Login successful.'
+    );
+
+    await loadAll();
+
+  }catch(err){
+
+    console.error('Login error:', err);
+
+    loginMsg(
+      'Something went wrong logging in: ' +
+      (err && err.message ? err.message : String(err)),
       true
     );
 
-    return;
+  }finally{
+
+    $('loginBtn')
+      .disabled = false;
+
   }
 
-  loginMsg(
-    'Login successful.'
-  );
-
-  await loadAll();
-};
+});
 
 /* =========================================================
    ENTER KEY LOGIN
@@ -2940,20 +2974,53 @@ $('password')
    LOGOUT
 ========================================================= */
 
-$('logoutBtn').onclick =
-async()=>{
+$('logoutBtn').addEventListener('click', async()=>{
 
   await client.auth.signOut();
 
   location.reload();
 
-};
+});
 /* =========================================================
    REFRESH
+   (uses addEventListener + visible "Refreshing..." state so
+   it's obvious the click registered, and any error surfaces
+   instead of failing silently)
 ========================================================= */
 
-$('refreshBtn').onclick =
-loadAll;
+$('refreshBtn').addEventListener('click', async()=>{
+
+  const btn = $('refreshBtn');
+
+  const originalText = btn.textContent;
+
+  btn.disabled = true;
+
+  btn.textContent = 'Refreshing...';
+
+  try{
+
+    await loadAll();
+
+  }catch(err){
+
+    console.error('Refresh error:', err);
+
+    showMsg(
+      'Refresh failed: ' +
+      (err && err.message ? err.message : String(err)),
+      true
+    );
+
+  }finally{
+
+    btn.disabled = false;
+
+    btn.textContent = originalText;
+
+  }
+
+});
 
 
 /* =========================================================
