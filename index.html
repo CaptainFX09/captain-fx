@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>PipZoNe — Managed Forex Trading</title>
+<title>PipZoNe — Managed Forex &amp; Crypto Trading</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -302,7 +302,7 @@ footer{padding:56px 0 40px}
 <div>
 <div class="eyebrow"><span class="dot"></span>Trading desk open — September 2026 cycle</div>
 <h1>Your capital, our<br>desk, <em>one shared</em><br>outcome.</h1>
-<p class="hero-sub">PipZoNe uses client-provided capital for forex trading under an agreed 60/40 profit-sharing structure. Trading results depend on market conditions and actual performance. We do not charge flat management fees.</p>
+<p class="hero-sub">PipZoNe uses client-provided capital for forex and crypto trading under an agreed 60/40 profit-sharing structure. Trading results depend on market conditions and actual performance. We do not charge flat management fees. Forex markets are closed on Saturdays and Sundays, so no trading result is recorded on those days.</p>
 
 <div class="hero-actions">
 <button class="btn btn-gold" onclick="openAuth('signup')">Create account</button>
@@ -355,8 +355,8 @@ footer{padding:56px 0 40px}
 <div class="steps">
 <div class="step"><div class="step-num">01</div><div class="step-title">Create your account</div><div class="step-desc">Register with your details and verify your email.</div></div>
 <div class="step"><div class="step-num">02</div><div class="step-title">Deposit capital</div><div class="step-desc">Send a minimum of $100 in USDT via TRC20 or BEP20 to your account's deposit address. Funds are credited after confirmation.</div></div>
-<div class="step"><div class="step-num">03</div><div class="step-title">Capital is traded</div><div class="step-desc">Client-provided capital is used for forex trading under the agreed trading structure. Trading can result in both profits and losses.</div></div>
-<div class="step"><div class="step-num">04</div><div class="step-title">Daily settlement</div><div class="step-desc">Each day's actual trading result is calculated according to the agreed 60/40 profit-sharing structure. When a profit is generated, your applicable profit share may be requested for withdrawal according to the withdrawal terms. Your original deposit unlocks 40 days after it is credited.</div></div>
+<div class="step"><div class="step-num">03</div><div class="step-title">Capital is traded</div><div class="step-desc">Client-provided capital is used for forex and crypto trading under the agreed trading structure. Trading can result in both profits and losses.</div></div>
+<div class="step"><div class="step-num">04</div><div class="step-title">Daily settlement</div><div class="step-desc">Each day's actual trading result is calculated according to the agreed 60/40 profit-sharing structure. When a profit is generated, your applicable profit share may be requested for withdrawal according to the withdrawal terms. Your original deposit unlocks 40 days after it is credited. Forex markets are closed on Saturdays and Sundays, so no result is recorded on those two days each week.</div></div>
 </div>
 </div>
 </section>
@@ -385,7 +385,7 @@ footer{padding:56px 0 40px}
 <div class="out-row"><span class="out-label">Trading result</span><span class="out-value" id="outResult">$100.00</span></div>
 <div class="out-row"><span class="out-label">Your share (60%)</span><span class="out-value hi" id="outClient">$60.00</span></div>
 <div class="out-row"><span class="out-label">Desk share (40%)</span><span class="out-value" id="outMgr">$40.00</span></div>
-<div class="calc-warn">This is a modeling tool, not a forecast. Forex trading carries risk of loss.</div>
+<div class="calc-warn">This is a modeling tool, not a forecast. Forex and crypto trading carries risk of loss.</div>
 </div>
 </div>
 </div>
@@ -397,7 +397,7 @@ footer{padding:56px 0 40px}
 <div class="sec-tag">Verified <span>performance</span></div>
 <div>
 <h2>Monthly results, as they closed.</h2>
-<p class="sec-desc">Only settled, verified results are published here. Daily results are updated every day at 10:00 PM. Past performance does not guarantee future results.</p>
+<p class="sec-desc">Only settled, verified results are published here. Daily results are updated every day at 10:00 PM, except Saturday and Sunday when forex markets are closed and no result is recorded. Past performance does not guarantee future results.</p>
 </div>
 </div>
 
@@ -422,10 +422,10 @@ footer{padding:56px 0 40px}
 </div>
 
 <div class="risk-grid">
-<div><h3>Returns are not guaranteed</h3><p>Forex trading can produce losses as well as profits.</p></div>
+<div><h3>Returns are not guaranteed</h3><p>Forex and crypto trading can produce losses as well as profits.</p></div>
 <div><h3>Eligible profits can be withdrawn</h3><p>Eligible profit shares may be requested for withdrawal according to the applicable withdrawal terms. Your original deposit (principal) unlocks 40 days after it is credited to your account.</p></div>
 <div><h3>Deposits are confirmed on-chain</h3><p>A deposit is only credited after its blockchain transaction is verified.</p></div>
-<div><h3>Trading results are performance-based</h3><p>No fixed or guaranteed return is promised. Forex trading involves significant risk, and you may lose some or all of the capital used for trading. Only participate after understanding and accepting these risks.</p></div>
+<div><h3>Trading results are performance-based</h3><p>No fixed or guaranteed return is promised. Forex and crypto trading involves significant risk, and you may lose some or all of the capital used for trading. Only participate after understanding and accepting these risks.</p></div>
 </div>
 </div>
 </section>
@@ -455,7 +455,12 @@ footer{padding:56px 0 40px}
 
 <div class="faq-item">
 <div class="faq-q"><span>Is my capital guaranteed?</span><span class="plus">+</span></div>
-<div class="faq-a"><p>No. Forex trading can result in losses.</p></div>
+<div class="faq-a"><p>No. Forex and crypto trading can result in losses.</p></div>
+</div>
+
+<div class="faq-item">
+<div class="faq-q"><span>Do you trade every day?</span><span class="plus">+</span></div>
+<div class="faq-a"><p>We trade forex and crypto on trading days. Forex markets are closed on Saturdays and Sundays, so no trade is placed and no profit/loss is updated on your account those two days. Crypto markets trade every day, but results are still settled and updated on the same daily schedule as forex.</p></div>
 </div>
 </div>
 </div>
@@ -469,7 +474,7 @@ footer{padding:56px 0 40px}
 
 <div class="legal-block">
 <h3>1. The arrangement</h3>
-<p>PipZoNe ("the desk", "we", "us") uses client-provided capital for forex trading under an agreed 60/40 profit-sharing structure. Trading results depend on actual market performance and may result in either profits or losses. By creating an account you agree to the terms described here and on the rest of this site.</p>
+<p>PipZoNe ("the desk", "we", "us") uses client-provided capital for forex and crypto trading under an agreed 60/40 profit-sharing structure. Trading results depend on actual market performance and may result in either profits or losses. By creating an account you agree to the terms described here and on the rest of this site.</p>
 
 <h3>2. Minimum deposit</h3>
 <p>The minimum deposit to open an account is $100, sent in USDT via the TRC20 or BEP20 network only. Deposits are credited to your account balance only after the transaction is confirmed on-chain.</p>
@@ -481,7 +486,7 @@ footer{padding:56px 0 40px}
 <p>The minimum withdrawal amount is $20. A fixed withdrawal fee of $2 is deducted from every withdrawal request; the remaining amount is paid out to you. Your accumulated profit share may be withdrawn on demand, at any time. Your original deposited capital (principal) may only be withdrawn once 40 days have passed since it was credited to your account. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the wallet address you provide.</p>
 
 <h3>5. No guaranteed returns</h3>
-<p>Nothing in these terms, on this site, or in any communication from PipZoNe constitutes a guarantee of profit or of capital preservation. Forex trading carries a material risk of loss, up to and including the loss of your entire deposited capital.</p>
+<p>Nothing in these terms, on this site, or in any communication from PipZoNe constitutes a guarantee of profit or of capital preservation. Forex and crypto trading carries a material risk of loss, up to and including the loss of your entire deposited capital.</p>
 
 <h3>6. Account accuracy</h3>
 <p>You are responsible for providing accurate deposit transaction hashes and withdrawal wallet addresses, and for selecting the correct network. PipZoNe is not responsible for funds sent to an incorrect address, on an incorrect network, or with incorrect transaction details.</p>
@@ -536,7 +541,7 @@ footer{padding:56px 0 40px}
 
 <div class="legal-block">
 <h3>Trading risk</h3>
-<p>Forex trading is highly speculative and involves a significant risk of loss. Past performance of any trading strategy or account is not indicative of future results. You should only deposit capital you can afford to lose.</p>
+<p>Forex and crypto trading is highly speculative and involves a significant risk of loss. Past performance of any trading strategy or account is not indicative of future results. You should only deposit capital you can afford to lose. Forex markets are closed on Saturdays and Sundays, so no trading result is recorded and no profit/loss update happens on those days.</p>
 
 <h3>No guarantee of profit</h3>
 <p>The 60/40 profit split describes how a trading result is divided — it is not a promise of what that result will be. Some days may produce a loss, which is shared in the same proportion as a profit.</p>
@@ -732,7 +737,7 @@ For account, deposit, withdrawal, or general support questions, please use the c
 </div>
 
 <div class="foot-bottom">
-PipZoNe is a managed trading arrangement, not a bank or a regulated fund. Trading forex carries a high level of risk and may not be suitable for all investors.
+PipZoNe is a managed trading arrangement, not a bank or a regulated fund. Trading forex and crypto carries a high level of risk and may not be suitable for all investors.
 </div>
 
 </div>
