@@ -1351,7 +1351,7 @@ alert('Attachment must be under 5MB.');
 return;
 }
 
-if(!supabaseReady){
+if(!supabaseReady||!supabaseClient){
 alert('Connection is not ready. Please refresh the page and try again.');
 return;
 }
@@ -1365,10 +1365,13 @@ try{
 
 let attachmentUrl=null;
 
-/* Upload attachment first */
+/* =========================
+   UPLOAD ATTACHMENT
+========================= */
+
 if(attachmentFile){
 
-const ext=attachmentFile.name.split('.').pop();
+const ext=attachmentFile.name.split('.').pop().toLowerCase();
 
 const path=
 'contact/'+
@@ -1384,7 +1387,7 @@ const {error:uploadError}=await supabaseClient
 .upload(path,attachmentFile);
 
 if(uploadError){
-console.error(uploadError);
+console.error('Attachment upload error:',uploadError);
 
 alert(
 'Attachment upload failed: '+
@@ -1402,15 +1405,17 @@ const {data:urlData}=supabaseClient
 attachmentUrl=urlData?.publicUrl||null;
 }
 
+/* =========================
+   SAVE MESSAGE
+========================= */
 
-/* Save message in Supabase */
 const {error:dbError}=await supabaseClient
 .from('contact_messages')
 .insert({
-name,
-email,
-subject,
-message,
+name:name,
+email:email,
+subject:subject,
+message:message,
 attachment_url:attachmentUrl,
 status:'new'
 });
@@ -1426,34 +1431,86 @@ alert(
 return;
 }
 
+/* =========================
+   SEND EMAIL
+========================= */
 
-/* Send email through Supabase Edge Function */
-const {data:emailResult,error:emailError}=await supabaseClient.functions.invoke(
-'send-contact-email',
-{
-body:{
-name,
-email,
-subject,
-message,
+const functionUrl=
+SUPABASE_URL+
+'/functions/v1/send-contact-email';
+
+console.log('Calling contact email function:',functionUrl);
+
+let response;
+
+try{
+
+response=await fetch(functionUrl,{
+method:'POST',
+headers:{
+'Content-Type':'application/json',
+'apikey':SUPABASE_PUBLISHABLE_KEY,
+'Authorization':'Bearer '+SUPABASE_PUBLISHABLE_KEY
+},
+body:JSON.stringify({
+name:name,
+email:email,
+subject:subject,
+message:message,
 attachment_url:attachmentUrl
-}
-}
-);
+})
+});
 
-if(emailError){
+}catch(fetchError){
 
-console.error(
-'Contact email function error:',
-emailError
-);
+console.error('Edge Function network error:',fetchError);
 
 alert(
-'Your message was saved, but the support email could not be sent. Please try again or email support.pipzone@gmail.com directly.'
+'Your message was saved, but the email connection failed. Please try again.'
 );
 
 return;
 }
+
+const responseText=await response.text();
+
+console.log(
+'Edge Function status:',
+response.status
+);
+
+console.log(
+'Edge Function response:',
+responseText
+);
+
+let emailResult=null;
+
+try{
+emailResult=responseText?JSON.parse(responseText):null;
+}catch(parseError){
+console.error('Function response is not JSON:',parseError);
+}
+
+/* Function returned an HTTP error */
+
+if(!response.ok){
+
+console.error(
+'Contact email function failed:',
+response.status,
+responseText
+);
+
+alert(
+'Your message was saved, but the support email could not be sent.\n\nFunction error: HTTP '+
+response.status
+);
+
+return;
+}
+
+/* Function returned success=false */
 
 if(!emailResult?.success){
 
@@ -1463,14 +1520,16 @@ emailResult
 );
 
 alert(
-'Your message was saved, but the support email could not be sent. Please try again.'
+'Your message was saved, but the support email could not be sent.'
 );
 
 return;
 }
 
+/* =========================
+   SUCCESS
+========================= */
 
-/* Success */
 $('contactSuccess').textContent=
 'Your message has been sent to our support team.';
 
