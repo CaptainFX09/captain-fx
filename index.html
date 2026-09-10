@@ -1175,8 +1175,10 @@ if(data&&data.session){
    updated yet to copy the new BEP20 field. */
 try{
 await supabaseClient.from('profiles').update({
-wallet_address:wallet,
-wallet_address_bep20:walletBep20||null
+  full_name:name,
+  phone:phone,
+  wallet_address:wallet,
+  wallet_address_bep20:walletBep20||null
 }).eq('id',data.user.id);
 }catch(profileErr){
 console.error('Profile wallet sync error:',profileErr);
