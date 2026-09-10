@@ -1449,7 +1449,7 @@ const a=accounts?.[0]||null;
 
 currentAccount=a;
 
-renderAccountSummary(a);
+await renderAccountSummary(a);
 
 await loadRequests();
 
@@ -1461,7 +1461,29 @@ console.error('Dashboard error:',err);
 
 }
 
-function renderAccountSummary(a){
+async function getPendingWithdrawalsTotal(){
+if(!currentUser)return 0;
+const {data,error}=await supabaseClient
+.from('withdrawals')
+.select('amount')
+.eq('user_id',currentUser.id)
+.eq('status','pending');
+if(error){console.error('Pending withdrawals fetch error:',error);return 0}
+return (data||[]).reduce((sum,r)=>sum+Number(r.amount||0),0);
+}
+
+async function getWithdrawableAmount(){
+if(!currentAccount)return 0;
+const balance=Number(currentAccount.balance||0);
+const profit=Number(currentAccount.profit||0);
+const days=daysSince(currentAccount.first_deposit_at);
+const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
+const pending=await getPendingWithdrawalsTotal();
+const rawAvailable=principalUnlocked?balance:Math.min(profit,balance);
+return Math.max(0,rawAvailable-pending);
+}
+
+async function renderAccountSummary(a){
 const balance=Number(a?.balance||0);
 const deposit=Number(a?.initial_balance||0);
 const profit=Number(a?.profit||0);
@@ -1495,7 +1517,7 @@ if(profitSubEl)profitSubEl.textContent='Nothing to report yet';
 
 /* Available to withdraw + principal unlock countdown */
 currentAccount=a;
-const available=getWithdrawableAmount();
+const available=await getWithdrawableAmount();
 $('dashAvailable').textContent='$'+available.toFixed(2);
 
 const days=daysSince(a?.first_deposit_at);
@@ -1529,16 +1551,6 @@ const then=new Date(dateStr).getTime();
 return (Date.now()-then)/86400000;
 }
 
-function getWithdrawableAmount(){
-if(!currentAccount)return 0;
-const balance=Number(currentAccount.balance||0);
-const profit=Number(currentAccount.profit||0);
-const days=daysSince(currentAccount.first_deposit_at);
-const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
-if(principalUnlocked)return balance;
-return Math.min(profit,balance);
-}
-
 function updateWithdrawalCalc(){
 const amtInput=$('withdrawalAmount');
 const calc=$('withdrawalCalc');
@@ -1553,7 +1565,7 @@ $('calcReceive').textContent='$'+net.toFixed(2);
 calc.style.display='block';
 }
 
-function openRequest(type){
+async function openRequest(type){
 clearRequestMessages();
 const id=type==='deposit'?'depositModal':'withdrawalModal';
 const m=$(id);
@@ -1563,7 +1575,7 @@ selectDepositNetwork(selectedDepositNetwork);
 }
 if(type==='withdrawal'){
 selectWithdrawalNetwork(selectedWithdrawalNetwork);
-const avail=getWithdrawableAmount();
+const avail=await getWithdrawableAmount();
 const days=daysSince(currentAccount?.first_deposit_at);
 const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
 const noteEl=$('withdrawalAvailable');
@@ -1656,7 +1668,7 @@ if(accountError){showMsg('withdrawalMsg',accountError.message);return}
 currentAccount=accounts?.[0]||currentAccount;
 const balance=Number(currentAccount?.balance||0);
 if(amount>balance){showMsg('withdrawalMsg','Withdrawal amount is higher than your available balance of $'+balance.toFixed(2)+'.');return}
-const maxWithdrawable=getWithdrawableAmount();
+const maxWithdrawable=await getWithdrawableAmount();
 if(amount>maxWithdrawable){
 const days=daysSince(currentAccount?.first_deposit_at);
 const daysLeft=Math.max(0,Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0)));
