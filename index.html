@@ -1214,6 +1214,23 @@ finally{if(button){button.disabled=false;button.textContent='Update password'}}
 
 /* WALLET VALIDATION */
 
+function friendlySignupError(msg){
+const m=String(msg||'').toLowerCase();
+if(m.includes('profiles_phone_unique')||(m.includes('phone')&&m.includes('duplicate'))){
+return 'This phone number is already linked to another account. One account is allowed per phone number.';
+}
+if(m.includes('profiles_wallet_address_bep20_unique')){
+return 'This BEP20 wallet address is already linked to another account. One account is allowed per wallet.';
+}
+if(m.includes('profiles_wallet_address_unique')||(m.includes('wallet')&&m.includes('duplicate'))){
+return 'This TRC20 wallet address is already linked to another account. One account is allowed per wallet.';
+}
+if(m.includes('duplicate key value')||m.includes('already registered')||m.includes('user already registered')){
+return 'An account already exists with these details.';
+}
+return msg;
+}
+
 function validWallet(w){
 return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(w)
 }
@@ -1254,7 +1271,7 @@ const {data,error}=await supabaseClient.auth.signUp({
 email,password:pass,
 options:{data:{full_name:name,phone,wallet_address:wallet,wallet_address_bep20:walletBep20||null},emailRedirectTo:window.location.origin}
 });
-if(error){showMsg('signupMsg',error.message);return}
+if(error){showMsg('signupMsg',friendlySignupError(error.message));return}
 if(data&&data.session){
 /* If a session exists immediately (no email confirmation required),
    also write the wallets directly to the profile row as a safety net,
