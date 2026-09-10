@@ -1208,28 +1208,155 @@ finally{if(button){button.disabled=false;button.textContent='Login'}}
 
 async function loadDashboard(){
 if(!supabaseReady)return;
+
 try{
-const {data:{user},error}=await supabaseClient.auth.getUser();
-if(error||!user)return;
+
+const {data:{user},error:userError}=await supabaseClient.auth.getUser();
+
+if(userError||!user)return;
+
 currentUser=user;
+
 $('home').style.display='none';
 $('dashboard').style.display='block';
+
 document.querySelector('footer').style.display='none';
 document.querySelector('header').style.display='none';
+
 const contactSection=$('contact');
 if(contactSection)contactSection.style.display='none';
-const {data:profile}=await supabaseClient.from('profiles').select('full_name,wallet_address,wallet_address_bep20').eq('id',user.id).maybeSingle();
+
+/* ================= PROFILE ================= */
+
+const {data:profile,error:profileError}=await supabaseClient
+.from('profiles')
+.select('full_name,phone,wallet_address,wallet_address_bep20')
+.eq('id',user.id)
+.maybeSingle();
+
+if(profileError){
+console.error('Profile load error:',profileError);
+}
+
 currentProfile=profile||null;
-$('welcome').textContent='Welcome,'; $('welcomeName').textContent=profile?.full_name||'Client'; $('welcomeEmail').textContent='Gmail: '+(user.email||'—');
-const {data:accounts}=await supabaseClient.from('accounts').select('balance,initial_balance,profit,first_deposit_at,total_withdrawn').eq('user_id',user.id).limit(1);
+
+/*
+Use profile name first.
+If profile is missing, use the name stored
+inside Supabase Auth user metadata.
+*/
+
+const profileName=profile?.full_name?.trim();
+const metadataName=user.user_metadata?.full_name?.trim();
+
+const displayName=profileName||metadataName||'Client';
+
+$('welcome').textContent='Welcome,';
+$('welcomeName').textContent=displayName;
+$('welcomeEmail').textContent='Gmail: '+(user.email||'—');
+
+/* ================= PROFILE SAFETY SYNC ================= */
+
+/*
+If Auth already contains the client's information,
+make sure the profile row also contains it.
+*/
+
+const metadataPhone=user.user_metadata?.phone||'';
+const metadataWallet=user.user_metadata?.wallet_address||'';
+const metadataWalletBep20=user.user_metadata?.wallet_address_bep20||'';
+
+if(
+user.id &&
+(
+!profile ||
+!profile.full_name ||
+!profile.phone ||
+!profile.wallet_address ||
+(profile.wallet_address_bep20!==metadataWalletBep20 && metadataWalletBep20)
+)
+){
+
+try{
+
+const profileUpdate={};
+
+if(metadataName)profileUpdate.full_name=metadataName;
+if(metadataPhone)profileUpdate.phone=metadataPhone;
+if(metadataWallet)profileUpdate.wallet_address=metadataWallet;
+if(metadataWalletBep20)profileUpdate.wallet_address_bep20=metadataWalletBep20;
+
+if(Object.keys(profileUpdate).length>0){
+
+const {error:syncError}=await supabaseClient
+.from('profiles')
+.update(profileUpdate)
+.eq('id',user.id);
+
+if(syncError){
+console.error('Profile sync error:',syncError);
+}else{
+
+/* Refresh profile after successful sync */
+
+const {data:updatedProfile}=await supabaseClient
+.from('profiles')
+.select('full_name,phone,wallet_address,wallet_address_bep20')
+.eq('id',user.id)
+.maybeSingle();
+
+if(updatedProfile){
+currentProfile=updatedProfile;
+
+const updatedName=updatedProfile.full_name?.trim()||displayName;
+
+$('welcomeName').textContent=updatedName;
+}
+
+}
+
+}
+
+}catch(syncErr){
+console.error('Profile safety sync error:',syncErr);
+}
+
+}
+
+/* ================= ACCOUNT ================= */
+
+const {data:accounts,error:accountError}=await supabaseClient
+.from('accounts')
+.select('balance,initial_balance,profit,first_deposit_at,total_withdrawn')
+.eq('user_id',user.id)
+.limit(1);
+
+if(accountError){
+console.error('Account load error:',accountError);
+}
+
 const a=accounts?.[0]||null;
+
 currentAccount=a;
+
 $('dashBalance').textContent='$'+Number(a?.balance||0).toFixed(2);
+
 $('dashDeposit').textContent='$'+Number(a?.initial_balance||0).toFixed(2);
+
 $('dashProfit').textContent='$'+Number(a?.profit||0).toFixed(2);
-if($('dashWithdrawn')){$('dashWithdrawn').textContent='$'+Number(a?.total_withdrawn||0).toFixed(2)}
+
+if($('dashWithdrawn')){
+$('dashWithdrawn').textContent='$'+Number(a?.total_withdrawn||0).toFixed(2);
+}
+
 await loadRequests();
-}catch(err){console.error('Dashboard error:',err)}
+
+}catch(err){
+
+console.error('Dashboard error:',err);
+
+}
+
 }
 
 function daysSince(dateStr){
