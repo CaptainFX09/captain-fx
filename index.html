@@ -139,14 +139,78 @@ footer{padding:56px 0 40px}
 .forgot-link button:hover{text-decoration:underline}
 .msg{display:none;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);font-size:13px}
 .msg.show{display:block}
-.dashboard{display:none;min-height:70vh;padding:70px 0}
-.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:28px 0}
-.dash-card{background:var(--panel);border:1px solid var(--line);padding:24px}
-.dash-card .label{color:var(--muted);font-size:13px}
-.dash-card .value{font:28px Fraunces;color:var(--gold);margin-top:8px}
-.dash-actions{display:flex;gap:10px}
-.logout{background:none;border:1px solid var(--line);color:var(--text);padding:10px 18px;cursor:pointer;border-radius:3px}
+.dashboard{display:none;min-height:70vh;padding:36px 0 70px}
+.dash-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:22px;border-bottom:1px solid var(--soft);margin-bottom:28px}
+.dash-welcome{display:flex;align-items:center;gap:14px}
+.dash-avatar{width:48px;height:48px;border-radius:50%;background:rgba(47,191,131,.12);border:1px solid rgba(47,191,131,.35);color:var(--gold);display:flex;align-items:center;justify-content:center;font:600 17px Fraunces;flex:none}
+.dash-hi{color:var(--muted);font-size:13px}
+.dash-name{font:20px Fraunces;margin-top:2px}
+.dash-email{color:var(--muted2);font-size:12px;margin-top:2px}
+.logout{background:none;border:1px solid var(--line);color:var(--text);padding:10px 16px;cursor:pointer;border-radius:6px;font-size:13px;white-space:nowrap}
+.logout:hover{border-color:var(--loss);color:var(--loss)}
+
+/* Big balance hero card */
+.balance-hero{background:linear-gradient(155deg,var(--panel) 0%,var(--bg2) 100%);border:1px solid var(--line);border-radius:10px;padding:30px 32px;margin-bottom:18px;position:relative;overflow:hidden}
+.balance-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(47,191,131,.14),transparent 70%)}
+.balance-label{color:var(--muted);font-size:13px;letter-spacing:.3px}
+.balance-amount{font:56px Fraunces;color:var(--text);margin:8px 0 4px;line-height:1;word-break:break-word}
+.balance-pl{display:inline-flex;align-items:center;gap:6px;font:600 14px 'IBM Plex Mono';padding:5px 10px;border-radius:20px}
+.balance-pl.pos{color:var(--profit);background:rgba(94,234,176,.10)}
+.balance-pl.neg{color:var(--loss);background:rgba(242,115,94,.10)}
+.balance-pl.zero{color:var(--muted);background:rgba(139,153,146,.10)}
+
+/* Stat cards row */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.dash-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px}
+.dash-card .label{color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.dash-card .value{font:26px Fraunces;color:var(--text);margin-top:8px}
+.dash-card .value.up{color:var(--profit)}
+.dash-card .value.down{color:var(--loss)}
+.dash-card .sub{color:var(--muted2);font-size:11.5px;margin-top:4px}
+
+/* Available-to-withdraw + unlock */
+.avail-card{background:rgba(47,191,131,.06);border:1px solid rgba(47,191,131,.28);border-radius:8px;padding:22px 24px;margin-bottom:22px}
+.avail-top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.avail-label{color:var(--muted);font-size:13px}
+.avail-amount{font:34px Fraunces;color:var(--gold);margin-top:6px}
+.unlock-wrap{min-width:220px;flex:1;max-width:340px}
+.unlock-label{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:6px}
+.unlock-label b{color:var(--text);font-family:'IBM Plex Mono'}
+.unlock-track{height:7px;background:var(--soft);border-radius:4px;overflow:hidden}
+.unlock-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s}
+.unlock-fill.done{background:var(--profit)}
+.unlock-note{color:var(--muted2);font-size:11.5px;margin-top:8px;line-height:1.5}
+
+.dash-actions{display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.dash-actions .btn{padding:15px 26px;font-size:15px;border-radius:8px;flex:1;min-width:150px;text-align:center}
+.dash-actions .btn-gold{box-shadow:0 4px 18px rgba(47,191,131,.18)}
 .dash-note{margin-top:18px;padding:12px 14px;background:rgba(47,191,131,.07);border:1px solid rgba(47,191,131,.25);border-radius:3px;font-size:13px;color:var(--gold);line-height:1.6}
+
+/* Transaction cards */
+.tx-card{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:10px}
+.tx-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.tx-icon.dep{background:rgba(47,191,131,.12);color:var(--gold)}
+.tx-icon.wd{background:rgba(139,153,146,.12);color:var(--muted)}
+.tx-mid{flex:1;min-width:0}
+.tx-type{font-size:14.5px;font-weight:600}
+.tx-date{color:var(--muted2);font-size:12px;margin-top:2px}
+.tx-right{text-align:right;flex:none}
+.tx-amount{font:15px 'IBM Plex Mono'}
+.tx-status{font-size:11.5px;margin-top:4px;font-weight:600;letter-spacing:.3px;padding:2px 8px;border-radius:20px;display:inline-block}
+.tx-status.status-pending{color:var(--gold);background:rgba(47,191,131,.10)}
+.tx-status.status-approved{color:var(--profit);background:rgba(94,234,176,.10)}
+.tx-status.status-rejected{color:var(--loss);background:rgba(242,115,94,.10)}
+.tx-empty{color:var(--muted);font-size:14px;padding:24px 0;text-align:center;border:1px dashed var(--line);border-radius:8px}
+
+@media(max-width:640px){
+.dash-topbar{flex-direction:column;align-items:flex-start}
+.logout{align-self:flex-end}
+.balance-amount{font:42px Fraunces}
+.dash-grid{grid-template-columns:1fr 1fr}
+.avail-top{flex-direction:column;align-items:flex-start}
+.unlock-wrap{max-width:100%;width:100%}
+.dash-actions .btn{min-width:100%}
+}
 .fee-calc{margin-top:12px;padding:14px;background:var(--bg2);border:1px solid var(--line);border-radius:3px;font-size:13px}
 .fee-row{display:flex;justify-content:space-between;padding:5px 0;color:var(--muted)}
 .fee-row.total{border-top:1px solid var(--line);margin-top:5px;padding-top:9px;font-weight:600;color:var(--text)}
@@ -577,44 +641,67 @@ For account, deposit, withdrawal, or general support questions, please use the c
 <section id="dashboard" class="dashboard">
 <div class="wrap">
 
-<div class="sec-tag">Client <span>dashboard</span></div>
-<h2 id="welcome" style="margin-top:8px">Welcome,</h2>
-<h3 id="welcomeName" style="margin-top:6px;margin-bottom:0">Client</h3>
-<p id="welcomeEmail" class="sec-desc" style="margin-top:4px">Gmail: —</p>
-<p class="sec-desc">Your account information will appear here.</p>
+<div class="dash-topbar">
+<div class="dash-welcome">
+<div class="dash-avatar" id="dashAvatar">C</div>
+<div>
+<div class="dash-hi">Welcome back</div>
+<div class="dash-name" id="welcomeName">Client</div>
+<div class="dash-email" id="welcomeEmail">—</div>
+</div>
+</div>
+<button type="button" class="logout" onclick="logout()">Logout</button>
+</div>
+
+<div class="balance-hero">
+<div class="balance-label">Your current balance</div>
+<div class="balance-amount" id="dashBalance">$0.00</div>
+<span class="balance-pl zero" id="dashProfitPill">$0.00 profit so far</span>
+</div>
 
 <div class="dash-grid">
 <div class="dash-card">
-<div class="label">Account balance</div>
-<div class="value" id="dashBalance">$0.00</div>
-</div>
-
-<div class="dash-card">
-<div class="label">Deposited capital</div>
+<div class="label">💵 Deposited capital</div>
 <div class="value" id="dashDeposit">$0.00</div>
+<div class="sub">Money you've put in</div>
 </div>
 
 <div class="dash-card">
-<div class="label">Profit / Loss</div>
+<div class="label">📈 Profit / Loss</div>
 <div class="value" id="dashProfit">$0.00</div>
+<div class="sub" id="dashProfitSub">Total earned since you joined</div>
 </div>
 
 <div class="dash-card">
-<div class="label">Total Withdrawal</div>
+<div class="label">💸 Total withdrawn</div>
 <div class="value" id="dashWithdrawn">$0.00</div>
+<div class="sub">Paid out to you so far</div>
+</div>
+</div>
+
+<div class="avail-card">
+<div class="avail-top">
+<div>
+<div class="avail-label">✅ Available to withdraw right now</div>
+<div class="avail-amount" id="dashAvailable">$0.00</div>
+</div>
+<div class="unlock-wrap">
+<div class="unlock-label"><span>Deposit unlock</span><b id="unlockDaysText">—</b></div>
+<div class="unlock-track"><div class="unlock-fill" id="unlockFill" style="width:0%"></div></div>
+<div class="unlock-note" id="unlockNote">Your deposited amount unlocks 40 days after it's credited. Your profit can be withdrawn any time.</div>
+</div>
 </div>
 </div>
 
 <div class="dash-actions">
-<button type="button" class="btn btn-gold" onclick="openRequest('deposit')">Deposit</button>
-<button type="button" class="btn" onclick="openRequest('withdrawal')">Withdrawal</button>
-<button type="button" class="logout" onclick="logout()">Logout</button>
+<button type="button" class="btn btn-gold" onclick="openRequest('deposit')">➕ Deposit</button>
+<button type="button" class="btn" onclick="openRequest('withdrawal')">➖ Withdrawal</button>
 </div>
 
 <div class="request-list">
-<h3>Recent requests</h3>
+<h3>Recent transactions</h3>
 <div id="requestList">
-<div class="request-item"><span class="meta">Loading...</span></div>
+<div class="tx-empty">Loading...</div>
 </div>
 </div>
 
@@ -1251,9 +1338,10 @@ const metadataName=user.user_metadata?.full_name?.trim();
 
 const displayName=profileName||metadataName||'Client';
 
-$('welcome').textContent='Welcome,';
 $('welcomeName').textContent=displayName;
-$('welcomeEmail').textContent='Gmail: '+(user.email||'—');
+$('welcomeEmail').textContent=user.email||'—';
+const avatarEl=$('dashAvatar');
+if(avatarEl)avatarEl.textContent=(displayName.trim().charAt(0)||'C').toUpperCase();
 
 /* ================= PROFILE SAFETY SYNC ================= */
 
@@ -1339,15 +1427,7 @@ const a=accounts?.[0]||null;
 
 currentAccount=a;
 
-$('dashBalance').textContent='$'+Number(a?.balance||0).toFixed(2);
-
-$('dashDeposit').textContent='$'+Number(a?.initial_balance||0).toFixed(2);
-
-$('dashProfit').textContent='$'+Number(a?.profit||0).toFixed(2);
-
-if($('dashWithdrawn')){
-$('dashWithdrawn').textContent='$'+Number(a?.total_withdrawn||0).toFixed(2);
-}
+renderAccountSummary(a);
 
 await loadRequests();
 
@@ -1357,6 +1437,68 @@ console.error('Dashboard error:',err);
 
 }
 
+}
+
+function renderAccountSummary(a){
+const balance=Number(a?.balance||0);
+const deposit=Number(a?.initial_balance||0);
+const profit=Number(a?.profit||0);
+const withdrawn=Number(a?.total_withdrawn||0);
+
+$('dashBalance').textContent='$'+balance.toFixed(2);
+$('dashDeposit').textContent='$'+deposit.toFixed(2);
+$('dashWithdrawn').textContent='$'+withdrawn.toFixed(2);
+
+const profitEl=$('dashProfit');
+const profitSubEl=$('dashProfitSub');
+const pillEl=$('dashProfitPill');
+profitEl.textContent=(profit<0?'-':'')+'$'+Math.abs(profit).toFixed(2);
+profitEl.classList.remove('up','down');
+pillEl.classList.remove('pos','neg','zero');
+if(profit>0){
+profitEl.classList.add('up');
+pillEl.classList.add('pos');
+pillEl.textContent='+$'+profit.toFixed(2)+' profit so far';
+if(profitSubEl)profitSubEl.textContent="You're up since you joined";
+}else if(profit<0){
+profitEl.classList.add('down');
+pillEl.classList.add('neg');
+pillEl.textContent='-$'+Math.abs(profit).toFixed(2)+' loss so far';
+if(profitSubEl)profitSubEl.textContent='Down since you joined';
+}else{
+pillEl.classList.add('zero');
+pillEl.textContent='No profit or loss yet';
+if(profitSubEl)profitSubEl.textContent='Nothing to report yet';
+}
+
+/* Available to withdraw + principal unlock countdown */
+currentAccount=a;
+const available=getWithdrawableAmount();
+$('dashAvailable').textContent='$'+available.toFixed(2);
+
+const days=daysSince(a?.first_deposit_at);
+const fillEl=$('unlockFill');
+const daysTextEl=$('unlockDaysText');
+const noteEl=$('unlockNote');
+
+if(days===null){
+fillEl.style.width='0%';
+fillEl.classList.remove('done');
+daysTextEl.textContent='No deposit yet';
+noteEl.textContent='Once you make your first deposit, it unlocks for withdrawal after 40 days. Your profit can be withdrawn any time before that.';
+}else if(days>=PRINCIPAL_LOCK_DAYS){
+fillEl.style.width='100%';
+fillEl.classList.add('done');
+daysTextEl.textContent='Unlocked ✅';
+noteEl.textContent='Your deposited amount is fully unlocked — your whole balance is available to withdraw.';
+}else{
+const pct=Math.max(0,Math.min(100,(days/PRINCIPAL_LOCK_DAYS)*100));
+const daysLeft=Math.max(0,Math.ceil(PRINCIPAL_LOCK_DAYS-days));
+fillEl.style.width=pct.toFixed(0)+'%';
+fillEl.classList.remove('done');
+daysTextEl.textContent=daysLeft+' day'+(daysLeft===1?'':'s')+' left';
+noteEl.textContent='Your deposited amount unlocks in '+daysLeft+' day'+(daysLeft===1?'':'s')+'. Your profit share is available to withdraw right now.';
+}
 }
 
 function daysSince(dateStr){
@@ -1529,8 +1671,18 @@ const rows=[];
 (w.data||[]).forEach(x=>rows.push({type:'Withdrawal',amount:x.amount,status:x.status,date:x.created_at}));
 rows.sort((a,b)=>new Date(b.date)-new Date(a.date));
 const el=$('requestList');
-if(!rows.length){el.innerHTML='<div class="request-item"><span class="meta">No deposit or withdrawal requests yet.</span></div>';return}
-el.innerHTML=rows.slice(0,8).map(x=>'<div class="request-item"><div><strong>'+x.type+'</strong><div class="meta">'+new Date(x.date).toLocaleString()+'</div></div><div style="text-align:right"><strong>$'+Number(x.amount).toFixed(2)+'</strong><div class="status-'+String(x.status).toLowerCase()+'">'+String(x.status).toUpperCase()+'</div></div></div>').join('');
+if(!rows.length){el.innerHTML='<div class="tx-empty">No deposits or withdrawals yet.</div>';return}
+const statusWord={pending:'Pending review',approved:'Approved',rejected:'Rejected'};
+el.innerHTML=rows.slice(0,8).map(x=>{
+const isDeposit=x.type==='Deposit';
+const statusKey=String(x.status).toLowerCase();
+const statusLabel=statusWord[statusKey]||String(x.status);
+return '<div class="tx-card">'
++'<div class="tx-icon '+(isDeposit?'dep':'wd')+'">'+(isDeposit?'⬇':'⬆')+'</div>'
++'<div class="tx-mid"><div class="tx-type">'+x.type+'</div><div class="tx-date">'+new Date(x.date).toLocaleString()+'</div></div>'
++'<div class="tx-right"><div class="tx-amount">'+(isDeposit?'+':'-')+'$'+Number(x.amount).toFixed(2)+'</div><span class="tx-status status-'+statusKey+'">'+statusLabel+'</span></div>'
++'</div>';
+}).join('');
 }catch(err){console.error('Requests error:',err)}
 }
 
