@@ -1461,28 +1461,6 @@ console.error('Dashboard error:',err);
 
 }
 
-async function getPendingWithdrawalsTotal(){
-if(!currentUser)return 0;
-const {data,error}=await supabaseClient
-.from('withdrawals')
-.select('amount')
-.eq('user_id',currentUser.id)
-.eq('status','pending');
-if(error){console.error('Pending withdrawals fetch error:',error);return 0}
-return (data||[]).reduce((sum,r)=>sum+Number(r.amount||0),0);
-}
-
-async function getWithdrawableAmount(){
-if(!currentAccount)return 0;
-const balance=Number(currentAccount.balance||0);
-const profit=Number(currentAccount.profit||0);
-const days=daysSince(currentAccount.first_deposit_at);
-const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
-const pending=await getPendingWithdrawalsTotal();
-const rawAvailable=principalUnlocked?balance:Math.min(profit,balance);
-return Math.max(0,rawAvailable-pending);
-}
-
 async function renderAccountSummary(a){
 const balance=Number(a?.balance||0);
 const deposit=Number(a?.initial_balance||0);
@@ -1551,6 +1529,49 @@ const then=new Date(dateStr).getTime();
 return (Date.now()-then)/86400000;
 }
 
+/*
+Sums this user's currently PENDING withdrawal requests.
+This is the piece that was missing before: without subtracting
+pending requests, a client could submit multiple withdrawal
+requests back-to-back, each individually looking valid against
+the raw account balance/profit, but together exceeding what was
+actually available. (E.g. $110 profit -> $50 pending withdrawal
+still leaves getWithdrawableAmount() reporting $110 available,
+letting a second $110 withdrawal slip through when only $60 was
+really left.)
+*/
+async function getPendingWithdrawalsTotal(){
+if(!currentUser||!supabaseReady)return 0;
+try{
+const {data,error}=await supabaseClient
+.from('withdrawals')
+.select('amount')
+.eq('user_id',currentUser.id)
+.eq('status','pending');
+if(error){console.error('Pending withdrawals fetch error:',error);return 0}
+return (data||[]).reduce((sum,r)=>sum+Number(r.amount||0),0);
+}catch(err){
+console.error('Pending withdrawals fetch error:',err);
+return 0;
+}
+}
+
+/*
+Now async: available amount = (profit share or full balance,
+depending on principal lock) minus whatever is already sitting in
+pending withdrawal requests. Every caller below now awaits this.
+*/
+async function getWithdrawableAmount(){
+if(!currentAccount)return 0;
+const balance=Number(currentAccount.balance||0);
+const profit=Number(currentAccount.profit||0);
+const days=daysSince(currentAccount.first_deposit_at);
+const principalUnlocked=days!==null&&days>=PRINCIPAL_LOCK_DAYS;
+const rawAvailable=principalUnlocked?balance:Math.min(profit,balance);
+const pending=await getPendingWithdrawalsTotal();
+return Math.max(0,rawAvailable-pending);
+}
+
 function updateWithdrawalCalc(){
 const amtInput=$('withdrawalAmount');
 const calc=$('withdrawalCalc');
@@ -1584,7 +1605,7 @@ if(principalUnlocked){
 noteEl.textContent='Your principal is unlocked. You can withdraw up to $'+avail.toFixed(2)+' now.';
 }else{
 const daysLeft=Math.max(0,Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0)));
-noteEl.textContent='You can withdraw up to $'+avail.toFixed(2)+' now (your profit share). Your deposited capital unlocks in '+daysLeft+' day'+(daysLeft===1?'':'s')+'.';
+noteEl.textContent='You can withdraw up to $'+avail.toFixed(2)+' now (your profit share, after accounting for any pending requests). Your deposited capital unlocks in '+daysLeft+' day'+(daysLeft===1?'':'s')+'.';
 }
 noteEl.style.display='block';
 }
@@ -1668,11 +1689,26 @@ if(accountError){showMsg('withdrawalMsg',accountError.message);return}
 currentAccount=accounts?.[0]||currentAccount;
 const balance=Number(currentAccount?.balance||0);
 if(amount>balance){showMsg('withdrawalMsg','Withdrawal amount is higher than your available balance of $'+balance.toFixed(2)+'.');return}
+
+/*
+Re-checks pending withdrawals fresh, right before insert, via
+getWithdrawableAmount() (which now itself queries the withdrawals
+table). This is what closes the original bug: a second submission
+made right after a first pending one now correctly sees the first
+as "reserved" and can no longer double-spend the same profit/balance.
+This is still a client-side guard only — pair it with the DB-level
+trigger (see the SQL) so the check can't be bypassed by calling the
+API directly.
+*/
 const maxWithdrawable=await getWithdrawableAmount();
 if(amount>maxWithdrawable){
 const days=daysSince(currentAccount?.first_deposit_at);
 const daysLeft=Math.max(0,Math.ceil(PRINCIPAL_LOCK_DAYS-(days||0)));
-showMsg('withdrawalMsg','You can currently withdraw up to $'+maxWithdrawable.toFixed(2)+' (your profit share). Your deposited capital unlocks in '+daysLeft+' day'+(daysLeft===1?'':'s')+'.');
+if(maxWithdrawable<=0){
+showMsg('withdrawalMsg','You have no available balance to withdraw right now — you may already have a pending withdrawal request awaiting review.');
+}else{
+showMsg('withdrawalMsg','You can currently withdraw up to $'+maxWithdrawable.toFixed(2)+' (after accounting for any pending requests). Your deposited capital unlocks in '+daysLeft+' day'+(daysLeft===1?'':'s')+'.');
+}
 return;
 }
 const fee=WITHDRAWAL_FEE;
