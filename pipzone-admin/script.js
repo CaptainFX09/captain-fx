@@ -569,7 +569,7 @@ async function loadAll(){
       money(totalProfit);
 
 
-        /* APPROVED WITHDRAWAL COUNT */
+    /* APPROVED WITHDRAWAL COUNT */
 
     const approvedWithdrawals =
       W.filter(
@@ -603,6 +603,7 @@ async function loadAll(){
 
     $('withdrawalpaid').textContent =
       money(totalWithdrawalPaid);
+
 
     /* DESK PROFIT
        MANAGER 40%
@@ -766,6 +767,11 @@ function renderDeposits(
         }
 
 
+        /* =================================================
+           PROOF THUMBNAIL PREVIEW
+           Click thumbnail or "View screenshot" to open full image
+        ================================================= */
+
         const proofCell =
           r.proof_url
           ?
@@ -775,8 +781,31 @@ function renderDeposits(
             href="${esc(r.proof_url)}"
             target="_blank"
             rel="noopener"
+            style="
+              display:inline-block;
+              text-decoration:none;
+            "
           >
-            View screenshot
+
+            <img
+              src="${esc(r.proof_url)}"
+              alt="Proof"
+              style="
+                width:60px;
+                height:60px;
+                object-fit:cover;
+                border-radius:6px;
+                border:1px solid var(--muted);
+                display:block;
+                margin-bottom:4px;
+              "
+              onerror="this.style.display='none'"
+            >
+
+            <span>
+              View screenshot
+            </span>
+
           </a>
           `
           :
@@ -1841,6 +1870,8 @@ async function approveDeposit(id){
 
     return;
   }
+
+
   await client
     .from('transactions')
     .insert({
@@ -1857,7 +1888,9 @@ async function approveDeposit(id){
         'Deposit approved by admin'
 
     });
-   showMsg(
+
+
+  showMsg(
     'Deposit approved.'
   );
 
@@ -1906,9 +1939,11 @@ async function rejectDeposit(id){
     return;
   }
 
+
   showMsg(
     'Deposit rejected.'
   );
+
 
   loadAll();
 }
@@ -2221,6 +2256,8 @@ async function rejectWithdrawal(id){
     )
   )
     return;
+
+
   const {
     error
   } =
@@ -2235,18 +2272,23 @@ async function rejectWithdrawal(id){
     .eq(
       'status','pending'
     );
+
+
   if(error){
 
     showMsg(
       error.message,
       true
     );
+
     return;
   }
+
 
   showMsg(
     'Withdrawal rejected.'
   );
+
 
   loadAll();
 }
@@ -2284,8 +2326,10 @@ $('loginBtn').addEventListener('click', async()=>{
     return;
   }
 
+
   $('loginBtn')
     .disabled = true;
+
 
   try{
 
@@ -2310,11 +2354,14 @@ $('loginBtn').addEventListener('click', async()=>{
       return;
     }
 
+
     loginMsg(
       'Login successful.'
     );
 
+
     await loadAll();
+
 
   }catch(err){
 
@@ -2325,6 +2372,7 @@ $('loginBtn').addEventListener('click', async()=>{
       (err && err.message ? err.message : String(err)),
       true
     );
+
 
   }finally{
 
@@ -2377,9 +2425,11 @@ $('refreshBtn').addEventListener('click', async()=>{
 
   btn.textContent = 'Refreshing...';
 
+
   try{
 
     await loadAll();
+
 
   }catch(err){
 
@@ -2390,6 +2440,7 @@ $('refreshBtn').addEventListener('click', async()=>{
       (err && err.message ? err.message : String(err)),
       true
     );
+
 
   }finally{
 
