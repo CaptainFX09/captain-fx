@@ -604,14 +604,6 @@ async function loadAll(){
     $('withdrawalpaid').textContent =
       money(totalWithdrawalPaid);
 
-
-    /* DESK PROFIT
-       MANAGER 40%
-    */
-
-    const deskProfit = ...
-
-
     /* DESK PROFIT
        MANAGER 40%
     */
