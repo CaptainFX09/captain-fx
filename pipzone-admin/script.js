@@ -569,7 +569,7 @@ async function loadAll(){
       money(totalProfit);
 
 
-    /* APPROVED WITHDRAWAL COUNT */
+        /* APPROVED WITHDRAWAL COUNT */
 
     const approvedWithdrawals =
       W.filter(
@@ -586,6 +586,30 @@ async function loadAll(){
 
     $('withdrawalFee').textContent =
       money(withdrawalFee);
+
+
+    /* TOTAL WITHDRAWAL PAID (APPROVED)
+       Sum of all approved withdrawal amounts —
+       what has actually been paid out to clients so far.
+    */
+
+    const totalWithdrawalPaid =
+      approvedWithdrawals.reduce(
+        (a,x) =>
+        a + Number(x.amount || 0),
+        0
+      );
+
+
+    $('withdrawalpaid').textContent =
+      money(totalWithdrawalPaid);
+
+
+    /* DESK PROFIT
+       MANAGER 40%
+    */
+
+    const deskProfit = ...
 
 
     /* DESK PROFIT
