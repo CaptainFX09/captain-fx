@@ -1,0 +1,320 @@
+/* ==========================================================================
+   MAINSITE.CSS — PipZoNe (Managed Forex & Crypto Trading)
+   Table of contents:
+     1. Reset & base
+     2. Header / Nav
+     3. Hero section
+     4. Stats strip
+     5. Live stats strip
+     6. Generic section / heading styles
+     7. "How it works" steps
+     8. Profit calculator
+     9. Performance table
+    10. Risk section
+    11. FAQ accordion
+    12. Footer
+    13. Legal pages (Terms / Privacy / Risk Disclosure)
+    14. Auth modal (login / signup / reset password)
+    15. Dashboard (client area)
+    16. Balance hero card
+    17. Dashboard stat cards
+    18. Available-to-withdraw + unlock progress
+    19. Dashboard action buttons
+    20. Transaction list cards
+    21. Withdrawal fee calculator box
+    22. Network selector tabs (TRC20 / BEP20)
+    23. Contact section
+    24. Responsive breakpoints
+    25. Deposit / Withdrawal request modals
+   ========================================================================== */
+
+/* -------------------------- 1. Reset & base -------------------------- */
+:root{--bg:#101513;--bg2:#0B0F0D;--panel:#171F1B;--line:#283029;--soft:#1F2622;--text:#ECF3EE;--muted:#8B9992;--muted2:#57645E;--gold:#2FBF83;--profit:#5EEAB0;--loss:#F2735E}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;line-height:1.5}
+.serif{font-family:Fraunces,serif}
+.mono{font-family:'IBM Plex Mono',monospace}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:auto;padding:0 32px}
+@media(max-width:640px){.wrap{padding:0 20px}}
+
+/* -------------------------- 2. Header / Nav -------------------------- */
+header{position:sticky;top:0;z-index:50;background:rgba(14,20,32,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--soft)}
+.nav{height:76px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font:600 20px Fraunces}
+.mark{width:28px;height:28px;border:1px solid var(--gold);display:grid;place-items:center;color:var(--gold);font:500 12px 'IBM Plex Mono'}
+.navlinks{display:flex;gap:32px;color:var(--muted);font-size:14px}
+.navcta{display:flex;gap:10px}
+.btn{display:inline-block;padding:10px 20px;border:1px solid var(--line);border-radius:3px;font-size:14px;cursor:pointer;background:none;color:var(--text)}
+.btn-gold{background:var(--gold);color:#161008;border-color:var(--gold)}
+
+/* -------------------------- 3. Hero section -------------------------- */
+.hero{padding:96px 0 72px;border-bottom:1px solid var(--soft)}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:64px;align-items:end}
+@media(max-width:860px){.navlinks{display:none}.hero-grid{grid-template-columns:1fr}}
+.eyebrow{color:var(--gold);font-size:13px;margin-bottom:22px}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--profit);margin-right:8px}
+h1{font:500 clamp(38px,5.2vw,60px)/1.08 Fraunces;margin-bottom:22px}
+h1 em{color:var(--gold)}
+.hero-sub{color:var(--muted);font-size:17px;max-width:480px;line-height:1.65;margin-bottom:34px}
+.hero-actions{display:flex;gap:14px}
+.ledger-card,.calc-in{background:var(--panel);border:1px solid var(--line);padding:28px}
+.lc-title{font-size:12px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px}
+.lc-row,.out-row{display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--soft)}
+.lc-row:first-of-type,.out-row:first-child{border-top:0}
+.lc-label,.out-label{color:var(--muted);font-size:14px}
+.lc-value,.out-value{font:16px 'IBM Plex Mono'}
+.gold{color:var(--gold)}
+.note{color:var(--muted2);font-size:12px;margin-top:18px}
+
+/* -------------------------- 4. Stats strip -------------------------- */
+.stats{border-bottom:1px solid var(--soft)}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:34px 32px;border-left:1px solid var(--soft)}
+.stat:first-child{border-left:0;padding-left:0}
+.stat-num{font:34px Fraunces;color:var(--gold)}
+.stat-label{color:var(--muted);font-size:14px}
+
+/* -------------------------- 5. Live stats strip -------------------------- */
+.live-strip{border-bottom:1px solid var(--soft);background:var(--bg2)}
+.live-row{display:flex;align-items:center;gap:10px;padding:14px 0;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--profit);box-shadow:0 0 0 3px rgba(92,185,138,.15);flex:none}
+.live-strip b{color:var(--text);font-family:'IBM Plex Mono'}
+.live-sep{color:var(--muted2)}
+
+/* -------------------------- 6. Generic section / heading styles -------------------------- */
+section{padding:88px 0;border-bottom:1px solid var(--soft)}
+.sec-head{display:grid;grid-template-columns:.6fr 1fr;gap:48px;margin-bottom:56px}
+.sec-tag{color:#1F7A54;font-size:13px}
+.sec-tag span{color:var(--gold)}
+h2{font:500 clamp(26px,3.4vw,36px)/1.2 Fraunces}
+.sec-desc{color:var(--muted);max-width:500px;margin-top:10px}
+
+/* -------------------------- 7. "How it works" steps -------------------------- */
+.steps{border-top:1px solid var(--line)}
+.step{display:grid;grid-template-columns:70px 1fr 1.3fr;gap:32px;padding:30px 0;border-bottom:1px solid var(--line)}
+.step-num{color:#1F7A54;font:14px 'IBM Plex Mono'}
+.step-title{font:20px Fraunces}
+.step-desc{color:var(--muted);font-size:14px}
+
+/* -------------------------- 8. Profit calculator -------------------------- */
+.calc{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)}
+.calc-in{border-right:1px solid var(--line)}
+.calc-out{padding:40px;background:var(--bg2)}
+.field-label{color:var(--muted);font-size:13px}
+.amount-display{font:44px Fraunces;color:var(--gold);margin:10px 0 18px}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.calc-scale,.split-legend{display:flex;justify-content:space-between;color:var(--muted2);font-size:12px}
+.split-bar{display:flex;height:10px;margin:28px 0 14px}
+.split-client{width:60%;background:var(--gold)}
+.split-mgr{width:40%;background:var(--line)}
+.calc-warn{margin-top:24px;padding:14px;background:rgba(47,191,131,.07);border:1px solid rgba(47,191,131,.25);color:var(--gold);font-size:12px}
+.out-value.hi{color:var(--gold);font-size:20px}
+
+/* -------------------------- 9. Performance table -------------------------- */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;color:var(--muted2);font-size:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+th:not(:first-child),td:not(:first-child){text-align:right}
+td{padding:18px 0;border-bottom:1px solid var(--soft);font-size:14px}
+.up{color:var(--profit)}
+.bar-track{height:6px;background:var(--soft);margin-top:6px}
+.bar-fill{height:100%;background:var(--gold)}
+
+/* -------------------------- 10. Risk section -------------------------- */
+.risk{background:var(--bg2)}
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.risk h3{font:18px Fraunces;color:var(--gold);margin-bottom:8px}
+.risk p{color:var(--muted);font-size:14px}
+
+/* -------------------------- 11. FAQ accordion -------------------------- */
+.faq-item{border-bottom:1px solid var(--soft)}
+.faq-q{display:flex;justify-content:space-between;padding:22px 0;cursor:pointer;font:17px Fraunces}
+.faq-a{max-height:0;overflow:hidden}
+.faq-a p{color:var(--muted);padding-bottom:22px}
+.faq-item.open .faq-a{max-height:200px}
+.faq-item.open .plus{transform:rotate(45deg);color:var(--gold)}
+
+/* -------------------------- 12. Footer -------------------------- */
+footer{padding:56px 0 40px}
+.foot-grid{display:flex;justify-content:space-between;gap:24px}
+.foot-links{display:flex;gap:24px;color:var(--muted);font-size:13px}
+.foot-bottom{border-top:1px solid var(--soft);padding-top:24px;margin-top:30px;color:var(--muted2);font-size:12px}
+
+/* -------------------------- 13. Legal pages (Terms / Privacy / Risk Disclosure) -------------------------- */
+.legal-section{padding:72px 0;border-bottom:1px solid var(--soft)}
+.legal-section h2{margin-bottom:8px}
+.legal-updated{color:var(--muted2);font-size:12px;margin-bottom:36px}
+.legal-block{max-width:760px}
+.legal-block h3{font:18px Fraunces;color:var(--gold);margin:30px 0 10px}
+.legal-block h3:first-child{margin-top:0}
+.legal-block p{color:var(--muted);font-size:14px;line-height:1.75;margin-bottom:10px}
+.legal-block ul{color:var(--muted);font-size:14px;line-height:1.75;padding-left:20px;margin-bottom:10px}
+.legal-block li{margin-bottom:4px}
+.legal-disclaimer{margin-top:32px;padding:14px 16px;background:rgba(47,191,131,.07);border:1px solid rgba(47,191,131,.25);border-radius:3px;font-size:12.5px;color:var(--gold);line-height:1.6}
+
+/* -------------------------- 14. Auth modal (login / signup / reset password) -------------------------- */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}
+.auth-box{width:min(460px,100%);background:var(--panel);border:1px solid var(--line);padding:30px;border-radius:5px;position:relative;max-height:90vh;overflow:auto}
+.close{position:absolute;right:18px;top:12px;background:none;border:0;color:var(--muted);font-size:28px;cursor:pointer}
+.auth-box h2{margin-bottom:8px}
+.auth-sub{color:var(--muted);font-size:13px;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.form-group input{width:100%;padding:11px 12px;background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:3px;outline:none}
+.form-group input:focus{border-color:var(--gold)}
+.form-group textarea{width:100%;min-height:140px;padding:11px 12px;background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:3px;outline:none;resize:vertical;font-family:inherit}
+.form-group textarea:focus{border-color:var(--gold)}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:40px}
+.pw-toggle{position:absolute;right:0;top:0;height:100%;width:38px;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:pointer;color:var(--muted);padding:0}
+.pw-toggle:hover{color:var(--gold)}
+.pw-toggle svg{width:18px;height:18px}
+.form-actions{margin-top:18px}
+.form-actions .btn{width:100%;padding:12px}
+.switch{margin-top:16px;text-align:center;color:var(--muted);font-size:13px}
+.switch button{background:none;border:0;color:var(--gold);cursor:pointer}
+.forgot-link{text-align:right;margin-top:9px}
+.forgot-link button{background:none;border:0;color:var(--gold);cursor:pointer;font-size:12px;padding:0}
+.forgot-link button:hover{text-decoration:underline}
+.msg{display:none;padding:10px 12px;margin-bottom:14px;border:1px solid var(--line);font-size:13px}
+.msg.show{display:block}
+
+/* -------------------------- 15. Dashboard (client area) -------------------------- */
+.dashboard{display:none;min-height:70vh;padding:36px 0 70px}
+.dash-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:22px;border-bottom:1px solid var(--soft);margin-bottom:28px}
+.dash-welcome{display:flex;align-items:center;gap:14px}
+.dash-avatar{width:48px;height:48px;border-radius:50%;background:rgba(47,191,131,.12);border:1px solid rgba(47,191,131,.35);color:var(--gold);display:flex;align-items:center;justify-content:center;font:600 17px Fraunces;flex:none}
+.dash-hi{color:var(--muted);font-size:13px}
+.dash-name{font:20px Fraunces;margin-top:2px}
+.dash-email{color:var(--muted2);font-size:12px;margin-top:2px}
+.logout{background:none;border:1px solid var(--line);color:var(--text);padding:10px 16px;cursor:pointer;border-radius:6px;font-size:13px;white-space:nowrap}
+.logout:hover{border-color:var(--loss);color:var(--loss)}
+
+/* -------------------------- 16. Balance hero card -------------------------- */
+.balance-hero{background:linear-gradient(155deg,var(--panel) 0%,var(--bg2) 100%);border:1px solid var(--line);border-radius:10px;padding:30px 32px;margin-bottom:18px;position:relative;overflow:hidden}
+.balance-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(47,191,131,.14),transparent 70%)}
+.balance-label{color:var(--muted);font-size:13px;letter-spacing:.3px}
+.balance-amount{font:56px Fraunces;color:var(--text);margin:8px 0 4px;line-height:1;word-break:break-word}
+.balance-pl{display:inline-flex;align-items:center;gap:6px;font:600 14px 'IBM Plex Mono';padding:5px 10px;border-radius:20px}
+.balance-pl.pos{color:var(--profit);background:rgba(94,234,176,.10)}
+.balance-pl.neg{color:var(--loss);background:rgba(242,115,94,.10)}
+.balance-pl.zero{color:var(--muted);background:rgba(139,153,146,.10)}
+
+/* -------------------------- 17. Dashboard stat cards -------------------------- */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.dash-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px}
+.dash-card .label{color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.dash-card .value{font:26px Fraunces;color:var(--text);margin-top:8px}
+.dash-card .value.up{color:var(--profit)}
+.dash-card .value.down{color:var(--loss)}
+.dash-card .sub{color:var(--muted2);font-size:11.5px;margin-top:4px}
+
+/* -------------------------- 18. Available-to-withdraw + unlock progress -------------------------- */
+.avail-card{background:rgba(47,191,131,.06);border:1px solid rgba(47,191,131,.28);border-radius:8px;padding:22px 24px;margin-bottom:22px}
+.avail-top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.avail-label{color:var(--muted);font-size:13px}
+.avail-amount{font:34px Fraunces;color:var(--gold);margin-top:6px}
+.unlock-wrap{min-width:220px;flex:1;max-width:340px}
+.unlock-label{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:6px}
+.unlock-label b{color:var(--text);font-family:'IBM Plex Mono'}
+.unlock-track{height:7px;background:var(--soft);border-radius:4px;overflow:hidden}
+.unlock-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s}
+.unlock-fill.done{background:var(--profit)}
+.unlock-note{color:var(--muted2);font-size:11.5px;margin-top:8px;line-height:1.5}
+
+/* -------------------------- 19. Dashboard action buttons -------------------------- */
+.dash-actions{display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.dash-actions .btn{padding:15px 26px;font-size:15px;border-radius:8px;flex:1;min-width:150px;text-align:center}
+.dash-actions .btn-gold{box-shadow:0 4px 18px rgba(47,191,131,.18)}
+.dash-note{margin-top:18px;padding:12px 14px;background:rgba(47,191,131,.07);border:1px solid rgba(47,191,131,.25);border-radius:3px;font-size:13px;color:var(--gold);line-height:1.6}
+
+/* -------------------------- 20. Transaction list cards -------------------------- */
+.tx-card{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:10px}
+.tx-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.tx-icon.dep{background:rgba(47,191,131,.12);color:var(--gold)}
+.tx-icon.wd{background:rgba(139,153,146,.12);color:var(--muted)}
+.tx-mid{flex:1;min-width:0}
+.tx-type{font-size:14.5px;font-weight:600}
+.tx-date{color:var(--muted2);font-size:12px;margin-top:2px}
+.tx-right{text-align:right;flex:none}
+.tx-amount{font:15px 'IBM Plex Mono'}
+.tx-status{font-size:11.5px;margin-top:4px;font-weight:600;letter-spacing:.3px;padding:2px 8px;border-radius:20px;display:inline-block}
+.tx-status.status-pending{color:var(--gold);background:rgba(47,191,131,.10)}
+.tx-status.status-approved{color:var(--profit);background:rgba(94,234,176,.10)}
+.tx-status.status-rejected{color:var(--loss);background:rgba(242,115,94,.10)}
+.tx-empty{color:var(--muted);font-size:14px;padding:24px 0;text-align:center;border:1px dashed var(--line);border-radius:8px}
+
+@media(max-width:640px){
+.dash-topbar{flex-direction:column;align-items:flex-start}
+.logout{align-self:flex-end}
+.balance-amount{font:42px Fraunces}
+.dash-grid{grid-template-columns:1fr 1fr}
+.avail-top{flex-direction:column;align-items:flex-start}
+.unlock-wrap{max-width:100%;width:100%}
+.dash-actions .btn{min-width:100%}
+}
+
+/* -------------------------- 21. Withdrawal fee calculator box -------------------------- */
+.fee-calc{margin-top:12px;padding:14px;background:var(--bg2);border:1px solid var(--line);border-radius:3px;font-size:13px}
+.fee-row{display:flex;justify-content:space-between;padding:5px 0;color:var(--muted)}
+.fee-row.total{border-top:1px solid var(--line);margin-top:5px;padding-top:9px;font-weight:600;color:var(--text)}
+.fee-row span:last-child{font-family:'IBM Plex Mono',monospace}
+
+/* -------------------------- 22. Network selector tabs (TRC20 / BEP20) -------------------------- */
+.network-tabs{display:flex;gap:8px;margin-bottom:14px}
+.network-tab{flex:1;padding:10px;text-align:center;border:1px solid var(--line);background:var(--bg2);color:var(--muted);cursor:pointer;border-radius:3px;font-size:13px;transition:.15s}
+.network-tab.active{border-color:var(--gold);color:var(--gold);background:rgba(47,191,131,.08)}
+.network-tab:hover{border-color:var(--gold)}
+
+/* -------------------------- 23. Contact section -------------------------- */
+.contact-section{padding:88px 0;border-bottom:1px solid var(--soft)}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+.contact-info h3{font:18px Fraunces;color:var(--gold);margin-bottom:8px}
+.contact-info p{color:var(--muted);font-size:14px;line-height:1.8}
+.contact-info a{color:var(--gold)}
+.contact-form{background:var(--panel);border:1px solid var(--line);padding:28px}
+.contact-form .form-group:last-of-type{margin-bottom:0}
+.contact-form textarea{width:100%;min-height:150px;padding:11px 12px;background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:3px;outline:none;resize:vertical;font-family:inherit}
+.contact-form textarea:focus{border-color:var(--gold)}
+.contact-success{display:none;margin-top:14px;padding:10px 12px;border:1px solid rgba(63,214,140,.3);color:var(--profit);font-size:13px;background:rgba(63,214,140,.05)}
+
+/* -------------------------- 24. Responsive breakpoints -------------------------- */
+@media(max-width:760px){
+.sec-head,.calc,.risk-grid,.contact-grid{grid-template-columns:1fr}
+.calc-in{border-right:0;border-bottom:1px solid var(--line)}
+.step{grid-template-columns:44px 1fr}
+.step-desc{grid-column:2}
+.stats-row,.dash-grid{grid-template-columns:1fr}
+.foot-grid{flex-direction:column}
+.foot-links{flex-wrap:wrap}
+.stat{border-left:0;border-top:1px solid var(--soft);padding-left:0}
+.stat:first-child{border-top:0}
+}
+
+/* mobile nav */
+@media(max-width:860px){
+.nav{flex-wrap:wrap;height:auto;padding:14px 0}
+.navlinks{display:none}
+.navcta{width:100%;order:3;margin-top:12px;gap:10px}
+.navcta .btn{flex:1;text-align:center;padding:11px 14px}
+}
+
+/* -------------------------- 25. Deposit / Withdrawal request modals -------------------------- */
+.request-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:110;align-items:center;justify-content:center;padding:20px}
+.request-modal.show{display:flex}
+.request-box{width:min(500px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);padding:30px;border-radius:5px;position:relative}
+.request-box h2{margin-bottom:8px}
+.request-close{position:absolute;right:18px;top:12px;background:none;border:0;color:var(--muted);font-size:28px;cursor:pointer}
+.request-note{font-size:12px;color:var(--muted);line-height:1.6;margin:14px 0}
+.request-actions{display:flex;gap:10px;margin-top:18px}
+.request-actions .btn{flex:1}
+.request-status{margin-top:14px}
+.request-list{margin-top:34px;border-top:1px solid var(--line)}
+.request-list h3{font:18px Fraunces;margin:24px 0 12px}
+.request-item{display:flex;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid var(--soft);font-size:13px}
+.request-item .meta{color:var(--muted)}
+.status-pending{color:var(--gold)}
+.status-approved{color:var(--profit)}
+.status-rejected{color:var(--loss)}
