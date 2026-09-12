@@ -27,6 +27,7 @@
     24. Responsive breakpoints
     25. Deposit / Withdrawal request modals
     26. Notification bell + dropdown
+    27. Referral card (locked / unlocked states)
    ========================================================================== */
 
 /* -------------------------- 1. Reset & base -------------------------- */
@@ -381,4 +382,39 @@ body.modal-open{overflow:hidden}
 
 @media(max-width:640px){
 .notif-dropdown{width:92vw;max-height:min(75vh,480px)}
+}
+
+/* -------------------------- 27. Referral card (locked / unlocked states) --------------------------
+   Two states inside the same .referral-card wrapper, toggled by
+   loadReferralInfo() in mainsite.js based on profiles.referral_unlocked:
+     - .referral-locked   — shown before the client's own first deposit is approved
+     - .referral-unlocked — shown after, with the client's link + live stats
+   Kept visually close to .avail-card (same gold accent, same rounded panel
+   language) so it reads as part of the same dashboard, not a bolted-on widget. */
+.referral-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px 24px;margin-bottom:22px}
+
+/* -- locked state -- */
+.referral-locked-msg{color:var(--muted);font-size:13.5px;margin-top:10px;line-height:1.6}
+
+/* -- shared head/sub used by both states -- */
+.referral-head{font:19px Fraunces}
+.referral-sub{color:var(--muted);font-size:13px;margin-top:6px;margin-bottom:18px;line-height:1.6}
+
+/* -- unlocked state: link row -- */
+.referral-link-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.referral-link-row input{flex:1;min-width:220px;padding:11px 12px;background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:3px;outline:none;font-family:'IBM Plex Mono',monospace;font-size:13px}
+.referral-link-row .btn{white-space:nowrap}
+
+/* -- unlocked state: stats row -- */
+.referral-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.referral-stat{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:16px}
+.referral-stat-label{color:var(--muted);font-size:12px}
+.referral-stat-value{font:22px Fraunces;color:var(--text);margin-top:6px}
+.referral-stat-value.gold{color:var(--gold)}
+
+@media(max-width:640px){
+.referral-stats{grid-template-columns:1fr}
+.referral-link-row{flex-direction:column}
+.referral-link-row input{width:100%}
+.referral-link-row .btn{width:100%;text-align:center}
 }
