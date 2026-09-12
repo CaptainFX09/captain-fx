@@ -51,6 +51,7 @@ let supabaseReady=false;
 let currentUser=null;
 let currentAccount=null;
 let currentProfile=null;
+let currentNotificationItems=[];
 
 /* -------------------------- 3. DOM helper + message helpers -------------------------- */
 function $(id){return document.getElementById(id)}
@@ -846,7 +847,11 @@ items.push({icon:'📈',text:'Daily profit updated — +$'+Number(x.client_share
 
 items.sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-renderNotifications(items.slice(0,20));
+/* Kept around (module-level) so a click on a row can look itself up by
+   index and open its own detail popup — see openNotifDetail(). */
+currentNotificationItems=items.slice(0,20);
+
+renderNotifications(currentNotificationItems);
 
 }catch(err){
 console.error('Notifications load error:',err);
@@ -900,7 +905,8 @@ if(!rows.length)return;
 html+='<div class="notif-group-label">'+label+'</div>';
 rows.forEach(x=>{
 const isUnread=new Date(x.date).getTime()>seenTime;
-html+='<div class="notif-item'+(isUnread?' unread':'')+'">'
+const idx=items.indexOf(x);
+html+='<div class="notif-item'+(isUnread?' unread':'')+'" onclick="openNotifDetail('+idx+')">'
 +'<div class="notif-icon">'+x.icon+'</div>'
 +'<div class="notif-body"><div class="notif-text">'+x.text+'</div><div class="notif-time">'+new Date(x.date).toLocaleString()+'</div></div>'
 +'</div>';
@@ -920,12 +926,48 @@ if(!dd)return;
 const willShow=!dd.classList.contains('show');
 dd.classList.toggle('show',willShow);
 overlay?.classList.toggle('show',willShow);
+document.body.classList.toggle('modal-open',willShow);
 if(willShow)loadNotifications();
 }
 
 function closeNotifications(){
 $('notifDropdown')?.classList.remove('show');
 $('notifOverlay')?.classList.remove('show');
+$('notifDetailModal')?.classList.remove('show');
+document.body.classList.remove('modal-open');
+}
+
+/*
+Opens one notification's own small popup on top of the list (X button to
+close), so a client can read a single notification in full without the
+list closing behind it. Mark all as read still works independently of this.
+*/
+function openNotifDetail(index){
+const item=currentNotificationItems[index];
+if(!item)return;
+const iconEl=$('notifDetailIcon');
+const textEl=$('notifDetailText');
+const timeEl=$('notifDetailTime');
+if(iconEl)iconEl.textContent=item.icon;
+if(textEl)textEl.textContent=item.text;
+if(timeEl)timeEl.textContent=new Date(item.date).toLocaleString();
+$('notifDetailModal')?.classList.add('show');
+}
+
+function closeNotifDetail(){
+$('notifDetailModal')?.classList.remove('show');
+}
+
+/* The dim backdrop behind the notification popup is shared by both the
+   list and the single-notification detail popup. Clicking it should only
+   close whichever layer is currently on top. */
+function handleNotifOverlayClick(){
+const detail=$('notifDetailModal');
+if(detail&&detail.classList.contains('show')){
+closeNotifDetail();
+}else{
+closeNotifications();
+}
 }
 
 /*
@@ -1094,7 +1136,8 @@ if(e.key==='Escape'){
 if(modal.classList.contains('show'))closeAuth();
 if($('depositModal')?.classList.contains('show'))closeRequest('deposit');
 if($('withdrawalModal')?.classList.contains('show'))closeRequest('withdrawal');
-closeNotifications();
+if($('notifDetailModal')?.classList.contains('show')){closeNotifDetail()}
+else{closeNotifications()}
 }
 });
 
