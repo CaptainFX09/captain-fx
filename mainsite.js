@@ -308,18 +308,60 @@ if(pass.length<6){showMsg('signupMsg','Password must be at least 6 characters.')
 if(pass!==confirm){showMsg('signupMsg','Passwords do not match.');return}
 const button=$('signupForm').querySelector('.form-actions .btn');
 if(button){button.disabled=true;button.textContent='Creating...'}
+try{
+
+/*
+HOTFIX (signup-duplicate-check-fix.sql): check phone/wallet availability
+BEFORE calling auth.signUp(). Without this, a duplicate phone or wallet
+fails the on-auth-user-created trigger, and Supabase Auth hides the real
+reason behind a generic "Database error saving new user" message. Catching
+it here means the person always sees exactly which field is the problem.
+*/
+try{
+const {data:availability,error:availError}=await supabaseClient.rpc('check_signup_availability',{
+p_phone:phone||null,
+p_wallet:wallet||null,
+p_wallet_bep20:walletBep20||null
+});
+if(availError){
+console.error('Signup availability check error:',availError);
+/* If the check itself fails (e.g. RPC not deployed yet), don't block
+   signup on it — fall through and let the normal flow continue. */
+}else if(availability){
+if(availability.phone_taken){showMsg('signupMsg','This phone number is already linked to another account. One account is allowed per phone number.');return}
+if(availability.wallet_taken){showMsg('signupMsg','This TRC20 wallet address is already linked to another account. One account is allowed per wallet.');return}
+if(availability.wallet_bep20_taken){showMsg('signupMsg','This BEP20 wallet address is already linked to another account. One account is allowed per wallet.');return}
+}
+}catch(availErr){
+console.error('Signup availability check error:',availErr);
+}
+
 /* Pass along whichever referral code (?ref=CODE) was captured earlier in
    this session, if any. A DB trigger (SQL side, next step) reads this
    from raw_user_meta_data and sets profiles.referred_by — after
    validating the code exists, isn't the new user's own code, and isn't
    already set (one referrer per client, self-referral not allowed). */
 const referredByCode=getStoredReferralCode();
-try{
 const {data,error}=await supabaseClient.auth.signUp({
 email,password:pass,
 options:{data:{full_name:name,phone,wallet_address:wallet||null,wallet_address_bep20:walletBep20||null,referred_by_code:referredByCode||null},emailRedirectTo:window.location.origin}
 });
 if(error){showMsg('signupMsg',friendlySignupError(error.message));return}
+
+/*
+HOTFIX: detect an already-registered email. For security, Supabase Auth
+does not return an error for a duplicate, already-confirmed email — it
+returns a fake success response instead (to avoid leaking which emails
+are registered). The one reliable signal is an empty identities array,
+which only happens for an existing account. Without this check, the
+signup form would wrongly tell the person "check your email" even though
+no new account (and no email) was actually created.
+*/
+if(data&&data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){
+showMsg('signupMsg','An account with this email already exists. Please login instead, or use "Forgot password" if you don\'t remember your password.');
+return;
+}
+
 if(data&&data.session){
 /* If a session exists immediately (no email confirmation required),
    also write the wallets directly to the profile row as a safety net,
