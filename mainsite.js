@@ -27,6 +27,7 @@
     24. Profit-split calculator (homepage widget)
     25. Page bootstrap / event listeners
     26. Referral program (capture ?ref=, dashboard card, copy/share)
+    27. Loading skeletons (dashboard + lists)
    ========================================================================== */
 
 'use strict';
@@ -63,6 +64,55 @@ let currentUser=null;
 let currentAccount=null;
 let currentProfile=null;
 let currentNotificationItems=[];
+
+/* -------------------------- 27. Loading skeletons (dashboard + lists) --------------------------
+   Two small building blocks used while data is being fetched, so the
+   dashboard never flashes stale "$0.00" / empty-list text before the real
+   values arrive:
+     - showDashboardSkeleton() adds a shimmer look to the balance/stat
+       values the instant the dashboard becomes visible (called from
+       loadDashboard(), before the profile/account fetch even starts).
+       clearAccountSkeleton() / clearReferralSkeleton() remove it again
+       once their respective data has actually rendered.
+     - skeletonRowsHtml(count) builds placeholder "cards" (icon + two
+       shimmer lines) used to pre-fill the transactions and notifications
+       lists the moment their container is shown, before the real rows
+       come back from Supabase.
+   Placed early in the file (next to global state) since these are pure
+   DOM helpers with no dependencies of their own — same pattern already
+   used for the referral section, which is numbered 26 but sits ahead of
+   the (numbered 25) page-bootstrap section further down. */
+
+const SKELETON_VALUE_IDS=['dashBalance','dashDeposit','dashProfit','dashWithdrawn','dashAvailable','unlockDaysText','referralCount','referralDeposits','referralEarnings'];
+
+function showDashboardSkeleton(){
+SKELETON_VALUE_IDS.forEach(id=>{
+const el=document.getElementById(id);
+if(el)el.classList.add('skeleton');
+});
+}
+
+function clearAccountSkeleton(){
+['dashBalance','dashDeposit','dashProfit','dashWithdrawn','dashAvailable','unlockDaysText'].forEach(id=>{
+const el=document.getElementById(id);
+if(el)el.classList.remove('skeleton');
+});
+}
+
+function clearReferralSkeleton(){
+['referralCount','referralDeposits','referralEarnings'].forEach(id=>{
+const el=document.getElementById(id);
+if(el)el.classList.remove('skeleton');
+});
+}
+
+function skeletonRowsHtml(count){
+let html='';
+for(let i=0;i<count;i++){
+html+='<div class="skeleton-row"><div class="skeleton-circle"></div><div class="skeleton-lines"><div class="skeleton-line short"></div><div class="skeleton-line long"></div></div></div>';
+}
+return html;
+}
 
 /* -------------------------- 3. DOM helper + message helpers -------------------------- */
 function $(id){return document.getElementById(id)}
@@ -422,6 +472,13 @@ document.querySelector('header').style.display='none';
 const contactSection=$('contact');
 if(contactSection)contactSection.style.display='none';
 
+/* Show shimmer placeholders on the balance/stat values immediately —
+   before the profile/account fetches below even start — so nothing
+   flashes stale "$0.00" while data is still loading. Cleared again by
+   renderAccountSummary() (balance/stat cards) and loadReferralInfo()
+   (referral stats) once their real values are in. */
+showDashboardSkeleton();
+
 /* ================= PROFILE ================= */
 
 /* notifications_seen_at is the server-side "last time this client opened
@@ -672,6 +729,10 @@ fillEl.classList.remove('done');
 daysTextEl.textContent=daysLeft+' day'+(daysLeft===1?'':'s')+' left';
 noteEl.textContent='Your deposited amount unlocks in '+daysLeft+' day'+(daysLeft===1?'':'s')+'. Your profit share is available to withdraw right now.';
 }
+
+/* Balance/stat cards + available/unlock now hold real values — drop the
+   shimmer placeholders that showDashboardSkeleton() applied earlier. */
+clearAccountSkeleton();
 }
 
 /* -------------------------- 16. Withdrawal fee calculator (UI) -------------------------- */
@@ -840,6 +901,14 @@ finally{if(button){button.disabled=false;button.textContent='Submit withdrawal r
 /* -------------------------- 20. Recent transactions list -------------------------- */
 async function loadRequests(){
 if(!currentUser||!supabaseReady||!$('requestList'))return;
+
+/* Pre-fill with shimmer placeholder cards so the list never sits blank
+   (or shows the old "Loading..." text) while the two queries below are
+   in flight — cleared automatically once innerHTML is replaced with the
+   real rows (or the empty-state message) further down. */
+const listEl=$('requestList');
+if(listEl)listEl.innerHTML=skeletonRowsHtml(3);
+
 try{
 const [d,w]=await Promise.all([
 supabaseClient.from('deposits').select('amount,status,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(5),
@@ -896,6 +965,13 @@ with row ids to key off of.
 
 async function loadNotifications(){
 if(!currentUser||!supabaseReady)return;
+
+/* Same shimmer treatment as loadRequests() above — the notification
+   popup shows placeholder cards the instant it's opened / reloaded,
+   instead of a plain "Loading..." line. */
+const listEl=$('notifList');
+if(listEl)listEl.innerHTML=skeletonRowsHtml(3);
+
 try{
 const [d,w,p]=await Promise.all([
 supabaseClient.from('deposits').select('amount,status,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(10),
@@ -1311,6 +1387,11 @@ if(earningsEl)earningsEl.textContent='$'+Number(info.earnings_total||0).toFixed(
 }
 }catch(err){
 console.error('Referral dashboard error:',err);
+}finally{
+/* Whether the card ended up locked or unlocked (or the RPC failed),
+   the referral stat values are no longer "still loading" — drop their
+   shimmer placeholders either way so nothing shimmers forever. */
+clearReferralSkeleton();
 }
 }
 
