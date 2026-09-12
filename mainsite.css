@@ -28,6 +28,7 @@
     25. Deposit / Withdrawal request modals
     26. Notification bell + dropdown
     27. Referral card (locked / unlocked states)
+    28. Loading skeletons (shimmer placeholders)
    ========================================================================== */
 
 /* -------------------------- 1. Reset & base -------------------------- */
@@ -418,3 +419,59 @@ body.modal-open{overflow:hidden}
 .referral-link-row input{width:100%}
 .referral-link-row .btn{width:100%;text-align:center}
 }
+
+/* -------------------------- 28. Loading skeletons (shimmer placeholders) --------------------------
+   Applied by mainsite.js while dashboard data is being fetched, so numbers
+   never flash "$0.00" before the real value arrives. Two flavours:
+     - .skeleton        — put on an existing text element (e.g. #dashBalance);
+                           hides its current text and shows an animated grey
+                           bar in its place, same footprint as the text.
+     - .skeleton-row     — a whole placeholder "card" (icon + two lines),
+                           used to pre-fill the transactions/notifications
+                           lists before their real rows are fetched.
+   Both share the same shimmer keyframes so the whole dashboard feels like
+   one consistent loading pass rather than separate spinners. */
+@keyframes pz-shimmer{0%{background-position:-450px 0}100%{background-position:450px 0}}
+
+.skeleton{
+color:transparent!important;
+background-image:linear-gradient(90deg,var(--soft) 25%,var(--line) 37%,var(--soft) 63%);
+background-size:400% 100%;
+animation:pz-shimmer 1.4s ease infinite;
+border-radius:4px;
+user-select:none;
+}
+
+.skeleton-row{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:8px;
+padding:16px 18px;
+margin-bottom:10px;
+display:flex;
+align-items:center;
+gap:14px
+}
+
+.skeleton-circle{
+width:38px;
+height:38px;
+border-radius:50%;
+flex:none;
+background-image:linear-gradient(90deg,var(--soft) 25%,var(--line) 37%,var(--soft) 63%);
+background-size:400% 100%;
+animation:pz-shimmer 1.4s ease infinite
+}
+
+.skeleton-lines{flex:1;display:flex;flex-direction:column;gap:8px}
+
+.skeleton-line{
+height:11px;
+border-radius:4px;
+background-image:linear-gradient(90deg,var(--soft) 25%,var(--line) 37%,var(--soft) 63%);
+background-size:400% 100%;
+animation:pz-shimmer 1.4s ease infinite
+}
+
+.skeleton-line.short{width:55%}
+.skeleton-line.long{width:85%}
