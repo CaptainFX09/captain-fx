@@ -21,10 +21,11 @@
     18. Submit deposit request
     19. Submit withdrawal request
     20. Recent transactions list
-    21. Contact form submission
-    22. Logout
-    23. Profit-split calculator (homepage widget)
-    24. Page bootstrap / event listeners
+    21. Notification bell + dropdown
+    22. Contact form submission
+    23. Logout
+    24. Profit-split calculator (homepage widget)
+    25. Page bootstrap / event listeners
    ========================================================================== */
 
 'use strict';
@@ -39,7 +40,6 @@ const DEPOSIT_ADDRESSES={
 };
 
 const PRINCIPAL_LOCK_DAYS=40;
-const MIN_WITHDRAWAL=20;
 const WITHDRAWAL_FEE=2;
 
 /* -------------------------- 2. Global state -------------------------- */
@@ -289,8 +289,8 @@ const walletBep20=$('walletBep20').value.trim();
 const pass=$('signupPassword').value;
 const confirm=$('confirmPassword').value;
 if(!name||!email||!pass){showMsg('signupMsg','Please fill Full Name, Email and Password.');return}
-if(!wallet){showMsg('signupMsg','A TRC20 withdrawal wallet address is required to create an account.');return}
-if(!validWallet(wallet)){showMsg('signupMsg','Please enter a valid TRC20 wallet address starting with T.');return}
+if(!wallet&&!walletBep20){showMsg('signupMsg','Please provide at least one withdrawal wallet address (TRC20 or BEP20).');return}
+if(wallet&&!validWallet(wallet)){showMsg('signupMsg','Please enter a valid TRC20 wallet address starting with T, or leave it blank.');return}
 if(walletBep20&&!validBep20Wallet(walletBep20)){showMsg('signupMsg','Please enter a valid BEP20 wallet address starting with 0x, or leave it blank.');return}
 if(pass.length<6){showMsg('signupMsg','Password must be at least 6 characters.');return}
 if(pass!==confirm){showMsg('signupMsg','Passwords do not match.');return}
@@ -299,7 +299,7 @@ if(button){button.disabled=true;button.textContent='Creating...'}
 try{
 const {data,error}=await supabaseClient.auth.signUp({
 email,password:pass,
-options:{data:{full_name:name,phone,wallet_address:wallet,wallet_address_bep20:walletBep20||null},emailRedirectTo:window.location.origin}
+options:{data:{full_name:name,phone,wallet_address:wallet||null,wallet_address_bep20:walletBep20||null},emailRedirectTo:window.location.origin}
 });
 if(error){showMsg('signupMsg',friendlySignupError(error.message));return}
 if(data&&data.session){
@@ -311,7 +311,7 @@ try{
 await supabaseClient.from('profiles').update({
   full_name:name,
   phone:phone,
-  wallet_address:wallet,
+  wallet_address:wallet||null,
   wallet_address_bep20:walletBep20||null
 }).eq('id',data.user.id);
 }catch(profileErr){
@@ -479,6 +479,8 @@ currentAccount=a;
 await renderAccountSummary(a);
 
 await loadRequests();
+
+await loadNotifications();
 
 }catch(err){
 
@@ -697,6 +699,7 @@ $('depositTx').value='';
 $('depositProof').value='';
 $('depositProofName').textContent='';
 await loadRequests();
+await loadNotifications();
 setTimeout(()=>closeRequest('deposit'),1200);
 }catch(err){console.error(err);showMsg('depositMsg','Unable to submit deposit request right now.')}
 finally{if(button){button.disabled=false;button.textContent='Submit deposit request'}}
@@ -711,7 +714,7 @@ const amount=Number($('withdrawalAmount').value);
 const wallet=$('withdrawalWallet').value.trim();
 const network=selectedWithdrawalNetwork;
 
-if(!Number.isFinite(amount)||amount<MIN_WITHDRAWAL){showMsg('withdrawalMsg','Minimum withdrawal is $'+MIN_WITHDRAWAL+'.');return}
+if(!Number.isFinite(amount)||amount<=WITHDRAWAL_FEE){showMsg('withdrawalMsg','Withdrawal amount must be greater than the $'+WITHDRAWAL_FEE.toFixed(2)+' fee.');return}
 
 if(network==='TRC20'){
 if(!validWallet(wallet)){showMsg('withdrawalMsg','Please enter a valid TRC20 wallet address starting with T.');return}
@@ -759,6 +762,7 @@ showMsg('withdrawalMsg','Withdrawal request submitted successfully. It is pendin
 $('withdrawalAmount').value='';
 $('withdrawalCalc').style.display='none';
 await loadRequests();
+await loadNotifications();
 setTimeout(()=>closeRequest('withdrawal'),1800);
 }catch(err){console.error(err);showMsg('withdrawalMsg','Unable to submit withdrawal request right now.')}
 finally{if(button){button.disabled=false;button.textContent='Submit withdrawal request'}}
@@ -792,7 +796,138 @@ return '<div class="tx-card">'
 }catch(err){console.error('Requests error:',err)}
 }
 
-/* -------------------------- 21. Contact form submission -------------------------- */
+/* -------------------------- 21. Notification bell + dropdown -------------------------- */
+
+/*
+There is no dedicated notifications table — the feed is built by
+combining the client's own deposits, withdrawals and profit_entries
+rows into one timeline, newest first. "Read" state is tracked locally
+per-browser (a single "last seen" timestamp per user id): anything
+newer than that timestamp counts as unread. This is intentionally
+simple — it does not sync across devices — but needs no schema
+changes and no extra webhook.
+*/
+
+function notifSeenKey(){
+return 'pipzone_notif_seen_'+(currentUser?.id||'anon');
+}
+
+async function loadNotifications(){
+if(!currentUser||!supabaseReady)return;
+try{
+const [d,w,p]=await Promise.all([
+supabaseClient.from('deposits').select('amount,status,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(10),
+supabaseClient.from('withdrawals').select('amount,status,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(10),
+supabaseClient.from('profit_entries').select('client_share,entry_date,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(10)
+]);
+
+const items=[];
+
+(d.data||[]).forEach(x=>{
+const statusText=x.status==='pending'?'Deposit request received':x.status==='approved'?'Deposit approved':'Deposit rejected';
+const icon=x.status==='approved'?'✅':x.status==='rejected'?'❌':'📥';
+items.push({icon,text:statusText+' — $'+Number(x.amount).toFixed(2),date:x.created_at});
+});
+
+(w.data||[]).forEach(x=>{
+const statusText=x.status==='pending'?'Withdrawal request received':x.status==='approved'?'Withdrawal approved':'Withdrawal rejected';
+const icon=x.status==='approved'?'💸':x.status==='rejected'?'❌':'⏳';
+items.push({icon,text:statusText+' — $'+Number(x.amount).toFixed(2),date:x.created_at});
+});
+
+(p.data||[]).forEach(x=>{
+items.push({icon:'📈',text:'Daily profit updated — +$'+Number(x.client_share||0).toFixed(2),date:x.created_at||x.entry_date});
+});
+
+items.sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+renderNotifications(items.slice(0,20));
+
+}catch(err){
+console.error('Notifications load error:',err);
+}
+}
+
+function renderNotifications(items){
+const list=$('notifList');
+const badge=$('notifBadge');
+if(!list)return;
+
+let seenTime=0;
+try{
+const seenRaw=localStorage.getItem(notifSeenKey());
+seenTime=seenRaw?new Date(seenRaw).getTime():0;
+}catch(e){}
+
+const unreadCount=items.filter(x=>new Date(x.date).getTime()>seenTime).length;
+
+if(badge){
+if(unreadCount>0){
+badge.textContent=unreadCount>9?'9+':String(unreadCount);
+badge.style.display='flex';
+}else{
+badge.style.display='none';
+}
+}
+
+if(!items.length){
+list.innerHTML='<div class="notif-empty">No notifications yet.</div>';
+return;
+}
+
+const now=new Date();
+const todayStr=now.toDateString();
+const yestStr=new Date(now.getTime()-86400000).toDateString();
+
+const groups={Today:[],Yesterday:[],Earlier:[]};
+
+items.forEach(x=>{
+const dStr=new Date(x.date).toDateString();
+if(dStr===todayStr)groups.Today.push(x);
+else if(dStr===yestStr)groups.Yesterday.push(x);
+else groups.Earlier.push(x);
+});
+
+let html='';
+
+Object.keys(groups).forEach(label=>{
+const rows=groups[label];
+if(!rows.length)return;
+html+='<div class="notif-group-label">'+label+'</div>';
+rows.forEach(x=>{
+const isUnread=new Date(x.date).getTime()>seenTime;
+html+='<div class="notif-item'+(isUnread?' unread':'')+'">'
++'<div class="notif-icon">'+x.icon+'</div>'
++'<div class="notif-body"><div class="notif-text">'+x.text+'</div><div class="notif-time">'+new Date(x.date).toLocaleString()+'</div></div>'
++'</div>';
+});
+});
+
+list.innerHTML=html;
+}
+
+function toggleNotifications(){
+const dd=$('notifDropdown');
+if(!dd)return;
+const willShow=!dd.classList.contains('show');
+dd.classList.toggle('show',willShow);
+if(willShow)loadNotifications();
+}
+
+function closeNotifications(){
+$('notifDropdown')?.classList.remove('show');
+}
+
+function markAllNotificationsRead(){
+try{
+localStorage.setItem(notifSeenKey(),new Date().toISOString());
+}catch(e){}
+const badge=$('notifBadge');
+if(badge)badge.style.display='none';
+document.querySelectorAll('.notif-item.unread').forEach(el=>el.classList.remove('unread'));
+}
+
+/* -------------------------- 22. Contact form submission -------------------------- */
 /* CONTACT FORM — direct Supabase submission with optional attachment */
 async function submitContact(event){
 event.preventDefault();
@@ -866,13 +1001,13 @@ if(btn){btn.disabled=false;btn.textContent='Submit'}
 }
 }
 
-/* -------------------------- 22. Logout -------------------------- */
+/* -------------------------- 23. Logout -------------------------- */
 async function logout(){
 if(supabaseReady)await supabaseClient.auth.signOut();
 location.reload();
 }
 
-/* -------------------------- 23. Profit-split calculator (homepage widget) -------------------------- */
+/* -------------------------- 24. Profit-split calculator (homepage widget) -------------------------- */
 function updateCalculator(){
 const slider=$('amtSlider');
 if(!slider)return;
@@ -883,7 +1018,7 @@ $('outClient').textContent=(v<0?'-':'')+'$'+Math.abs(v*.6).toFixed(2);
 $('outMgr').textContent=(v<0?'-':'')+'$'+Math.abs(v*.4).toFixed(2);
 }
 
-/* -------------------------- 24. Page bootstrap / event listeners -------------------------- */
+/* -------------------------- 25. Page bootstrap / event listeners -------------------------- */
 document.addEventListener('DOMContentLoaded',async function(){
 if(!initSupabase())return;
 updateCalculator();
@@ -931,6 +1066,7 @@ if(e.key==='Escape'){
 if(modal.classList.contains('show'))closeAuth();
 if($('depositModal')?.classList.contains('show'))closeRequest('deposit');
 if($('withdrawalModal')?.classList.contains('show'))closeRequest('withdrawal');
+closeNotifications();
 }
 });
 
@@ -940,6 +1076,14 @@ if(m.id==='authModal')closeAuth();
 if(m.id==='depositModal')closeRequest('deposit');
 if(m.id==='withdrawalModal')closeRequest('withdrawal');
 }));
+
+/* Close the notification dropdown on any click outside it */
+document.addEventListener('click',e=>{
+const wrap=document.querySelector('.notif-wrap');
+if(wrap&&!wrap.contains(e.target)){
+closeNotifications();
+}
+});
 
 try{
 const {data}=await supabaseClient.auth.getSession();
