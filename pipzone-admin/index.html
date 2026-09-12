@@ -172,6 +172,28 @@
       <h2 id="deskProfit">$0.00</h2>
     </div>
 
+    <!-- ================= REFERRAL PROGRAM SUMMARY ================= -->
+
+    <div class="stat">
+      <small>Total Referrals</small>
+      <h2 id="totalReferrals">0</h2>
+    </div>
+
+    <div class="stat">
+      <small>Active Referrers</small>
+      <h2 id="activeReferrers">0</h2>
+    </div>
+
+    <div class="stat">
+      <small>Referred Deposits</small>
+      <h2 id="referredDeposits">$0.00</h2>
+    </div>
+
+    <div class="stat">
+      <small>Total Commission Paid</small>
+      <h2 id="totalCommissionPaid">$0.00</h2>
+    </div>
+
   </div>
 
 
@@ -223,6 +245,50 @@
 
     <div
       id="accountTable"
+      class="table-wrap"
+    ></div>
+
+  </div>
+
+
+  <!-- =========================================================
+       REFERRAL PROGRAM SECTION
+       Commission rate control + per-client referral breakdown
+  ========================================================= -->
+
+  <div class="section">
+
+    <h3>
+      Referral Program
+    </h3>
+
+    <!-- ---- Commission rate editor ---- -->
+    <div class="referral-rate-row">
+
+      <label for="commissionRateInput">
+        Commission Rate (%)
+      </label>
+
+      <input
+        id="commissionRateInput"
+        type="number"
+        step="0.1"
+        min="0"
+        max="100"
+        placeholder="e.g. 2"
+      >
+
+      <button class="btn" id="saveRateBtn" type="button">
+        Save Rate
+      </button>
+
+      <span id="rateSavedNote" class="rate-saved-note"></span>
+
+    </div>
+
+    <!-- ---- Per-client referral breakdown table ---- -->
+    <div
+      id="referralTable"
       class="table-wrap"
     ></div>
 
