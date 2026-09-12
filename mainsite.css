@@ -420,25 +420,28 @@ body.modal-open{overflow:hidden}
 .referral-link-row .btn{width:100%;text-align:center}
 }
 
-/* -------------------------- 28. Loading skeletons (shimmer placeholders) --------------------------
+/* -------------------------- 28. Loading skeletons (pulse placeholders) --------------------------
    Applied by mainsite.js while dashboard data is being fetched, so numbers
    never flash "$0.00" before the real value arrives. Two flavours:
      - .skeleton        — put on an existing text element (e.g. #dashBalance);
-                           hides its current text and shows an animated grey
-                           bar in its place, same footprint as the text.
+                           hides its current text and shows a soft, slowly
+                           breathing solid-colour bar in its place, same
+                           footprint as the text.
      - .skeleton-row     — a whole placeholder "card" (icon + two lines),
                            used to pre-fill the transactions/notifications
                            lists before their real rows are fetched.
-   Both share the same shimmer keyframes so the whole dashboard feels like
-   one consistent loading pass rather than separate spinners. */
-@keyframes pz-shimmer{0%{background-position:-450px 0}100%{background-position:450px 0}}
+   Deliberately a plain, slow opacity "breathe" rather than a moving
+   gradient sweep — closer to the quiet, understated loading state used by
+   Linear/Stripe-style dashboards than a flashy shimmer. Every skeleton
+   piece shares the same animation so the whole dashboard breathes in sync
+   instead of several separate effects competing for attention. */
+@keyframes pz-pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 .skeleton{
 color:transparent!important;
-background-image:linear-gradient(90deg,var(--soft) 25%,var(--line) 37%,var(--soft) 63%);
-background-size:400% 100%;
-animation:pz-shimmer 1.4s ease infinite;
+background:var(--soft);
 border-radius:4px;
+animation:pz-pulse 1.8s ease-in-out infinite;
 user-select:none;
 }
 
@@ -458,9 +461,8 @@ width:38px;
 height:38px;
 border-radius:50%;
 flex:none;
-background-image:linear-gradient(90deg,var(--soft) 25%,var(--line) 37%,var(--soft) 63%);
-background-size:400% 100%;
-animation:pz-shimmer 1.4s ease infinite
+background:var(--soft);
+animation:pz-pulse 1.8s ease-in-out infinite
 }
 
 .skeleton-lines{flex:1;display:flex;flex-direction:column;gap:8px}
@@ -468,9 +470,8 @@ animation:pz-shimmer 1.4s ease infinite
 .skeleton-line{
 height:11px;
 border-radius:4px;
-background-image:linear-gradient(90deg,var(--soft) 25%,var(--line) 37%,var(--soft) 63%);
-background-size:400% 100%;
-animation:pz-shimmer 1.4s ease infinite
+background:var(--soft);
+animation:pz-pulse 1.8s ease-in-out infinite
 }
 
 .skeleton-line.short{width:55%}
