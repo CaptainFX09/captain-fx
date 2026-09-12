@@ -198,7 +198,7 @@
 
 <div class="faq-item">
 <div class="faq-q"><span>When can I withdraw?</span><span class="plus">+</span></div>
-<div class="faq-a"><p>Eligible profit shares may be requested for withdrawal according to the applicable withdrawal terms. Your original deposit (principal) can be withdrawn once 40 days have passed since it was credited. The minimum withdrawal is $20, and a fixed $2 withdrawal fee applies to every request. Once approved, withdrawals are typically received within 5 minutes to 8 hours.</p></div>
+<div class="faq-a"><p>Eligible profit shares may be requested for withdrawal according to the applicable withdrawal terms. Your original deposit (principal) can be withdrawn once 40 days have passed since it was credited. There is no minimum withdrawal amount, and a fixed $2 withdrawal fee applies to every request. Once approved, withdrawals are typically received within 5 minutes to 8 hours.</p></div>
 </div>
 
 <div class="faq-item">
@@ -232,7 +232,7 @@
 <p>Trading results are recorded for the relevant account and allocated according to the agreed 60% client and 40% desk sharing structure. Positive results increase the applicable account balance, while negative results reduce it. The sharing structure does not guarantee a profit or protect against losses.</p>
 
 <h3>4. Withdrawals</h3>
-<p>The minimum withdrawal amount is $20. A fixed withdrawal fee of $2 is deducted from every withdrawal request; the remaining amount is paid out to you. Your accumulated profit share may be withdrawn on demand, at any time. Your original deposited capital (principal) may only be withdrawn once 40 days have passed since it was credited to your account. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the wallet address you provide.</p>
+<p>There is no minimum withdrawal amount. A fixed withdrawal fee of $2 is deducted from every withdrawal request; the remaining amount is paid out to you. Your accumulated profit share may be withdrawn on demand, at any time. Your original deposited capital (principal) may only be withdrawn once 40 days have passed since it was credited to your account. Requests are manually reviewed before approval. Once approved, funds are typically received within 5 minutes to 8 hours, paid to the wallet address you provide.</p>
 
 <h3>5. No guaranteed returns</h3>
 <p>Nothing in these terms, on this site, or in any communication from PipZoNe constitutes a guarantee of profit or of capital preservation. Forex and crypto trading carries a material risk of loss, up to and including the loss of your entire deposited capital.</p>
@@ -591,7 +591,7 @@ Minimum deposit is $100. Send USDT only on the network selected above, to the ad
 
 <div class="form-group">
 <label>Amount (USDT)</label>
-<input id="withdrawalAmount" type="number" min="20" step="0.01" placeholder="20">
+<input id="withdrawalAmount" type="number" min="2.01" step="0.01" placeholder="Amount">
 </div>
 
 <div id="withdrawalCalc" class="fee-calc" style="display:none">
@@ -607,7 +607,7 @@ Minimum deposit is $100. Send USDT only on the network selected above, to the ad
 </div>
 
 <p class="request-note">
-Minimum withdrawal is $20. A fixed <b>$2 withdrawal fee</b> applies to every request. Your profit share can be withdrawn on demand, any time. Your original deposit unlocks 40 days after it is credited. Once approved, withdrawals are typically received within <b>5 minutes to 8 hours</b>. Only your available balance can be withdrawn. Choose the same network you used to deposit, and make sure the wallet address is correct before submitting.
+Your profit share can be withdrawn on demand, any time, with no minimum amount — a fixed <b>$2 withdrawal fee</b> applies to every request. Your original deposit unlocks 40 days after it is credited. Once approved, withdrawals are typically received within <b>5 minutes to 8 hours</b>. Only your available balance can be withdrawn. Choose the same network you used to deposit, and make sure the wallet address is correct before submitting.
 </p>
 
 <div class="form-actions">
@@ -681,14 +681,19 @@ Don't have an account?
 </div>
 
 <div class="form-group">
-<label>TRC20 Withdrawal Wallet <span style="color:var(--gold)">*required</span></label>
+<label>Withdrawal Wallet <span style="color:var(--gold)">(at least one required)</span></label>
+<div class="note" style="margin:0 0 12px">Provide your TRC20 wallet, your BEP20 wallet, or both. You can add the other one later from your dashboard.</div>
+</div>
+
+<div class="form-group">
+<label>TRC20 Wallet <span style="color:var(--muted2);font-weight:400">(optional)</span></label>
 <input id="wallet" type="text" placeholder="T..." autocomplete="off">
 </div>
 
 <div class="form-group">
-<label>BEP20 Withdrawal Wallet <span style="color:var(--muted2);font-weight:400">(optional, add now or later)</span></label>
+<label>BEP20 Wallet <span style="color:var(--muted2);font-weight:400">(optional)</span></label>
 <input id="walletBep20" type="text" placeholder="0x..." autocomplete="off">
-<div class="note" style="margin-top:8px">If you plan to deposit or withdraw via BEP20, add this now. You can also add it later from your dashboard by contacting support.</div>
+<div class="note" style="margin-top:8px">You can also add the other network's wallet later from your dashboard by contacting support.</div>
 </div>
 
 <div class="form-group">
