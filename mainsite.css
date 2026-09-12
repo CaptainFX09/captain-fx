@@ -347,8 +347,9 @@ footer{padding:56px 0 40px}
 .notif-close{background:none;border:0;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;padding:0}
 .notif-close:hover{color:var(--loss)}
 .notif-group-label{padding:10px 16px 6px;color:var(--muted2);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
-.notif-item{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--soft);align-items:flex-start}
+.notif-item{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--soft);align-items:flex-start;cursor:pointer}
 .notif-item:last-child{border-bottom:0}
+.notif-item:hover{background:rgba(47,191,131,.04)}
 .notif-item.unread{background:rgba(47,191,131,.06)}
 .notif-icon{font-size:16px;flex:none;margin-top:1px}
 .notif-body{flex:1;min-width:0}
@@ -357,6 +358,26 @@ footer{padding:56px 0 40px}
 .notif-item.unread .notif-text{font-weight:600}
 .notif-time{font-size:11px;color:var(--muted2);margin-top:2px}
 .notif-empty{color:var(--muted);font-size:13px;padding:30px 16px;text-align:center}
+
+/* Scrolling the notification list must never chain into scrolling the page
+   behind it (the old "background scrolls too" bug). overscroll-behavior
+   stops scroll from passing through once the list hits its top/bottom, and
+   locking the body (see body.modal-open below) stops the page itself from
+   moving while the popup is open. */
+.notif-list{overscroll-behavior:contain}
+body.modal-open{overflow:hidden}
+
+/* Single-notification detail popup — opens on top of the notif-dropdown
+   when a notification row is clicked, so a client can view one notification
+   at a time (X button to close) without losing the list underneath. */
+.notif-detail-modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(320px,86vw);z-index:80}
+.notif-detail-modal.show{display:block}
+.notif-detail-box{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px 20px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.notif-detail-close{position:absolute;right:12px;top:8px;background:none;border:0;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;padding:0}
+.notif-detail-close:hover{color:var(--loss)}
+.notif-detail-icon{font-size:30px;margin-bottom:12px}
+.notif-detail-text{font-size:15px;color:var(--text);line-height:1.5;padding-right:20px}
+.notif-detail-time{font-size:12px;color:var(--muted2);margin-top:12px}
 
 @media(max-width:640px){
 .notif-dropdown{width:92vw;max-height:min(75vh,480px)}
