@@ -21,7 +21,7 @@
     18. Submit deposit request
     19. Submit withdrawal request
     20. Recent transactions list
-    21. Notification bell + dropdown
+    21. Notification bell + popup (server-synced read state)
     22. Contact form submission
     23. Logout
     24. Profit-split calculator (homepage widget)
@@ -364,9 +364,13 @@ if(contactSection)contactSection.style.display='none';
 
 /* ================= PROFILE ================= */
 
+/* notifications_seen_at is the server-side "last time this client opened
+   and cleared their notifications" timestamp. Storing it on the profile
+   row (instead of only in this browser's localStorage) is what makes the
+   read/unread state follow the client across devices and browsers. */
 const {data:profile,error:profileError}=await supabaseClient
 .from('profiles')
-.select('full_name,phone,wallet_address,wallet_address_bep20')
+.select('full_name,phone,wallet_address,wallet_address_bep20,notifications_seen_at')
 .eq('id',user.id)
 .maybeSingle();
 
@@ -438,7 +442,7 @@ console.error('Profile sync error:',syncError);
 
 const {data:updatedProfile}=await supabaseClient
 .from('profiles')
-.select('full_name,phone,wallet_address,wallet_address_bep20')
+.select('full_name,phone,wallet_address,wallet_address_bep20,notifications_seen_at')
 .eq('id',user.id)
 .maybeSingle();
 
@@ -796,21 +800,22 @@ return '<div class="tx-card">'
 }catch(err){console.error('Requests error:',err)}
 }
 
-/* -------------------------- 21. Notification bell + dropdown -------------------------- */
+/* -------------------------- 21. Notification bell + popup (server-synced read state) -------------------------- */
 
 /*
 There is no dedicated notifications table — the feed is built by
 combining the client's own deposits, withdrawals and profit_entries
-rows into one timeline, newest first. "Read" state is tracked locally
-per-browser (a single "last seen" timestamp per user id): anything
-newer than that timestamp counts as unread. This is intentionally
-simple — it does not sync across devices — but needs no schema
-changes and no extra webhook.
-*/
+rows into one timeline, newest first.
 
-function notifSeenKey(){
-return 'pipzone_notif_seen_'+(currentUser?.id||'anon');
-}
+"Read" state used to be tracked locally per-browser (localStorage), which
+meant switching device or browser made every old notification look
+unread again. It is now tracked server-side instead, via the
+profiles.notifications_seen_at column: "Mark all as read" writes the
+current timestamp to that column, and unread/read is computed by
+comparing each notification's date against it. This follows the client
+across devices/browsers, and only genuinely NEW notifications (created
+after the last "seen" timestamp) show up as unread.
+*/
 
 async function loadNotifications(){
 if(!currentUser||!supabaseReady)return;
@@ -853,11 +858,10 @@ const list=$('notifList');
 const badge=$('notifBadge');
 if(!list)return;
 
-let seenTime=0;
-try{
-const seenRaw=localStorage.getItem(notifSeenKey());
-seenTime=seenRaw?new Date(seenRaw).getTime():0;
-}catch(e){}
+/* Server-side "last seen" timestamp, from the client's profile row —
+   replaces the old per-browser localStorage timestamp. */
+const seenRaw=currentProfile?.notifications_seen_at;
+const seenTime=seenRaw?new Date(seenRaw).getTime():0;
 
 const unreadCount=items.filter(x=>new Date(x.date).getTime()>seenTime).length;
 
@@ -906,22 +910,46 @@ html+='<div class="notif-item'+(isUnread?' unread':'')+'">'
 list.innerHTML=html;
 }
 
+/* Opens/closes the small centered popup (+ its dim backdrop). Reloads
+   the feed each time it opens so a freshly-arrived notification is
+   reflected immediately. */
 function toggleNotifications(){
 const dd=$('notifDropdown');
+const overlay=$('notifOverlay');
 if(!dd)return;
 const willShow=!dd.classList.contains('show');
 dd.classList.toggle('show',willShow);
+overlay?.classList.toggle('show',willShow);
 if(willShow)loadNotifications();
 }
 
 function closeNotifications(){
 $('notifDropdown')?.classList.remove('show');
+$('notifOverlay')?.classList.remove('show');
 }
 
-function markAllNotificationsRead(){
+/*
+Persists the "seen" timestamp to the client's profile row in Supabase
+(instead of localStorage), so read state is shared across every device
+and browser the client logs in from. Also flips the UI instantly and
+locally — unread items lose their bold weight and highlight right
+away — without waiting for a full reload.
+*/
+async function markAllNotificationsRead(){
+if(!currentUser||!supabaseReady)return;
+const now=new Date().toISOString();
 try{
-localStorage.setItem(notifSeenKey(),new Date().toISOString());
-}catch(e){}
+const {error}=await supabaseClient
+.from('profiles')
+.update({notifications_seen_at:now})
+.eq('id',currentUser.id);
+if(error){console.error('Mark notifications read error:',error);return}
+}catch(err){
+console.error('Mark notifications read error:',err);
+return;
+}
+if(currentProfile)currentProfile.notifications_seen_at=now;
+else currentProfile={notifications_seen_at:now};
 const badge=$('notifBadge');
 if(badge)badge.style.display='none';
 document.querySelectorAll('.notif-item.unread').forEach(el=>el.classList.remove('unread'));
@@ -1076,14 +1104,6 @@ if(m.id==='authModal')closeAuth();
 if(m.id==='depositModal')closeRequest('deposit');
 if(m.id==='withdrawalModal')closeRequest('withdrawal');
 }));
-
-/* Close the notification dropdown on any click outside it */
-document.addEventListener('click',e=>{
-const wrap=document.querySelector('.notif-wrap');
-if(wrap&&!wrap.contains(e.target)){
-closeNotifications();
-}
-});
 
 try{
 const {data}=await supabaseClient.auth.getSession();
