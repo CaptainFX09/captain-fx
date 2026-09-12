@@ -256,7 +256,6 @@ footer{padding:56px 0 40px}
 .avail-top{flex-direction:column;align-items:flex-start}
 .unlock-wrap{max-width:100%;width:100%}
 .dash-actions .btn{min-width:100%}
-.notif-dropdown{width:90vw;right:-40px}
 }
 
 /* -------------------------- 21. Withdrawal fee calculator box -------------------------- */
@@ -322,22 +321,43 @@ footer{padding:56px 0 40px}
 .status-approved{color:var(--profit)}
 .status-rejected{color:var(--loss)}
 
-/* -------------------------- 26. Notification bell + dropdown -------------------------- */
+/* -------------------------- 26. Notification bell + dropdown --------------------------
+   Notification popup is a small, fixed, CENTERED popup (like a modal) instead of an
+   absolutely-positioned dropdown anchored to the bell. This fixes the old mobile bug
+   where the dropdown (anchored with top/right offsets relative to the bell button)
+   overflowed off the left edge of narrow screens and got visually cut off.
+   A dark .notif-overlay sits behind it (click it, press Escape, or use the explicit
+   × close button to dismiss) so it behaves consistently on both mobile and desktop. */
 .notif-wrap{position:relative}
 .notif-bell{position:relative;background:none;border:1px solid var(--line);color:var(--text);width:42px;height:42px;border-radius:8px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;line-height:1}
 .notif-bell:hover{border-color:var(--gold)}
 .notif-badge{position:absolute;top:-6px;right:-6px;background:var(--loss);color:#fff;font:600 11px 'IBM Plex Mono';min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px}
-.notif-dropdown{display:none;position:absolute;top:52px;right:0;width:340px;max-height:420px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 30px rgba(0,0,0,.45);z-index:70}
+
+/* dim backdrop shown behind the popup */
+.notif-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:69}
+.notif-overlay.show{display:block}
+
+/* the popup itself — fixed + centered, so it never depends on the bell's position */
+.notif-dropdown{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(360px,90vw);max-height:min(70vh,520px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 30px rgba(0,0,0,.45);z-index:70}
 .notif-dropdown.show{display:block}
-.notif-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--soft);font:600 14px Fraunces;position:sticky;top:0;background:var(--panel)}
-.notif-markread{background:none;border:0;color:var(--gold);font-size:11.5px;cursor:pointer;padding:0}
+.notif-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--soft);font:600 14px Fraunces;position:sticky;top:0;background:var(--panel)}
+.notif-head-actions{display:flex;align-items:center;gap:14px;flex:none}
+.notif-markread{background:none;border:0;color:var(--gold);font-size:11.5px;cursor:pointer;padding:0;white-space:nowrap}
 .notif-markread:hover{text-decoration:underline}
+.notif-close{background:none;border:0;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;padding:0}
+.notif-close:hover{color:var(--loss)}
 .notif-group-label{padding:10px 16px 6px;color:var(--muted2);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
 .notif-item{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--soft);align-items:flex-start}
 .notif-item:last-child{border-bottom:0}
 .notif-item.unread{background:rgba(47,191,131,.06)}
 .notif-icon{font-size:16px;flex:none;margin-top:1px}
 .notif-body{flex:1;min-width:0}
-.notif-text{font-size:13px;color:var(--text);line-height:1.4}
+/* unread = bold, read = normal weight — flips instantly when "Mark all as read" is used */
+.notif-text{font-size:13px;color:var(--text);line-height:1.4;font-weight:400}
+.notif-item.unread .notif-text{font-weight:600}
 .notif-time{font-size:11px;color:var(--muted2);margin-top:2px}
 .notif-empty{color:var(--muted);font-size:13px;padding:30px 16px;text-align:center}
+
+@media(max-width:640px){
+.notif-dropdown{width:92vw;max-height:min(75vh,480px)}
+}
