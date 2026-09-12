@@ -26,6 +26,7 @@
     23. Logout
     24. Profit-split calculator (homepage widget)
     25. Page bootstrap / event listeners
+    26. Referral program (capture ?ref=, dashboard card, copy/share)
    ========================================================================== */
 
 'use strict';
@@ -41,6 +42,16 @@ const DEPOSIT_ADDRESSES={
 
 const PRINCIPAL_LOCK_DAYS=40;
 const WITHDRAWAL_FEE=2;
+
+/* Fallback shown only if the app_settings row hasn't loaded yet / is
+   missing. The real, admin-editable rate comes from get_referral_dashboard()
+   (SQL side, to be finalized in the next step). */
+const DEFAULT_REFERRAL_RATE=0.02;
+
+/* Session-only key used to remember an incoming ?ref=CODE between the
+   moment someone lands on the site and the moment they actually submit
+   the signup form. */
+const REFERRAL_STORAGE_KEY='pz_referral_code';
 
 /* -------------------------- 2. Global state -------------------------- */
 let selectedDepositNetwork='TRC20';
@@ -297,10 +308,16 @@ if(pass.length<6){showMsg('signupMsg','Password must be at least 6 characters.')
 if(pass!==confirm){showMsg('signupMsg','Passwords do not match.');return}
 const button=$('signupForm').querySelector('.form-actions .btn');
 if(button){button.disabled=true;button.textContent='Creating...'}
+/* Pass along whichever referral code (?ref=CODE) was captured earlier in
+   this session, if any. A DB trigger (SQL side, next step) reads this
+   from raw_user_meta_data and sets profiles.referred_by — after
+   validating the code exists, isn't the new user's own code, and isn't
+   already set (one referrer per client, self-referral not allowed). */
+const referredByCode=getStoredReferralCode();
 try{
 const {data,error}=await supabaseClient.auth.signUp({
 email,password:pass,
-options:{data:{full_name:name,phone,wallet_address:wallet||null,wallet_address_bep20:walletBep20||null},emailRedirectTo:window.location.origin}
+options:{data:{full_name:name,phone,wallet_address:wallet||null,wallet_address_bep20:walletBep20||null,referred_by_code:referredByCode||null},emailRedirectTo:window.location.origin}
 });
 if(error){showMsg('signupMsg',friendlySignupError(error.message));return}
 if(data&&data.session){
@@ -489,6 +506,8 @@ await renderAccountSummary(a);
 await loadRequests();
 
 await loadNotifications();
+
+await loadReferralInfo();
 
 }catch(err){
 
@@ -1154,9 +1173,127 @@ $('outClient').textContent=(v<0?'-':'')+'$'+Math.abs(v*.6).toFixed(2);
 $('outMgr').textContent=(v<0?'-':'')+'$'+Math.abs(v*.4).toFixed(2);
 }
 
+/* -------------------------- 26. Referral program (capture ?ref=, dashboard card, copy/share) -------------------------- */
+
+/*
+FINAL REFERRAL FLOW (agreed):
+  1. Signup does NOT unlock referrals — the card stays locked.
+  2. Referral link/earnings unlock only after the client's OWN first
+     deposit is APPROVED (profiles.referral_unlocked, flipped by a DB
+     trigger on the SQL side — next step).
+  3. Pending / rejected deposits never generate commission.
+  4. A referred client's APPROVED deposit generates commission for the
+     referrer (deposit amount × current commission rate). One commission
+     per deposit, ever (enforced by a unique constraint on the SQL side).
+  5. Self-referral and multiple referrers per client are not allowed
+     (enforced by the DB trigger that sets profiles.referred_by).
+  6. Commission rate is a single admin-editable setting, not hardcoded
+     per client — DEFAULT_REFERRAL_RATE above is only a display fallback
+     until the real rate loads from get_referral_dashboard().
+
+This section only handles the CLIENT-facing half: capturing an incoming
+?ref=CODE, sending it along at signup, and rendering the dashboard card
+(locked vs unlocked) with the client's own link, stats, and
+copy/share actions. The unlock flag, referrals count, deposit totals and
+earnings themselves are all computed server-side by get_referral_dashboard(),
+so this file never has to compute money totals itself.
+*/
+
+/* Reads ?ref=CODE from the current URL (if present) and remembers it in
+   sessionStorage so it survives from landing page -> scrolling down ->
+   opening the signup modal -> submitting the form. Called once on
+   page load. */
+function captureReferralCodeFromUrl(){
+try{
+const params=new URLSearchParams(window.location.search);
+const ref=params.get('ref');
+if(ref){
+sessionStorage.setItem(REFERRAL_STORAGE_KEY,ref.trim());
+/* Referral code alone shouldn't be treated as an ask to log in —
+   just remember it and let the visitor browse normally. */
+}
+}catch(err){
+console.error('Referral code capture error:',err);
+}
+}
+
+function getStoredReferralCode(){
+try{
+return sessionStorage.getItem(REFERRAL_STORAGE_KEY)||'';
+}catch(err){
+return '';
+}
+}
+
+/*
+Loads this client's referral dashboard data via a single RPC
+(get_referral_dashboard, SQL side) and renders the locked/unlocked
+card. Expected shape (finalized alongside the SQL step):
+  {
+    referral_code: 'PZ8K4M2',
+    referral_unlocked: true|false,
+    referrals_count: 5,
+    referred_deposits_total: 1200.00,
+    earnings_total: 24.00,
+    commission_rate: 0.02
+  }
+*/
+async function loadReferralInfo(){
+if(!currentUser||!supabaseReady)return;
+const lockedEl=$('referralLocked');
+const unlockedEl=$('referralUnlocked');
+if(!lockedEl||!unlockedEl)return;
+
+try{
+const {data,error}=await supabaseClient.rpc('get_referral_dashboard');
+if(error){console.error('Referral dashboard error:',error);return}
+
+const info=data||{};
+const unlocked=!!info.referral_unlocked;
+
+lockedEl.style.display=unlocked?'none':'block';
+unlockedEl.style.display=unlocked?'block':'none';
+
+if(unlocked){
+const code=info.referral_code||'';
+const link=window.location.origin+window.location.pathname+'?ref='+encodeURIComponent(code);
+const linkField=$('referralLinkField');
+if(linkField)linkField.value=link;
+
+const countEl=$('referralCount');
+const depositsEl=$('referralDeposits');
+const earningsEl=$('referralEarnings');
+if(countEl)countEl.textContent=Number(info.referrals_count||0).toLocaleString();
+if(depositsEl)depositsEl.textContent='$'+Number(info.referred_deposits_total||0).toFixed(2);
+if(earningsEl)earningsEl.textContent='$'+Number(info.earnings_total||0).toFixed(2);
+}
+}catch(err){
+console.error('Referral dashboard error:',err);
+}
+}
+
+function copyReferralLink(){
+const field=$('referralLinkField');
+if(!field||!field.value)return;
+navigator.clipboard?.writeText(field.value).then(()=>{
+showMsg('referralMsg','Referral link copied to clipboard.',false);
+}).catch(()=>{});
+}
+
+function shareReferralLink(){
+const field=$('referralLinkField');
+if(!field||!field.value)return;
+if(navigator.share){
+navigator.share({title:'PipZoNe',text:'Join PipZoNe using my referral link:',url:field.value}).catch(()=>{});
+}else{
+copyReferralLink();
+}
+}
+
 /* -------------------------- 25. Page bootstrap / event listeners -------------------------- */
 document.addEventListener('DOMContentLoaded',async function(){
 if(!initSupabase())return;
+captureReferralCodeFromUrl();
 updateCalculator();
 loadLiveStats();
 selectDepositNetwork('TRC20');
