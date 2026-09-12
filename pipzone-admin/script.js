@@ -11,13 +11,14 @@
    7. Session / admin auth check
    8. Load all data (main data fetch + dashboard calculations)
    9. Table renderers (deposits, withdrawals, accounts,
-      profit entries, transactions)
+      referrals, profit entries, transactions)
    10. Create account action
    11. Record daily result action
    12. Approve / reject deposit actions
    13. Approve / reject withdrawal actions
    14. Login / logout / refresh event handlers
    15. Auth state listener & app start
+   16. Referral program — save commission rate action
 ========================================================= */
 
 
@@ -335,6 +336,9 @@ async function checkAdmin(){
 
 let LATEST_ACCOUNTS_BY_USER = {};
 
+/* Current referral commission rate (%), loaded from app_settings */
+let CURRENT_COMMISSION_RATE = 0;
+
 
 async function loadAll(){
 
@@ -350,14 +354,16 @@ async function loadAll(){
       deposits,
       withdrawals,
       transactions,
-      profitEntries
+      profitEntries,
+      referralCommissions,
+      appSettings
     ] =
     await Promise.all([
 
       client
         .from('profiles')
         .select(
-          'id,full_name,phone,wallet_address,role,created_at'
+          'id,full_name,phone,wallet_address,role,created_at,referral_code,referred_by,referral_unlocked'
         )
         .order(
           'created_at',
@@ -403,7 +409,19 @@ async function loadAll(){
           'created_at',
           {ascending:false}
         )
-        .limit(30)
+        .limit(30),
+
+      client
+        .from('referral_commissions')
+        .select('*')
+        .order(
+          'created_at',
+          {ascending:false}
+        ),
+
+      client
+        .from('app_settings')
+        .select('*')
 
     ]);
 
@@ -414,7 +432,9 @@ async function loadAll(){
       deposits,
       withdrawals,
       transactions,
-      profitEntries
+      profitEntries,
+      referralCommissions,
+      appSettings
     ];
 
 
@@ -622,6 +642,98 @@ async function loadAll(){
 
 
     /* =====================================================
+       REFERRAL PROGRAM — DASHBOARD CALCULATIONS
+       Uses `referral_commissions` (per-commission rows) and
+       `profiles.referred_by` to build summary + client table.
+    ===================================================== */
+
+    const RC =
+      referralCommissions.data || [];
+
+
+    /* TOTAL REFERRALS
+       Every client profile that has someone in referred_by
+    */
+
+    const totalReferrals =
+      P.filter(
+        p => p.referred_by
+      ).length;
+
+
+    $('totalReferrals').textContent =
+      totalReferrals;
+
+
+    /* ACTIVE REFERRERS
+       Distinct clients who have at least one commission entry
+       (i.e. someone they referred actually made a deposit)
+    */
+
+    const activeReferrerIds =
+      new Set(
+        RC.map(
+          x => x.referrer_user_id
+        )
+      );
+
+
+    $('activeReferrers').textContent =
+      activeReferrerIds.size;
+
+
+    /* REFERRED DEPOSITS
+       Sum of the underlying deposit amount behind every
+       commission row
+    */
+
+    const referredDepositsTotal =
+      RC.reduce(
+        (a,x) =>
+        a + Number(x.deposit_amount || 0),
+        0
+      );
+
+
+    $('referredDeposits').textContent =
+      money(referredDepositsTotal);
+
+
+    /* TOTAL COMMISSION PAID */
+
+    const totalCommissionPaid =
+      RC.reduce(
+        (a,x) =>
+        a + Number(x.commission_amount || 0),
+        0
+      );
+
+
+    $('totalCommissionPaid').textContent =
+      money(totalCommissionPaid);
+
+
+    /* COMMISSION RATE SETTING
+       Stored in app_settings as key = 'referral_commission_rate'
+    */
+
+    const rateRow =
+      (appSettings.data || []).find(
+        x => x.key === 'referral_commission_rate'
+      );
+
+
+    CURRENT_COMMISSION_RATE =
+      rateRow
+      ? Number(rateRow.value)
+      : 0;
+
+
+    $('commissionRateInput').value =
+      CURRENT_COMMISSION_RATE;
+
+
+    /* =====================================================
        RENDER TABLES
     ===================================================== */
 
@@ -640,6 +752,11 @@ async function loadAll(){
     renderAccounts(
       A,
       names
+    );
+
+    renderReferrals(
+      P,
+      RC
     );
 
     renderTransactions(
@@ -1448,6 +1565,152 @@ function renderTransactions(
 
           <td>
             ${esc(r.description || '')}
+          </td>
+
+        </tr>
+
+        `;
+
+      }).join('')}
+
+    </tbody>
+
+  </table>
+
+  `;
+}
+
+
+/* ---------- 9f. REFERRAL PROGRAM TABLE ----------
+   Per-client breakdown: referral code, how many people they
+   referred (commission rows), total referred deposits, and
+   total earnings from those referrals.
+*/
+
+function renderReferrals(
+  profiles,
+  commissions
+){
+
+  const clientProfiles =
+    profiles.filter(
+      p => p.role === 'client'
+    );
+
+
+  if(!clientProfiles.length){
+
+    $('referralTable').innerHTML =
+      '<div class="empty">No clients yet.</div>';
+
+    return;
+  }
+
+
+  /* Group commissions by referrer */
+
+  const byReferrer = {};
+
+  commissions.forEach(c => {
+
+    if(!byReferrer[c.referrer_user_id]){
+
+      byReferrer[c.referrer_user_id] = {
+        count:0,
+        deposits:0,
+        earnings:0
+      };
+    }
+
+    byReferrer[c.referrer_user_id].count += 1;
+
+    byReferrer[c.referrer_user_id].deposits +=
+      Number(c.deposit_amount || 0);
+
+    byReferrer[c.referrer_user_id].earnings +=
+      Number(c.commission_amount || 0);
+
+  });
+
+
+  /* Only show clients who have a referral code
+     or have referred someone / earned something */
+
+  const rows =
+    clientProfiles.filter(
+      p =>
+      p.referral_code ||
+      byReferrer[p.id]
+    );
+
+
+  if(!rows.length){
+
+    $('referralTable').innerHTML =
+      '<div class="empty">No referral activity yet.</div>';
+
+    return;
+  }
+
+
+  $('referralTable').innerHTML = `
+
+  <table>
+
+    <thead>
+
+      <tr>
+
+        <th>Client</th>
+        <th>Referral Code</th>
+        <th>Referrals</th>
+        <th>Referred Deposits</th>
+        <th>Earnings</th>
+
+      </tr>
+
+    </thead>
+
+
+    <tbody>
+
+      ${rows.map(p => {
+
+        const stats =
+          byReferrer[p.id] ||
+          { count:0, deposits:0, earnings:0 };
+
+
+        return `
+
+        <tr>
+
+          <td>
+
+            ${esc(p.full_name || 'Unknown')}
+
+            <br>
+
+            <small>
+              ${esc(p.id)}
+            </small>
+
+          </td>
+
+          <td class="wallet">
+            ${esc(p.referral_code || '—')}
+          </td>
+
+          <td>
+            ${stats.count}
+          </td>
+
+          <td>
+            ${money(stats.deposits)}
+          </td>
+
+          <td>
+            ${money(stats.earnings)}
           </td>
 
         </tr>
@@ -2468,3 +2731,107 @@ client.auth.onAuthStateChange(
 
 
 loadAll();
+
+
+/* =========================================================
+   16. REFERRAL PROGRAM — SAVE COMMISSION RATE ACTION
+========================================================= */
+
+$('saveRateBtn').addEventListener('click', async()=>{
+
+  const input =
+    $('commissionRateInput');
+
+  const newRate =
+    parseFloat(input.value);
+
+
+  if(
+    isNaN(newRate) ||
+    newRate < 0 ||
+    newRate > 100
+  ){
+
+    showMsg(
+      'Enter a valid commission rate between 0 and 100.',
+      true
+    );
+
+    return;
+  }
+
+
+  const btn =
+    $('saveRateBtn');
+
+  btn.disabled = true;
+
+
+  try{
+
+    const {
+      error
+    } =
+    await client
+      .from('app_settings')
+      .upsert(
+        {
+          key:'referral_commission_rate',
+          value:String(newRate)
+        },
+        { onConflict:'key' }
+      );
+
+
+    if(error){
+
+      showMsg(
+        error.message,
+        true
+      );
+
+      return;
+    }
+
+
+    CURRENT_COMMISSION_RATE =
+      newRate;
+
+
+    const note =
+      $('rateSavedNote');
+
+    note.textContent =
+      'Saved ✓';
+
+    setTimeout(
+      () => note.textContent = '',
+      3000
+    );
+
+
+    showMsg(
+      'Commission rate updated to ' +
+      newRate +
+      '%.'
+    );
+
+
+  }catch(err){
+
+    console.error('Save rate error:', err);
+
+    showMsg(
+      'Failed to save commission rate: ' +
+      (err && err.message ? err.message : String(err)),
+      true
+    );
+
+
+  }finally{
+
+    btn.disabled = false;
+
+  }
+
+});
