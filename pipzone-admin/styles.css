@@ -15,6 +15,7 @@
    11. Misc utility classes (wallet, footer, links, tags)
    12. Password show/hide toggle
    13. Responsive breakpoints
+   14. Referral program controls (rate editor row)
 ========================================================= */
 
 
@@ -469,4 +470,40 @@ th{
   .top .btn{
     padding:8px 10px
   }
+}
+
+
+/* =========================================================
+   14. REFERRAL PROGRAM CONTROLS (rate editor row)
+   Added for the referral program feature.
+========================================================= */
+
+.referral-rate-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--line)
+}
+
+.referral-rate-row label{
+  color:var(--muted);
+  font-size:13px
+}
+
+.referral-rate-row input{
+  width:90px;
+  padding:8px 9px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:#091525;
+  color:#fff;
+  outline:none
+}
+
+.rate-saved-note{
+  font-size:12px;
+  color:var(--green)
 }
