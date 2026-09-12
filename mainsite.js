@@ -21,7 +21,7 @@
     18. Submit deposit request
     19. Submit withdrawal request
     20. Recent transactions list
-    21. Notification bell + popup (server-synced read state)
+    21. Notification bell + popup (server-synced read state, incl. per-item read)
     22. Contact form submission
     23. Logout
     24. Profit-split calculator (homepage widget)
@@ -366,12 +366,15 @@ if(contactSection)contactSection.style.display='none';
 /* ================= PROFILE ================= */
 
 /* notifications_seen_at is the server-side "last time this client opened
-   and cleared their notifications" timestamp. Storing it on the profile
-   row (instead of only in this browser's localStorage) is what makes the
-   read/unread state follow the client across devices and browsers. */
+   and cleared their notifications" timestamp (bulk "Mark all as read").
+   read_notification_keys is a JSONB array of individually-opened
+   notification keys — this is what makes clicking a SINGLE notification
+   mark just that one as read (see section 21 below). Storing both on the
+   profile row (instead of localStorage) is what makes read/unread state
+   follow the client across devices and browsers. */
 const {data:profile,error:profileError}=await supabaseClient
 .from('profiles')
-.select('full_name,phone,wallet_address,wallet_address_bep20,notifications_seen_at')
+.select('full_name,phone,wallet_address,wallet_address_bep20,notifications_seen_at,read_notification_keys')
 .eq('id',user.id)
 .maybeSingle();
 
@@ -443,7 +446,7 @@ console.error('Profile sync error:',syncError);
 
 const {data:updatedProfile}=await supabaseClient
 .from('profiles')
-.select('full_name,phone,wallet_address,wallet_address_bep20,notifications_seen_at')
+.select('full_name,phone,wallet_address,wallet_address_bep20,notifications_seen_at,read_notification_keys')
 .eq('id',user.id)
 .maybeSingle();
 
@@ -801,21 +804,33 @@ return '<div class="tx-card">'
 }catch(err){console.error('Requests error:',err)}
 }
 
-/* -------------------------- 21. Notification bell + popup (server-synced read state) -------------------------- */
+/* -------------------------- 21. Notification bell + popup (server-synced read state, incl. per-item read) -------------------------- */
 
 /*
 There is no dedicated notifications table — the feed is built by
 combining the client's own deposits, withdrawals and profit_entries
 rows into one timeline, newest first.
 
-"Read" state used to be tracked locally per-browser (localStorage), which
-meant switching device or browser made every old notification look
-unread again. It is now tracked server-side instead, via the
-profiles.notifications_seen_at column: "Mark all as read" writes the
-current timestamp to that column, and unread/read is computed by
-comparing each notification's date against it. This follows the client
-across devices/browsers, and only genuinely NEW notifications (created
-after the last "seen" timestamp) show up as unread.
+Read state has TWO layers, both stored server-side (so it follows the
+client across devices/browsers instead of resetting per-browser like the
+old localStorage approach):
+
+  1) profiles.notifications_seen_at — a bulk "seen up to this time"
+     timestamp, set by "Mark all as read".
+  2) profiles.read_notification_keys — a JSONB array of individual
+     notification "keys" the client has opened one-by-one (via
+     openNotifDetail). THIS is the fix for the reported bug: previously,
+     clicking a single notification only opened its popup and never
+     changed its read-state, so it stayed in the "unread" bucket forever
+     until "Mark all as read" was used.
+
+A notification is UNREAD only if BOTH:
+  - it is newer than notifications_seen_at, AND
+  - its key is not present in read_notification_keys.
+
+Each notification's "key" is a stable id built from its source table and
+created_at timestamp, since there is no dedicated notifications table
+with row ids to key off of.
 */
 
 async function loadNotifications(){
@@ -832,17 +847,17 @@ const items=[];
 (d.data||[]).forEach(x=>{
 const statusText=x.status==='pending'?'Deposit request received':x.status==='approved'?'Deposit approved':'Deposit rejected';
 const icon=x.status==='approved'?'✅':x.status==='rejected'?'❌':'📥';
-items.push({icon,text:statusText+' — $'+Number(x.amount).toFixed(2),date:x.created_at});
+items.push({icon,text:statusText+' — $'+Number(x.amount).toFixed(2),date:x.created_at,key:'deposit-'+x.status+'-'+x.created_at});
 });
 
 (w.data||[]).forEach(x=>{
 const statusText=x.status==='pending'?'Withdrawal request received':x.status==='approved'?'Withdrawal approved':'Withdrawal rejected';
 const icon=x.status==='approved'?'💸':x.status==='rejected'?'❌':'⏳';
-items.push({icon,text:statusText+' — $'+Number(x.amount).toFixed(2),date:x.created_at});
+items.push({icon,text:statusText+' — $'+Number(x.amount).toFixed(2),date:x.created_at,key:'withdrawal-'+x.status+'-'+x.created_at});
 });
 
 (p.data||[]).forEach(x=>{
-items.push({icon:'📈',text:'Daily profit updated — +$'+Number(x.client_share||0).toFixed(2),date:x.created_at||x.entry_date});
+items.push({icon:'📈',text:'Daily profit updated — +$'+Number(x.client_share||0).toFixed(2),date:x.created_at||x.entry_date,key:'profit-'+(x.created_at||x.entry_date)});
 });
 
 items.sort((a,b)=>new Date(b.date)-new Date(a.date));
@@ -858,17 +873,23 @@ console.error('Notifications load error:',err);
 }
 }
 
+/* Returns true if the given notification item is still unread, checking
+   BOTH the bulk "seen" timestamp and the individually-read key list. */
+function isNotificationUnread(item){
+const seenRaw=currentProfile?.notifications_seen_at;
+const seenTime=seenRaw?new Date(seenRaw).getTime():0;
+const readKeys=currentProfile?.read_notification_keys||[];
+const newerThanSeen=new Date(item.date).getTime()>seenTime;
+const individuallyRead=readKeys.includes(item.key);
+return newerThanSeen && !individuallyRead;
+}
+
 function renderNotifications(items){
 const list=$('notifList');
 const badge=$('notifBadge');
 if(!list)return;
 
-/* Server-side "last seen" timestamp, from the client's profile row —
-   replaces the old per-browser localStorage timestamp. */
-const seenRaw=currentProfile?.notifications_seen_at;
-const seenTime=seenRaw?new Date(seenRaw).getTime():0;
-
-const unreadCount=items.filter(x=>new Date(x.date).getTime()>seenTime).length;
+const unreadCount=items.filter(isNotificationUnread).length;
 
 if(badge){
 if(unreadCount>0){
@@ -904,7 +925,7 @@ const rows=groups[label];
 if(!rows.length)return;
 html+='<div class="notif-group-label">'+label+'</div>';
 rows.forEach(x=>{
-const isUnread=new Date(x.date).getTime()>seenTime;
+const isUnread=isNotificationUnread(x);
 const idx=items.indexOf(x);
 html+='<div class="notif-item'+(isUnread?' unread':'')+'" onclick="openNotifDetail('+idx+')">'
 +'<div class="notif-icon">'+x.icon+'</div>'
@@ -940,7 +961,11 @@ document.body.classList.remove('modal-open');
 /*
 Opens one notification's own small popup on top of the list (X button to
 close), so a client can read a single notification in full without the
-list closing behind it. Mark all as read still works independently of this.
+list closing behind it.
+
+FIX: this now also marks THIS specific notification as individually read
+(via markNotificationRead below), instead of leaving it unread until
+"Mark all as read" is clicked.
 */
 function openNotifDetail(index){
 const item=currentNotificationItems[index];
@@ -952,10 +977,44 @@ if(iconEl)iconEl.textContent=item.icon;
 if(textEl)textEl.textContent=item.text;
 if(timeEl)timeEl.textContent=new Date(item.date).toLocaleString();
 $('notifDetailModal')?.classList.add('show');
+
+markNotificationRead(item.key);
 }
 
 function closeNotifDetail(){
 $('notifDetailModal')?.classList.remove('show');
+}
+
+/*
+Marks ONE notification (identified by its unique "key") as individually
+read. Persists it into profiles.read_notification_keys in Supabase, updates
+the local currentProfile copy, and re-renders the list immediately so the
+bold/unread styling and the badge count update right away — no full page
+reload needed.
+*/
+async function markNotificationRead(key){
+if(!currentUser||!supabaseReady||!key)return;
+
+const existing=Array.isArray(currentProfile?.read_notification_keys)?currentProfile.read_notification_keys:[];
+if(existing.includes(key))return; /* already read — nothing to do */
+
+const updated=[...existing,key];
+
+try{
+const {error}=await supabaseClient
+.from('profiles')
+.update({read_notification_keys:updated})
+.eq('id',currentUser.id);
+if(error){console.error('Mark notification read error:',error);return}
+}catch(err){
+console.error('Mark notification read error:',err);
+return;
+}
+
+if(currentProfile)currentProfile.read_notification_keys=updated;
+else currentProfile={read_notification_keys:updated};
+
+renderNotifications(currentNotificationItems);
 }
 
 /* The dim backdrop behind the notification popup is shared by both the
@@ -971,10 +1030,13 @@ closeNotifications();
 }
 
 /*
-Persists the "seen" timestamp to the client's profile row in Supabase
-(instead of localStorage), so read state is shared across every device
-and browser the client logs in from. Also flips the UI instantly and
-locally — unread items lose their bold weight and highlight right
+Persists the bulk "seen" timestamp to the client's profile row in
+Supabase (instead of localStorage), so read state is shared across every
+device and browser the client logs in from. Also resets
+read_notification_keys back to [] — everything up to "now" is already
+covered by the new notifications_seen_at, so the individually-read-keys
+list doesn't need to keep growing forever. Also flips the UI instantly
+and locally — unread items lose their bold weight and highlight right
 away — without waiting for a full reload.
 */
 async function markAllNotificationsRead(){
@@ -983,15 +1045,19 @@ const now=new Date().toISOString();
 try{
 const {error}=await supabaseClient
 .from('profiles')
-.update({notifications_seen_at:now})
+.update({notifications_seen_at:now,read_notification_keys:[]})
 .eq('id',currentUser.id);
 if(error){console.error('Mark notifications read error:',error);return}
 }catch(err){
 console.error('Mark notifications read error:',err);
 return;
 }
-if(currentProfile)currentProfile.notifications_seen_at=now;
-else currentProfile={notifications_seen_at:now};
+if(currentProfile){
+currentProfile.notifications_seen_at=now;
+currentProfile.read_notification_keys=[];
+}else{
+currentProfile={notifications_seen_at:now,read_notification_keys:[]};
+}
 const badge=$('notifBadge');
 if(badge)badge.style.display='none';
 document.querySelectorAll('.notif-item.unread').forEach(el=>el.classList.remove('unread'));
