@@ -410,7 +410,7 @@ For account, deposit, withdrawal, or general support questions, please use the c
 🔔
 <span class="notif-badge" id="notifBadge" style="display:none">0</span>
 </button>
-<div class="notif-overlay" id="notifOverlay" onclick="closeNotifications()"></div>
+<div class="notif-overlay" id="notifOverlay" onclick="handleNotifOverlayClick()"></div>
 <div class="notif-dropdown" id="notifDropdown">
 <div class="notif-head">
 <span>Notifications</span>
@@ -421,6 +421,15 @@ For account, deposit, withdrawal, or general support questions, please use the c
 </div>
 <div class="notif-list" id="notifList">
 <div class="notif-empty">Loading...</div>
+</div>
+</div>
+<!-- Single-notification detail popup — opens on top of the list when a notification is clicked -->
+<div class="notif-detail-modal" id="notifDetailModal">
+<div class="notif-detail-box">
+<button type="button" class="notif-detail-close" onclick="closeNotifDetail()" aria-label="Close">×</button>
+<div class="notif-detail-icon" id="notifDetailIcon"></div>
+<div class="notif-detail-text" id="notifDetailText"></div>
+<div class="notif-detail-time" id="notifDetailTime"></div>
 </div>
 </div>
 </div>
