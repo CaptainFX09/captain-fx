@@ -476,3 +476,82 @@ animation:pz-pulse 1.8s ease-in-out infinite
 
 .skeleton-line.short{width:55%}
 .skeleton-line.long{width:85%}
+
+
+/* -------------------------- 29. Auth modal tabs + password strength checklist --------------------------
+   Added for the redesigned Sign in / Create account modal. Two pieces:
+     - .auth-title / .auth-tabs — shared brand heading + the two-tab
+       switcher shown above #loginForm / #signupForm. Hidden by
+       showResetPassword()/showNewPasswordForm() in mainsite.js, since
+       those flows have their own clear heading instead.
+     - .pw-rules — the live password-requirements checklist under the
+       signup password field, updated on every keystroke by
+       updatePasswordRulesUI() in mainsite.js.
+========================================================================== */
+
+h2.auth-title{
+text-align:center;
+font:24px Fraunces;
+margin-bottom:20px
+}
+
+.auth-tabs{
+display:flex;
+border-bottom:1px solid var(--line);
+margin-bottom:22px
+}
+
+.auth-tab{
+flex:1;
+background:none;
+border:0;
+padding:12px 0;
+font-size:14px;
+color:var(--muted);
+cursor:pointer;
+border-bottom:2px solid transparent;
+margin-bottom:-1px
+}
+
+.auth-tab.active{
+color:var(--text);
+border-bottom-color:var(--gold)
+}
+
+.pw-rules{
+margin-top:10px;
+display:flex;
+flex-direction:column;
+gap:6px
+}
+
+.pw-rule{
+display:flex;
+align-items:center;
+gap:8px;
+font-size:12px;
+color:var(--muted)
+}
+
+.pw-rule-dot{
+width:5px;
+height:5px;
+border-radius:50%;
+border:1px solid var(--muted);
+flex:none
+}
+
+.pw-rule.valid{
+color:var(--profit)
+}
+
+.pw-rule.valid .pw-rule-dot{
+background:var(--profit);
+border-color:var(--profit)
+}
+
+.pw-rule-count{
+margin-left:auto;
+color:var(--muted2);
+font-family:'IBM Plex Mono',monospace
+}
