@@ -1,6 +1,6 @@
 <!--/* -------------------------------------------------------
-         MAINTENANCE COMPLETE HTML
-      ------------------------------------------------------- */ -->
+     PIPZONE MAINTENANCE PAGE
+------------------------------------------------------- */-->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -173,7 +173,6 @@
     }
 
     @media (max-width: 500px) {
-
       body {
         padding: 15px;
       }
@@ -226,20 +225,14 @@
   <div class="maintenance-container">
 
     <div class="logo">
-      <h1>
-        Pip<span>ZoNe</span>
-      </h1>
+      <h1>Pip<span>ZoNe</span></h1>
     </div>
 
     <div class="maintenance-card">
 
-      <div class="icon">
-        🔧
-      </div>
+      <div class="icon">🔧</div>
 
-      <h2>
-        Website Under Maintenance
-      </h2>
+      <h2>Website Under Maintenance</h2>
 
       <p class="message">
         We're currently improving our platform to provide you
@@ -256,7 +249,6 @@
       </div>
 
       <div class="countdown">
-
         <div class="time-box">
           <strong id="hours">00</strong>
           <span>Hours</span>
@@ -271,7 +263,6 @@
           <strong id="seconds">00</strong>
           <span>Seconds</span>
         </div>
-
       </div>
 
       <div class="back-soon" id="backSoon">
@@ -291,205 +282,98 @@
 
   </div>
 
-
   <script>
-
     /* =========================================================
-       🔧 PIPZONE MAINTENANCE SETTINGS
-       =========================================================
+       PIPZONE MAINTENANCE SETTINGS
+       ========================================================= */
 
-       BAS SIRF YE TIME CHANGE KARNA HAI.
-
-       Examples:
-
-       14:00 = 2:00 PM
-       15:00 = 3:00 PM
-       16:30 = 4:30 PM
-       17:00 = 5:00 PM
-
-       Maintenance automatically 2 HOURS chalegi.
-    ========================================================= */
+    // SIRF YE TIME CHANGE KARNA HAI
+    // 14:00 = 2:00 PM
+    // 16:00 = 4:00 PM
+    // 17:30 = 5:30 PM
 
     const maintenanceStartTime = "16:00";
 
-
-    /* =========================================================
-       ⚙️ SYSTEM SETTINGS
-       ========================================================= */
-
+    // Maintenance duration
     const maintenanceDurationHours = 2;
 
-    /*
-      Pakistan Time (UTC +5)
-    */
+    /* =========================================================
+       MAINTENANCE DATE & TIME
+       ========================================================= */
 
     const now = new Date();
-
-    /*
-      Current date automatically use hogi.
-      Iska matlab har din sirf time change karna hoga.
-    */
 
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
 
-    /*
-      Maintenance start date + time
-    */
+    const maintenanceStart = new Date(
+      `${year}-${month}-${day}T${maintenanceStartTime}:00+05:00`
+    );
 
-    const maintenanceStart =
-      new Date(
-        `${year}-${month}-${day}T${maintenanceStartTime}:00+05:00`
-      );
-
-    /*
-      Maintenance end time automatically calculate
-      hoga.
-    */
-
-    const maintenanceEnd =
-      new Date(
-        maintenanceStart.getTime() +
-        maintenanceDurationHours * 60 * 60 * 1000
-      );
-
+    const maintenanceEnd = new Date(
+      maintenanceStart.getTime() +
+      maintenanceDurationHours * 60 * 60 * 1000
+    );
 
     /* =========================================================
        ELEMENTS
-    ========================================================= */
+       ========================================================= */
 
-    const hoursElement =
-      document.getElementById("hours");
-
-    const minutesElement =
-      document.getElementById("minutes");
-
-    const secondsElement =
-      document.getElementById("seconds");
-
-    const statusTextElement =
-      document.getElementById("statusText");
-
-    const backSoonElement =
-      document.getElementById("backSoon");
-
+    const hoursElement = document.getElementById("hours");
+    const minutesElement = document.getElementById("minutes");
+    const secondsElement = document.getElementById("seconds");
+    const statusTextElement = document.getElementById("statusText");
+    const backSoonElement = document.getElementById("backSoon");
 
     /* =========================================================
        COUNTDOWN
-    ========================================================= */
+       ========================================================= */
 
     function updateCountdown() {
-
       const currentTime = new Date();
 
-      let remainingSeconds =
-        Math.max(
-          0,
-          Math.floor(
-            (maintenanceEnd.getTime() -
-             currentTime.getTime()) / 1000
-          )
-        );
+      let remainingSeconds = Math.max(
+        0,
+        Math.floor(
+          (maintenanceEnd.getTime() - currentTime.getTime()) / 1000
+        )
+      );
 
+      /* Maintenance start hone se pehle */
+      if (currentTime.getTime() < maintenanceStart.getTime()) {
+        remainingSeconds = maintenanceDurationHours * 60 * 60;
 
-      /*
-        Maintenance start hone se pehle
-        countdown full 2 hours show karega.
-      */
-
-      if (
-        currentTime.getTime() <
-        maintenanceStart.getTime()
-      ) {
-
-        remainingSeconds =
-          Math.floor(
-            maintenanceDurationHours * 60 * 60
-          );
-
-        statusTextElement.textContent =
-          "Maintenance Scheduled";
-
-        backSoonElement.textContent =
-          "Maintenance will start soon.";
+        statusTextElement.textContent = "Maintenance Scheduled";
+        backSoonElement.textContent = "Maintenance will start soon.";
       }
 
+      /* Time calculation */
+      const hours = Math.floor(remainingSeconds / 3600);
+      const minutes = Math.floor((remainingSeconds % 3600) / 60);
+      const seconds = remainingSeconds % 60;
 
-      /*
-        Time calculation
-      */
+      /* Display */
+      hoursElement.textContent = String(hours).padStart(2, "0");
+      minutesElement.textContent = String(minutes).padStart(2, "0");
+      secondsElement.textContent = String(seconds).padStart(2, "0");
 
-      const hours =
-        Math.floor(
-          remainingSeconds / 3600
-        );
-
-      const minutes =
-        Math.floor(
-          (remainingSeconds % 3600) / 60
-        );
-
-      const seconds =
-        remainingSeconds % 60;
-
-
-      /*
-        Display
-      */
-
-      hoursElement.textContent =
-        String(hours).padStart(2, "0");
-
-      minutesElement.textContent =
-        String(minutes).padStart(2, "0");
-
-      secondsElement.textContent =
-        String(seconds).padStart(2, "0");
-
-
-      /*
-        Maintenance complete
-      */
-
-      if (
-        currentTime.getTime() >=
-        maintenanceEnd.getTime()
-      ) {
-
+      /* Maintenance complete */
+      if (currentTime.getTime() >= maintenanceEnd.getTime()) {
         clearInterval(countdownInterval);
 
         hoursElement.textContent = "00";
         minutesElement.textContent = "00";
         secondsElement.textContent = "00";
 
-        statusTextElement.textContent =
-          "Maintenance Completed";
-
-        backSoonElement.textContent =
-          "Maintenance time completed.";
+        statusTextElement.textContent = "Maintenance Completed";
+        backSoonElement.textContent = "Maintenance time completed.";
       }
-
     }
-
-
-    /*
-      First run
-    */
 
     updateCountdown();
 
-
-    /*
-      Update every second
-    */
-
-    const countdownInterval =
-      setInterval(
-        updateCountdown,
-        1000
-      );
-
+    const countdownInterval = setInterval(updateCountdown, 1000);
   </script>
 
 </body>
