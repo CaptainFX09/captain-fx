@@ -108,8 +108,6 @@
       box-shadow: 0 0 10px #2FBF83;
     }
 
-    /* COUNTDOWN */
-
     .countdown-title {
       margin-top: 30px;
       color: #9ba8a1;
@@ -227,16 +225,11 @@
 
   <div class="maintenance-container">
 
-    <!-- LOGO -->
-
     <div class="logo">
       <h1>
         Pip<span>ZoNe</span>
       </h1>
     </div>
-
-
-    <!-- MAINTENANCE CARD -->
 
     <div class="maintenance-card">
 
@@ -253,22 +246,16 @@
         with a better experience. Please check back shortly.
       </p>
 
-
-      <!-- STATUS -->
-
       <div class="status">
         <span class="status-dot"></span>
         <span id="statusText">Maintenance in Progress</span>
       </div>
 
-
-      <!-- COUNTDOWN TIMER -->
-
       <div class="countdown-title">
         Estimated Time Remaining
       </div>
 
-      <div class="countdown" id="countdown">
+      <div class="countdown">
 
         <div class="time-box">
           <strong id="hours">00</strong>
@@ -287,15 +274,9 @@
 
       </div>
 
-
-      <!-- BACK SOON MESSAGE -->
-
       <div class="back-soon" id="backSoon">
         We'll be back soon.
       </div>
-
-
-      <!-- SUPPORT -->
 
       <div class="support">
         If you need assistance, please contact
@@ -303,9 +284,6 @@
       </div>
 
     </div>
-
-
-    <!-- FOOTER -->
 
     <div class="footer">
       © 2026 PipZoNe. All rights reserved.
@@ -315,47 +293,71 @@
 
 
   <script>
+
     /* =========================================================
-       PIPZONE MAINTENANCE COUNTDOWN
+       🔧 PIPZONE MAINTENANCE SETTINGS
        =========================================================
 
-       IMPORTANT:
+       BAS SIRF YE TIME CHANGE KARNA HAI.
 
-       Maintenance start:
-       13 September 2026 — 2:00 PM Pakistan Time
+       Examples:
 
-       Maintenance duration:
-       2 Hours
+       14:00 = 2:00 PM
+       15:00 = 3:00 PM
+       16:30 = 4:30 PM
+       17:00 = 5:00 PM
 
-       Maintenance end:
-       13 September 2026 — 4:00 PM Pakistan Time
-
-       Pakistan timezone = UTC +5
-
-       Refresh karne par timer RESET NAHI hoga.
-
-       Sab users same fixed end time se countdown dekhenge.
+       Maintenance automatically 2 HOURS chalegi.
     ========================================================= */
 
-
-    /* ---------------------------------------------------------
-       MAINTENANCE END TIME
-       ---------------------------------------------------------
-
-       Agar maintenance 2:00 PM par start hui aur duration
-       2 hours hai, to end time 4:00 PM hoga.
-
-       Agar future mein time change karna ho to SIRF ye line
-       change karni hai.
-    --------------------------------------------------------- */
-
-    const maintenanceEndTime =
-      new Date("2026-09-13T16:00:00+05:00").getTime();
+    const maintenanceStartTime = "15:00";
 
 
-    /* ---------------------------------------------------------
+    /* =========================================================
+       ⚙️ SYSTEM SETTINGS
+       ========================================================= */
+
+    const maintenanceDurationHours = 2;
+
+    /*
+      Pakistan Time (UTC +5)
+    */
+
+    const now = new Date();
+
+    /*
+      Current date automatically use hogi.
+      Iska matlab har din sirf time change karna hoga.
+    */
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    /*
+      Maintenance start date + time
+    */
+
+    const maintenanceStart =
+      new Date(
+        `${year}-${month}-${day}T${maintenanceStartTime}:00+05:00`
+      );
+
+    /*
+      Maintenance end time automatically calculate
+      hoga.
+    */
+
+    const maintenanceEnd =
+      new Date(
+        maintenanceStart.getTime() +
+        maintenanceDurationHours * 60 * 60 * 1000
+      );
+
+
+    /* =========================================================
        ELEMENTS
-    --------------------------------------------------------- */
+    ========================================================= */
 
     const hoursElement =
       document.getElementById("hours");
@@ -366,40 +368,62 @@
     const secondsElement =
       document.getElementById("seconds");
 
-    const backSoonElement =
-      document.getElementById("backSoon");
-
     const statusTextElement =
       document.getElementById("statusText");
 
+    const backSoonElement =
+      document.getElementById("backSoon");
 
-    /* ---------------------------------------------------------
-       COUNTDOWN FUNCTION
-    --------------------------------------------------------- */
+
+    /* =========================================================
+       COUNTDOWN
+    ========================================================= */
 
     function updateCountdown() {
 
-      const currentTime = Date.now();
+      const currentTime = new Date();
+
+      let remainingSeconds =
+        Math.max(
+          0,
+          Math.floor(
+            (maintenanceEnd.getTime() -
+             currentTime.getTime()) / 1000
+          )
+        );
+
 
       /*
-        Difference between maintenance end time
-        and current real time.
+        Maintenance start hone se pehle
+        countdown full 2 hours show karega.
       */
 
-      let remainingSeconds = Math.max(
-        0,
-        Math.floor(
-          (maintenanceEndTime - currentTime) / 1000
-        )
-      );
+      if (
+        currentTime.getTime() <
+        maintenanceStart.getTime()
+      ) {
+
+        remainingSeconds =
+          Math.floor(
+            maintenanceDurationHours * 60 * 60
+          );
+
+        statusTextElement.textContent =
+          "Maintenance Scheduled";
+
+        backSoonElement.textContent =
+          "Maintenance will start soon.";
+      }
 
 
-      /* -------------------------------------------------------
-         CALCULATE HOURS / MINUTES / SECONDS
-      ------------------------------------------------------- */
+      /*
+        Time calculation
+      */
 
       const hours =
-        Math.floor(remainingSeconds / 3600);
+        Math.floor(
+          remainingSeconds / 3600
+        );
 
       const minutes =
         Math.floor(
@@ -410,9 +434,9 @@
         remainingSeconds % 60;
 
 
-      /* -------------------------------------------------------
-         DISPLAY
-      ------------------------------------------------------- */
+      /*
+        Display
+      */
 
       hoursElement.textContent =
         String(hours).padStart(2, "0");
@@ -424,11 +448,14 @@
         String(seconds).padStart(2, "0");
 
 
-      /* -------------------------------------------------------
-         MAINTENANCE COMPLETE
-      ------------------------------------------------------- */
+      /*
+        Maintenance complete
+      */
 
-      if (remainingSeconds <= 0) {
+      if (
+        currentTime.getTime() >=
+        maintenanceEnd.getTime()
+      ) {
 
         clearInterval(countdownInterval);
 
@@ -441,20 +468,27 @@
 
         backSoonElement.textContent =
           "Maintenance time completed.";
-
-        return;
       }
+
     }
 
 
-    /* ---------------------------------------------------------
-       START COUNTDOWN
-    --------------------------------------------------------- */
+    /*
+      First run
+    */
 
     updateCountdown();
 
+
+    /*
+      Update every second
+    */
+
     const countdownInterval =
-      setInterval(updateCountdown, 1000);
+      setInterval(
+        updateCountdown,
+        1000
+      );
 
   </script>
 
