@@ -390,100 +390,132 @@ $('ruleSpecial')?.classList.toggle('valid',s.special);
 }
 
 /* -------------------------- 11. Signup -------------------------- */
-async function signup(){
-clearMessages();
-if(!supabaseReady){showMsg('signupMsg','Connection is not ready. Please refresh the page and try again.');return}
-const name=$('fullName').value.trim();
-const email=$('signupEmail').value.trim();
-const phone=$('phone').value.trim();
-const wallet=$('wallet').value.trim();
-const walletBep20=$('walletBep20').value.trim();
-const pass=$('signupPassword').value;
-const confirm=$('confirmPassword').value;
-if(!name||!email||!pass){showMsg('signupMsg','Please fill Full Name, Email and Password.');return}
-if(!wallet&&!walletBep20){showMsg('signupMsg','Please provide at least one withdrawal wallet address (TRC20 or BEP20).');return}
-if(wallet&&!validWallet(wallet)){showMsg('signupMsg','Please enter a valid TRC20 wallet address starting with T, or leave it blank.');return}
-if(walletBep20&&!validBep20Wallet(walletBep20)){showMsg('signupMsg','Please enter a valid BEP20 wallet address starting with 0x, or leave it blank.');return}
-if(!validateSignupPassword(pass)){showMsg('signupMsg','Password must be 8-15 characters and include an uppercase letter, a lowercase letter, a number, and a special character.');return}
-if(pass!==confirm){showMsg('signupMsg','Passwords do not match.');return}
-const button=$('signupForm').querySelector('.form-actions .btn');
-if(button){button.disabled=true;button.textContent='Creating...'}
-try{
+/* ==========================================================================
+   START CODE — UPDATED SIGNUP FUNCTION
+   Signup now requires only Email and Password.
+   Profile details will be added later from Client Dashboard > Profile.
+   Existing client profile/database fields remain preserved.
+   ========================================================================== */
 
-/*
-HOTFIX (signup-duplicate-check-fix.sql): check phone/wallet availability
-BEFORE calling auth.signUp(). Without this, a duplicate phone or wallet
-fails the on-auth-user-created trigger, and Supabase Auth hides the real
-reason behind a generic "Database error saving new user" message. Catching
-it here means the person always sees exactly which field is the problem.
-*/
-try{
-const {data:availability,error:availError}=await supabaseClient.rpc('check_signup_availability',{
-p_phone:phone||null,
-p_wallet:wallet||null,
-p_wallet_bep20:walletBep20||null
-});
-if(availError){
-console.error('Signup availability check error:',availError);
-/* If the check itself fails (e.g. RPC not deployed yet), don't block
-   signup on it — fall through and let the normal flow continue. */
-}else if(availability){
-if(availability.phone_taken){showMsg('signupMsg','This phone number is already linked to another account. One account is allowed per phone number.');return}
-if(availability.wallet_taken){showMsg('signupMsg','This TRC20 wallet address is already linked to another account. One account is allowed per wallet.');return}
-if(availability.wallet_bep20_taken){showMsg('signupMsg','This BEP20 wallet address is already linked to another account. One account is allowed per wallet.');return}
-}
-}catch(availErr){
-console.error('Signup availability check error:',availErr);
+async function signup() {
+  clearMessages();
+
+  if (!supabaseReady) {
+    showMsg(
+      'signupMsg',
+      'Connection is not ready. Please refresh the page and try again.'
+    );
+    return;
+  }
+
+  const email = $('signupEmail')?.value.trim() || '';
+  const pass = $('signupPassword')?.value || '';
+  const confirm = $('confirmPassword')?.value || '';
+
+  if (!email || !pass) {
+    showMsg(
+      'signupMsg',
+      'Please fill Email and Password.'
+    );
+    return;
+  }
+
+  if (!validateSignupPassword(pass)) {
+    showMsg(
+      'signupMsg',
+      'Password must be 8-15 characters and include an uppercase letter, a lowercase letter, a number, and a special character.'
+    );
+    return;
+  }
+
+  if (pass !== confirm) {
+    showMsg(
+      'signupMsg',
+      'Passwords do not match.'
+    );
+    return;
+  }
+
+  const button = $('signupForm')?.querySelector('.form-actions .btn');
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Creating...';
+  }
+
+  try {
+    const manualPartnerCode =
+      $('partnerCode')?.value.trim() || '';
+
+    const referredByCode =
+      manualPartnerCode || getStoredReferralCode();
+
+    const { data, error } =
+      await supabaseClient.auth.signUp({
+        email,
+        password: pass,
+
+        options: {
+          data: {
+            referred_by_code: referredByCode || null
+          },
+
+          emailRedirectTo: window.location.origin
+        }
+      });
+
+    if (error) {
+      showMsg(
+        'signupMsg',
+        friendlySignupError(error.message)
+      );
+      return;
+    }
+
+    if (
+      data &&
+      data.user &&
+      Array.isArray(data.user.identities) &&
+      data.user.identities.length === 0
+    ) {
+      showMsg(
+        'signupMsg',
+        'An account with this email already exists. Please login instead, or use "Forgot password" if you do not remember your password.'
+      );
+      return;
+    }
+
+    if (data && data.session) {
+      closeAuth();
+      await loadDashboard();
+    } else {
+      showMsg(
+        'signupMsg',
+        'Account created. Please check your email to verify your account.',
+        false
+      );
+    }
+
+  } catch (err) {
+    console.error('Signup error:', err);
+
+    showMsg(
+      'signupMsg',
+      err?.message ||
+      'Unable to create your account. Please try again.'
+    );
+
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Create Account';
+    }
+  }
 }
 
-/* Pass along whichever referral code (?ref=CODE) was captured earlier in
-   this session, if any. A DB trigger (SQL side, next step) reads this
-   from raw_user_meta_data and sets profiles.referred_by — after
-   validating the code exists, isn't the new user's own code, and isn't
-   already set (one referrer per client, self-referral not allowed). */
-const manualPartnerCode=$('partnerCode')?.value.trim();
-const referredByCode=manualPartnerCode||getStoredReferralCode();
-const {data,error}=await supabaseClient.auth.signUp({
-email,password:pass,
-options:{data:{full_name:name,phone,wallet_address:wallet||null,wallet_address_bep20:walletBep20||null,referred_by_code:referredByCode||null},emailRedirectTo:window.location.origin}
-});
-if(error){showMsg('signupMsg',friendlySignupError(error.message));return}
-
-/*
-HOTFIX: detect an already-registered email. For security, Supabase Auth
-does not return an error for a duplicate, already-confirmed email — it
-returns a fake success response instead (to avoid leaking which emails
-are registered). The one reliable signal is an empty identities array,
-which only happens for an existing account. Without this check, the
-signup form would wrongly tell the person "check your email" even though
-no new account (and no email) was actually created.
-*/
-if(data&&data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){
-showMsg('signupMsg','An account with this email already exists. Please login instead, or use "Forgot password" if you don\'t remember your password.');
-return;
-}
-
-if(data&&data.session){
-/* If a session exists immediately (no email confirmation required),
-   also write the wallets directly to the profile row as a safety net,
-   in case the database trigger that creates the profile hasn't been
-   updated yet to copy the new BEP20 field. */
-try{
-await supabaseClient.from('profiles').update({
-  full_name:name,
-  phone:phone,
-  wallet_address:wallet||null,
-  wallet_address_bep20:walletBep20||null
-}).eq('id',data.user.id);
-}catch(profileErr){
-console.error('Profile wallet sync error:',profileErr);
-}
-closeAuth();await loadDashboard();
-}
-else showMsg('signupMsg','Account created. Please check your email to verify your account.',false);
-}catch(err){console.error(err);showMsg('signupMsg','Unable to create account right now. Please try again.')}
-finally{if(button){button.disabled=false;button.textContent='Create account'}}
-}
+/* ==========================================================================
+   END CODE — UPDATED SIGNUP FUNCTION
+   ========================================================================== */
 
 /* -------------------------- 12. Login -------------------------- */
 async function login(){
