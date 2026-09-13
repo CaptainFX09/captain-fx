@@ -1,4 +1,3 @@
-/home/claude/mainsite.css << 'CSSEOF'
 /* ==========================================================================
    MAINSITE.CSS — PipZoNe (Managed Forex & Crypto Trading)
    Table of contents:
@@ -30,8 +29,6 @@
     26. Notification bell + dropdown
     27. Referral card (locked / unlocked states)
     28. Loading skeletons (shimmer placeholders)
-    29. Auth modal tabs + password strength checklist
-    30. Complete-profile modal + dashboard reminder note
    ========================================================================== */
 
 /* -------------------------- 1. Reset & base -------------------------- */
@@ -558,18 +555,3 @@ margin-left:auto;
 color:var(--muted2);
 font-family:'IBM Plex Mono',monospace
 }
-
-/* -------------------------- 30. Complete-profile modal + dashboard reminder note --------------------------
-   #profileModal reuses .request-modal/.request-box (same look as the
-   deposit/withdrawal modals) plus its own two-column grid for paired
-   short fields (First/Last name, City/Postal code, TRC20/BEP20 wallets).
-   #profileIncompleteNote reuses the existing .dash-note styling and just
-   adds a small inline "Complete Profile" button next to the message. */
-.profile-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-@media(max-width:480px){
-.profile-modal-grid{grid-template-columns:1fr}
-}
-
-#profileIncompleteNote{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-CSSEOF
-echo "DONE $(wc -l < /home/claude/mainsite.css) lines"
