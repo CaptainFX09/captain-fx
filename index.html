@@ -484,6 +484,15 @@ For account, deposit, withdrawal, or general support questions, please use the c
 </div>
 </div>
 
+<!-- Profile-incomplete reminder — shown only while required profile fields
+     are missing (see isProfileComplete()/refreshProfileCompletionNote() in
+     mainsite.js). Clicking Deposit while incomplete opens the same
+     Complete Profile modal instead of the deposit form. -->
+<div class="dash-note" id="profileIncompleteNote" style="display:none">
+📝 Please complete your profile before making a deposit.
+<button type="button" class="btn" style="padding:6px 14px;margin-left:10px;white-space:nowrap" onclick="openProfileModal()">Complete Profile</button>
+</div>
+
 <!-- ==================== REFERRAL CARD ====================
      Two states, toggled by loadReferralInfo() in mainsite.js based on
      profiles.referral_unlocked (flips true once the client's OWN first
@@ -674,6 +683,82 @@ Your profit share can be withdrawn on demand, any time, with no minimum amount �
 
 <div class="form-actions">
 <button type="button" class="btn btn-gold" onclick="submitWithdrawal()">Submit withdrawal request</button>
+</div>
+
+</div>
+</div>
+
+<!-- ==================== COMPLETE PROFILE MODAL ====================
+     Gate shown before a deposit can be submitted (see isProfileComplete()/
+     openRequest('deposit') in mainsite.js). Not shown automatically on
+     login — only when the client tries to deposit with required fields
+     still missing, or when they click the "Complete Profile" button on
+     the dashboard reminder note. -->
+<div class="request-modal" id="profileModal">
+<div class="request-box">
+
+<button type="button" class="request-close" onclick="closeProfileModal()">×</button>
+
+<h2>Complete your profile</h2>
+<p class="auth-sub">These details are required before you can make a deposit.</p>
+
+<div class="msg" id="profileMsg"></div>
+
+<div class="profile-modal-grid">
+<div class="form-group">
+<label>First Name</label>
+<input id="profFirstName" type="text" placeholder="First name">
+</div>
+<div class="form-group">
+<label>Last Name</label>
+<input id="profLastName" type="text" placeholder="Last name">
+</div>
+</div>
+
+<div class="form-group">
+<label>Phone / WhatsApp</label>
+<input id="profPhone" type="text" autocomplete="tel" placeholder="+92 3xx xxxxxxx">
+</div>
+
+<div class="form-group">
+<label>Address</label>
+<input id="profAddress" type="text" placeholder="Street address">
+</div>
+
+<div class="profile-modal-grid">
+<div class="form-group">
+<label>City</label>
+<input id="profCity" type="text" placeholder="City">
+</div>
+<div class="form-group">
+<label>Postal Code</label>
+<input id="profPostalCode" type="text" placeholder="Postal code">
+</div>
+</div>
+
+<div class="form-group">
+<label>State</label>
+<input id="profState" type="text" placeholder="State / Province">
+</div>
+
+<div class="form-group">
+<label>Withdrawal Wallet <span style="color:var(--gold)">(at least one required)</span></label>
+<div class="note" style="margin:0 0 12px">Provide your TRC20 wallet, your BEP20 wallet, or both.</div>
+</div>
+
+<div class="profile-modal-grid">
+<div class="form-group">
+<label>TRC20 Wallet <span style="color:var(--muted2);font-weight:400">(optional)</span></label>
+<input id="profWalletTrc20" type="text" placeholder="T..." autocomplete="off">
+</div>
+<div class="form-group">
+<label>BEP20 Wallet <span style="color:var(--muted2);font-weight:400">(optional)</span></label>
+<input id="profWalletBep20" type="text" placeholder="0x..." autocomplete="off">
+</div>
+</div>
+
+<div class="form-actions">
+<button type="button" class="btn btn-gold" onclick="saveProfileDetails()" id="profileSaveBtn">Save profile</button>
 </div>
 
 </div>
