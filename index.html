@@ -1,3 +1,6 @@
+      /* -------------------------------------------------------
+         MAINTENANCE COMPLETE HTML
+      ------------------------------------------------------- */
 
 <!DOCTYPE html>
 <html lang="en">
@@ -172,6 +175,7 @@
     }
 
     @media (max-width: 500px) {
+
       body {
         padding: 15px;
       }
@@ -231,6 +235,7 @@
       </h1>
     </div>
 
+
     <!-- MAINTENANCE CARD -->
 
     <div class="maintenance-card">
@@ -248,10 +253,14 @@
         with a better experience. Please check back shortly.
       </p>
 
+
+      <!-- STATUS -->
+
       <div class="status">
         <span class="status-dot"></span>
-        Maintenance in Progress
+        <span id="statusText">Maintenance in Progress</span>
       </div>
+
 
       <!-- COUNTDOWN TIMER -->
 
@@ -262,7 +271,7 @@
       <div class="countdown" id="countdown">
 
         <div class="time-box">
-          <strong id="hours">01</strong>
+          <strong id="hours">00</strong>
           <span>Hours</span>
         </div>
 
@@ -278,9 +287,15 @@
 
       </div>
 
+
+      <!-- BACK SOON MESSAGE -->
+
       <div class="back-soon" id="backSoon">
         We'll be back soon.
       </div>
+
+
+      <!-- SUPPORT -->
 
       <div class="support">
         If you need assistance, please contact
@@ -289,57 +304,158 @@
 
     </div>
 
+
+    <!-- FOOTER -->
+
     <div class="footer">
       © 2026 PipZoNe. All rights reserved.
     </div>
 
   </div>
 
+
   <script>
-    /* =========================
-       MAINTENANCE TIME SETTING
-    ========================= */
+    /* =========================================================
+       PIPZONE MAINTENANCE COUNTDOWN
+       =========================================================
 
-    // Yahan time set karein:
-    // 15 minutes = 15 * 60
-    // 1 hour     = 60 * 60
-    // 1.5 hours  = 90 * 60
-    // 2 hours    = 2 * 60 * 60
+       IMPORTANT:
 
-    const maintenanceDuration = 2 * 60 * 60; // CURRENT: 1 HOUR
+       Maintenance start:
+       13 September 2026 — 2:00 PM Pakistan Time
 
-    let remainingSeconds = maintenanceDuration;
+       Maintenance duration:
+       2 Hours
 
-    const hoursElement = document.getElementById("hours");
-    const minutesElement = document.getElementById("minutes");
-    const secondsElement = document.getElementById("seconds");
-    const backSoonElement = document.getElementById("backSoon");
+       Maintenance end:
+       13 September 2026 — 4:00 PM Pakistan Time
+
+       Pakistan timezone = UTC +5
+
+       Refresh karne par timer RESET NAHI hoga.
+
+       Sab users same fixed end time se countdown dekhenge.
+    ========================================================= */
+
+
+    /* ---------------------------------------------------------
+       MAINTENANCE END TIME
+       ---------------------------------------------------------
+
+       Agar maintenance 2:00 PM par start hui aur duration
+       2 hours hai, to end time 4:00 PM hoga.
+
+       Agar future mein time change karna ho to SIRF ye line
+       change karni hai.
+    --------------------------------------------------------- */
+
+    const maintenanceEndTime =
+      new Date("2026-09-13T16:00:00+05:00").getTime();
+
+
+    /* ---------------------------------------------------------
+       ELEMENTS
+    --------------------------------------------------------- */
+
+    const hoursElement =
+      document.getElementById("hours");
+
+    const minutesElement =
+      document.getElementById("minutes");
+
+    const secondsElement =
+      document.getElementById("seconds");
+
+    const backSoonElement =
+      document.getElementById("backSoon");
+
+    const statusTextElement =
+      document.getElementById("statusText");
+
+
+    /* ---------------------------------------------------------
+       COUNTDOWN FUNCTION
+    --------------------------------------------------------- */
 
     function updateCountdown() {
-      const hours = Math.floor(remainingSeconds / 3600);
-      const minutes = Math.floor((remainingSeconds % 3600) / 60);
-      const seconds = remainingSeconds % 60;
 
-      hoursElement.textContent = String(hours).padStart(2, "0");
-      minutesElement.textContent = String(minutes).padStart(2, "0");
-      secondsElement.textContent = String(seconds).padStart(2, "0");
+      const currentTime = Date.now();
+
+      /*
+        Difference between maintenance end time
+        and current real time.
+      */
+
+      let remainingSeconds = Math.max(
+        0,
+        Math.floor(
+          (maintenanceEndTime - currentTime) / 1000
+        )
+      );
+
+
+      /* -------------------------------------------------------
+         CALCULATE HOURS / MINUTES / SECONDS
+      ------------------------------------------------------- */
+
+      const hours =
+        Math.floor(remainingSeconds / 3600);
+
+      const minutes =
+        Math.floor(
+          (remainingSeconds % 3600) / 60
+        );
+
+      const seconds =
+        remainingSeconds % 60;
+
+
+      /* -------------------------------------------------------
+         DISPLAY
+      ------------------------------------------------------- */
+
+      hoursElement.textContent =
+        String(hours).padStart(2, "0");
+
+      minutesElement.textContent =
+        String(minutes).padStart(2, "0");
+
+      secondsElement.textContent =
+        String(seconds).padStart(2, "0");
+
+
+      /* -------------------------------------------------------
+         MAINTENANCE COMPLETE
+      ------------------------------------------------------- */
 
       if (remainingSeconds <= 0) {
+
         clearInterval(countdownInterval);
 
         hoursElement.textContent = "00";
         minutesElement.textContent = "00";
         secondsElement.textContent = "00";
 
-        backSoonElement.textContent = "Maintenance time completed.";
-      }
+        statusTextElement.textContent =
+          "Maintenance Completed";
 
-      remainingSeconds--;
+        backSoonElement.textContent =
+          "Maintenance time completed.";
+
+        return;
+      }
     }
+
+
+    /* ---------------------------------------------------------
+       START COUNTDOWN
+    --------------------------------------------------------- */
 
     updateCountdown();
 
-    const countdownInterval = setInterval(updateCountdown, 1000);
+    const countdownInterval =
+      setInterval(updateCountdown, 1000);
+
   </script>
 
 </body>
