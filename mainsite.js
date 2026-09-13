@@ -235,12 +235,16 @@ function showSignup(){
 hideAuthForms();
 $('signupForm').style.display='block';
 clearMessages();
+showAuthTabs();
+setActiveAuthTab('signup');
 }
 
 function showLogin(){
 hideAuthForms();
 $('loginForm').style.display='block';
 clearMessages();
+showAuthTabs();
+setActiveAuthTab('login');
 }
 
 function showResetPassword(){
@@ -249,6 +253,7 @@ document.body.classList.add('modal-open');
 hideAuthForms();
 $('resetPasswordForm').style.display='block';
 clearMessages();
+hideAuthTabs();
 const loginEmail=$('loginEmail')?.value.trim();
 if(loginEmail){$('resetEmail').value=loginEmail}
 setTimeout(()=>{$('resetEmail')?.focus()},50);
@@ -260,7 +265,26 @@ document.body.classList.add('modal-open');
 hideAuthForms();
 $('newPasswordForm').style.display='block';
 clearMessages();
+hideAuthTabs();
 setTimeout(()=>{$('newPassword')?.focus()},50);
+}
+
+/* ---- Auth tabs (Sign in / Create account) ----
+   Shown above #loginForm/#signupForm, hidden for the reset/new-password
+   flows below since those have their own heading instead. */
+function showAuthTabs(){
+const t=$('authTitle'); if(t)t.style.display='block';
+const b=$('authTabs'); if(b)b.style.display='flex';
+}
+
+function hideAuthTabs(){
+const t=$('authTitle'); if(t)t.style.display='none';
+const b=$('authTabs'); if(b)b.style.display='none';
+}
+
+function setActiveAuthTab(which){
+$('authTabLogin')?.classList.toggle('active',which==='login');
+$('authTabSignup')?.classList.toggle('active',which==='signup');
 }
 
 /* -------------------------- 9. Password reset flow -------------------------- */
@@ -339,6 +363,32 @@ btn.textContent=isHidden?'🙈':'👁';
 btn.setAttribute('aria-label',isHidden?'Hide password':'Show password');
 }
 
+/* ---- Signup password strength rules (matches the live checklist under
+   the signup password field) ---- */
+function passwordRuleStatus(pw){
+return{
+len: pw.length>=8 && pw.length<=15,
+case: /[a-z]/.test(pw) && /[A-Z]/.test(pw),
+num: /[0-9]/.test(pw),
+special: /[^A-Za-z0-9]/.test(pw)
+};
+}
+
+function validateSignupPassword(pw){
+const s=passwordRuleStatus(pw);
+return s.len && s.case && s.num && s.special;
+}
+
+function updatePasswordRulesUI(pw){
+const s=passwordRuleStatus(pw);
+const countEl=$('pwCount');
+if(countEl)countEl.textContent=pw.length;
+$('ruleLen')?.classList.toggle('valid',s.len);
+$('ruleCase')?.classList.toggle('valid',s.case);
+$('ruleNum')?.classList.toggle('valid',s.num);
+$('ruleSpecial')?.classList.toggle('valid',s.special);
+}
+
 /* -------------------------- 11. Signup -------------------------- */
 async function signup(){
 clearMessages();
@@ -354,7 +404,7 @@ if(!name||!email||!pass){showMsg('signupMsg','Please fill Full Name, Email and P
 if(!wallet&&!walletBep20){showMsg('signupMsg','Please provide at least one withdrawal wallet address (TRC20 or BEP20).');return}
 if(wallet&&!validWallet(wallet)){showMsg('signupMsg','Please enter a valid TRC20 wallet address starting with T, or leave it blank.');return}
 if(walletBep20&&!validBep20Wallet(walletBep20)){showMsg('signupMsg','Please enter a valid BEP20 wallet address starting with 0x, or leave it blank.');return}
-if(pass.length<6){showMsg('signupMsg','Password must be at least 6 characters.');return}
+if(!validateSignupPassword(pass)){showMsg('signupMsg','Password must be 8-15 characters and include an uppercase letter, a lowercase letter, a number, and a special character.');return}
 if(pass!==confirm){showMsg('signupMsg','Passwords do not match.');return}
 const button=$('signupForm').querySelector('.form-actions .btn');
 if(button){button.disabled=true;button.textContent='Creating...'}
@@ -391,7 +441,8 @@ console.error('Signup availability check error:',availErr);
    from raw_user_meta_data and sets profiles.referred_by — after
    validating the code exists, isn't the new user's own code, and isn't
    already set (one referrer per client, self-referral not allowed). */
-const referredByCode=getStoredReferralCode();
+const manualPartnerCode=$('partnerCode')?.value.trim();
+const referredByCode=manualPartnerCode||getStoredReferralCode();
 const {data,error}=await supabaseClient.auth.signUp({
 email,password:pass,
 options:{data:{full_name:name,phone,wallet_address:wallet||null,wallet_address_bep20:walletBep20||null,referred_by_code:referredByCode||null},emailRedirectTo:window.location.origin}
@@ -1327,6 +1378,11 @@ const params=new URLSearchParams(window.location.search);
 const ref=params.get('ref');
 if(ref){
 sessionStorage.setItem(REFERRAL_STORAGE_KEY,ref.trim());
+/* Pre-fill the signup form's Partner code field too, so a visitor who
+   arrived via a referral link sees their code already in place instead
+   of having to type it manually. */
+const field=$('partnerCode');
+if(field&&!field.value)field.value=ref.trim();
 /* Referral code alone shouldn't be treated as an ask to log in —
    just remember it and let the visitor browse normally. */
 }
@@ -1437,6 +1493,10 @@ $('contactAttachmentName').textContent=f?f.name:'';
 });
 
 const wAmtInput=$('withdrawalAmount');
+const signupPasswordInput=$('signupPassword');
+if(signupPasswordInput)signupPasswordInput.addEventListener('input',()=>{
+updatePasswordRulesUI(signupPasswordInput.value);
+});
 if(wAmtInput)wAmtInput.addEventListener('input',updateWithdrawalCalc);
 
 document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open')));
