@@ -685,9 +685,21 @@ Your profit share can be withdrawn on demand, any time, with no minimum amount �
 
 <button class="close" onclick="closeAuth()">×</button>
 
+<!-- Shared brand heading — shown for the Sign in / Create account tabs,
+     hidden (by showResetPassword()/showNewPasswordForm() in mainsite.js)
+     for the password-reset flows, which have their own clear heading. -->
+<h2 class="auth-title" id="authTitle">Welcome to <span class="gold">PipZoNe</span></h2>
+
+<!-- Tab bar — switches between #loginForm and #signupForm without closing
+     the modal. showLogin()/showSignup() in mainsite.js toggle both the
+     active tab and the visible form together. -->
+<div class="auth-tabs" id="authTabs">
+<button type="button" class="auth-tab" id="authTabLogin" onclick="showLogin()">Sign in</button>
+<button type="button" class="auth-tab" id="authTabSignup" onclick="showSignup()">Create an account</button>
+</div>
+
 <div id="loginForm">
 
-<h2>Client login</h2>
 <p class="auth-sub">Sign in to your PipZoNe account.</p>
 
 <div class="msg" id="loginMsg"></div>
@@ -713,16 +725,10 @@ Your profit share can be withdrawn on demand, any time, with no minimum amount �
 <button type="button" class="btn btn-gold" onclick="login()">Login</button>
 </div>
 
-<div class="switch">
-Don't have an account?
-<button type="button" onclick="showSignup()">Create account</button>
-</div>
-
 </div>
 
 <div id="signupForm" style="display:none">
 
-<h2>Create account</h2>
 <p class="auth-sub">Create your client account.</p>
 
 <div class="msg" id="signupMsg"></div>
@@ -764,6 +770,16 @@ Don't have an account?
 <input id="signupPassword" type="password" autocomplete="new-password">
 <button type="button" class="pw-toggle" onclick="togglePw('signupPassword',this)" aria-label="Show password">👁</button>
 </div>
+
+<!-- Live password-strength checklist — updated on every keystroke by
+     updatePasswordRulesUI() in mainsite.js. Each rule gets a "valid"
+     class (turns its dot/text green) the instant it's satisfied. -->
+<div class="pw-rules" id="pwRules">
+<div class="pw-rule" id="ruleLen"><span class="pw-rule-dot"></span>Between 8-15 characters<span class="pw-rule-count" id="pwCount">0</span></div>
+<div class="pw-rule" id="ruleCase"><span class="pw-rule-dot"></span>At least one upper and one lower case letter</div>
+<div class="pw-rule" id="ruleNum"><span class="pw-rule-dot"></span>At least one number</div>
+<div class="pw-rule" id="ruleSpecial"><span class="pw-rule-dot"></span>At least one special character</div>
+</div>
 </div>
 
 <div class="form-group">
@@ -774,13 +790,16 @@ Don't have an account?
 </div>
 </div>
 
-<div class="form-actions">
-<button type="button" class="btn btn-gold" onclick="signup()">Create account</button>
+<!-- Partner code — manually typed here takes priority; falls back to a
+     ?ref=CODE captured earlier this session (see captureReferralCodeFromUrl
+     in mainsite.js), which also pre-fills this field when present. -->
+<div class="form-group">
+<label>Partner code <span style="color:var(--muted2);font-weight:400">(optional)</span></label>
+<input id="partnerCode" type="text" placeholder="Enter partner code" autocomplete="off">
 </div>
 
-<div class="switch">
-Already have an account?
-<button type="button" onclick="showLogin()">Client login</button>
+<div class="form-actions">
+<button type="button" class="btn btn-gold" onclick="signup()">Create account</button>
 </div>
 
 </div>
